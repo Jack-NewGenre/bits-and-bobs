@@ -13,6 +13,14 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    // The image tools render user-supplied blob/object URLs, which next/image
+    // cannot optimise; plain <img> is intentional here.
+    files: ["components/shared/**/*.tsx"],
+    rules: {
+      "@next/next/no-img-element": "off",
+    },
+  },
 ]);
 
 export default eslintConfig;
