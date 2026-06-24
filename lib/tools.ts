@@ -113,10 +113,11 @@ export const TOOLS: Tool[] = [
   {
     slug: "base64",
     name: "Base64 Encode / Decode",
-    description: "Convert text and files to and from Base64.",
+    description: "Convert text to and from Base64, with URL-safe and Unicode support.",
     category: "dev",
     icon: Binary,
-    status: "soon",
+    status: "available",
+    href: "/tools/base64",
   },
   {
     slug: "jwt-decoder",
@@ -198,7 +199,8 @@ export const TOOLS: Tool[] = [
     description: "Generate strong, random passwords.",
     category: "generators",
     icon: Fingerprint,
-    status: "soon",
+    status: "available",
+    href: "/tools/password",
   },
   {
     slug: "uuid",
@@ -206,7 +208,8 @@ export const TOOLS: Tool[] = [
     description: "Generate v4 UUIDs in bulk.",
     category: "generators",
     icon: Type,
-    status: "soon",
+    status: "available",
+    href: "/tools/uuid",
   },
   {
     slug: "lorem-ipsum",
@@ -222,7 +225,8 @@ export const TOOLS: Tool[] = [
     description: "Convert between Unix timestamps and human dates.",
     category: "generators",
     icon: Clock,
-    status: "soon",
+    status: "available",
+    href: "/tools/timestamp",
   },
 ];
 
