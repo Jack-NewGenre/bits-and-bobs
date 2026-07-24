@@ -15,6 +15,7 @@ import {
   Regex,
   Scissors,
   Shrink,
+  Spline,
   SplitSquareHorizontal,
   Type,
   Clock,
@@ -68,6 +69,16 @@ export const TOOLS: Tool[] = [
     icon: WandSparkles,
     status: "available",
     href: "/tools/image-enhancer",
+  },
+  {
+    slug: "png-to-svg",
+    name: "PNG to SVG",
+    description:
+      "Trace PNG, JPG or WebP images into scalable SVG vectors. Private, free, no uploads.",
+    category: "image",
+    icon: Spline,
+    status: "available",
+    href: "/tools/png-to-svg",
   },
   {
     slug: "image-compressor",
