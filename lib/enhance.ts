@@ -11,6 +11,12 @@
  * be unit-tested without a real canvas.
  */
 
+import {
+  canvasToBlob,
+  createCanvas2D,
+  nextTick,
+  throwIfAborted,
+} from "@/lib/canvas";
 import { clamp } from "@/lib/utils";
 import { unsharpMask } from "@/lib/unsharp";
 
@@ -166,41 +172,6 @@ const SHARPEN_GAIN = 1.8;
 /** Unsharp blur radius, scaled to the upscale factor so it stays visible. */
 function sharpenRadius(scale: number): number {
   return 0.8 + scale * 0.8;
-}
-
-function createCanvas2D(
-  width: number,
-  height: number,
-): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas 2D context unavailable");
-  return { canvas, ctx };
-}
-
-function throwIfAborted(signal?: AbortSignal): void {
-  if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
-}
-
-function nextTick(): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, 0));
-}
-
-function canvasToBlob(
-  canvas: HTMLCanvasElement,
-  type: string,
-  quality?: number,
-): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    canvas.toBlob(
-      (blob) =>
-        blob ? resolve(blob) : reject(new Error("Failed to export canvas")),
-      type,
-      quality,
-    );
-  });
 }
 
 /**

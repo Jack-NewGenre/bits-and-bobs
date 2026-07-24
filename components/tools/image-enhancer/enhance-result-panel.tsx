@@ -7,7 +7,7 @@ import { useEnhancedResult } from "@/hooks/use-enhanced-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
 import type { EnhanceSettings } from "@/lib/enhance";
 import { downloadBlob, extensionForType, withSuffix } from "@/lib/download";
-import { cn, formatBytes } from "@/lib/utils";
+import { formatBytes } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,9 +17,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { BeforeAfterSlider } from "@/components/shared/before-after-slider";
+import { ZoomControl } from "@/components/shared/zoom-control";
 import { EnhanceOptions } from "@/components/tools/image-enhancer/enhance-options";
-
-const ZOOM_LEVELS = [1, 2, 4];
 
 interface EnhanceResultPanelProps {
   item: ImageQueueItem;
@@ -64,24 +63,7 @@ export function EnhanceResultPanel({
               <span className="text-muted-foreground text-xs">
                 Drag to compare · zoom in to inspect detail
               </span>
-              <div className="flex gap-1">
-                {ZOOM_LEVELS.map((level) => (
-                  <button
-                    key={level}
-                    type="button"
-                    aria-pressed={zoom === level}
-                    onClick={() => setZoom(level)}
-                    className={cn(
-                      "rounded-md border px-2 py-0.5 text-xs font-medium transition-colors",
-                      zoom === level
-                        ? "border-primary bg-accent"
-                        : "hover:bg-accent/50",
-                    )}
-                  >
-                    {level === 1 ? "Fit" : `${level}×`}
-                  </button>
-                ))}
-              </div>
+              <ZoomControl zoom={zoom} onZoomChange={setZoom} />
             </div>
           </div>
         )}

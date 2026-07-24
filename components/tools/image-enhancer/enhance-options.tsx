@@ -5,9 +5,9 @@ import {
   type EnhanceScale,
   type EnhanceSettings,
 } from "@/lib/enhance";
-import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { PillButton } from "@/components/shared/pill-button";
+import { SliderRow } from "@/components/shared/slider-row";
 
 const SCALES: EnhanceScale[] = [1, 2, 4];
 
@@ -22,58 +22,6 @@ const SETTINGS_KEYS: (keyof EnhanceSettings)[] = [
 
 function settingsEqual(a: EnhanceSettings, b: EnhanceSettings): boolean {
   return SETTINGS_KEYS.every((key) => a[key] === b[key]);
-}
-
-interface SliderRowProps {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  onChange: (value: number) => void;
-}
-
-function SliderRow({ label, value, min, max, onChange }: SliderRowProps) {
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <Label className="text-xs">{label}</Label>
-        <span className="text-muted-foreground text-xs tabular-nums">
-          {value}
-        </span>
-      </div>
-      <Slider
-        value={[value]}
-        min={min}
-        max={max}
-        step={1}
-        onValueChange={([next]) => onChange(next)}
-        aria-label={label}
-      />
-    </div>
-  );
-}
-
-interface PillButtonProps {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  ariaPressed?: boolean;
-}
-
-function PillButton({ active, onClick, children, ariaPressed }: PillButtonProps) {
-  return (
-    <button
-      type="button"
-      aria-pressed={ariaPressed}
-      onClick={onClick}
-      className={cn(
-        "rounded-lg border p-2 text-xs font-medium transition-colors",
-        active ? "border-primary bg-accent" : "hover:bg-accent/50",
-      )}
-    >
-      {children}
-    </button>
-  );
 }
 
 interface EnhanceOptionsProps {
