@@ -65,9 +65,13 @@ function loadUpscaler(
   onProgress?: (progress: AiUpscaleProgress) => void,
 ): Promise<Upscaler> {
   return (upscalerPromise ??= (async () => {
-    const { pipeline, env } = await import("@huggingface/transformers");
+    const { pipeline, env, LogLevel } = await import(
+      "@huggingface/transformers"
+    );
     // Always fetch from the CDN; never probe this origin for model files.
     env.allowLocalModels = false;
+    // Keep the library's errors, drop its load-time chatter.
+    env.logLevel = LogLevel.ERROR;
 
     const pipe = await pipeline("image-to-image", MODEL_ID, {
       progress_callback: (info) => {

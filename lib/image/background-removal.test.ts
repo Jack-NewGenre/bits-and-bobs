@@ -32,7 +32,7 @@ const {
   const sourceImage = { width: 8, height: 8, clone: vi.fn(() => clonedImage) };
 
   return {
-    envMock: { allowLocalModels: true },
+    envMock: { allowLocalModels: true, logLevel: 30 },
     modelFn: vi.fn(async () => ({ output: outputTensor })),
     processorFn: vi.fn(async () => ({ pixel_values: {} })),
     rawImageMock: {
@@ -47,6 +47,7 @@ const {
 
 vi.mock("@huggingface/transformers", () => ({
   env: envMock,
+  LogLevel: { DEBUG: 10, INFO: 20, WARNING: 30, ERROR: 40, NONE: 50 },
   AutoModel: autoModelMock,
   AutoProcessor: autoProcessorMock,
   RawImage: rawImageMock,
@@ -62,6 +63,7 @@ const source = new Blob(["image"], { type: "image/png" });
 beforeEach(() => {
   vi.resetModules();
   envMock.allowLocalModels = true;
+  envMock.logLevel = 30;
   autoModelMock.from_pretrained.mockReset().mockResolvedValue(modelFn);
   autoProcessorMock.from_pretrained.mockReset().mockResolvedValue(processorFn);
   rawImageMock.fromBlob.mockClear();
@@ -78,6 +80,8 @@ describe("removeImageBackground", () => {
       expect.objectContaining({ dtype: "q8", device: "wasm" }),
     );
     expect(envMock.allowLocalModels).toBe(false);
+    // The "custom" model type warns twice on every load; we keep errors only.
+    expect(envMock.logLevel).toBe(40);
   });
 
   it("maps model-download progress to fetching, then ends with done", async () => {

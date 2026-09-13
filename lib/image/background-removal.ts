@@ -96,6 +96,11 @@ function loadModel(
   return (modelPromise ??= (async () => {
     // Always fetch from the CDN; never probe this origin for model files.
     tf.env.allowLocalModels = false;
+    // RMBG-1.4 is loaded deliberately as model_type "custom", which the
+    // library cannot find in its architecture map, so on every load it warns
+    // twice about falling back to EncoderOnly. That fallback is the intent
+    // here, so drop the library's warnings and keep its errors.
+    tf.env.logLevel = tf.LogLevel.ERROR;
     const device = await detectDevice();
     return tf.AutoModel.from_pretrained(MODEL_ID, {
       config: { model_type: "custom" } as PretrainedConfig,
