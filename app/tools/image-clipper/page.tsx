@@ -1,5 +1,5 @@
-import { createToolPage } from "@/components/tool-page";
-import { ImageClipperTool } from "@/components/tools/image-clipper/image-clipper-tool";
+import { createToolPage } from "@/components/organisms/tool-page";
+import { ImageClipperTool } from "@/components/organisms/tools/image-clipper/image-clipper-tool";
 
 const { metadata, Page } = createToolPage(
   "image-clipper",

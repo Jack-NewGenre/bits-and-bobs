@@ -1,5 +1,5 @@
-import { createToolPage } from "@/components/tool-page";
-import { LoremIpsumTool } from "@/components/tools/lorem-ipsum/lorem-ipsum-tool";
+import { createToolPage } from "@/components/organisms/tool-page";
+import { LoremIpsumTool } from "@/components/organisms/tools/lorem-ipsum/lorem-ipsum-tool";
 
 const { metadata, Page } = createToolPage("lorem-ipsum", <LoremIpsumTool />);
 

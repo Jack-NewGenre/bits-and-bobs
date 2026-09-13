@@ -1,5 +1,5 @@
-import { createToolPage } from "@/components/tool-page";
-import { BackgroundRemovalTool } from "@/components/tools/background-removal/background-removal-tool";
+import { createToolPage } from "@/components/organisms/tool-page";
+import { BackgroundRemovalTool } from "@/components/organisms/tools/background-removal/background-removal-tool";
 
 const { metadata, Page } = createToolPage(
   "background-removal",

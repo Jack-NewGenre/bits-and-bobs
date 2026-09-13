@@ -1,5 +1,5 @@
-import { createToolPage } from "@/components/tool-page";
-import { RegexTesterTool } from "@/components/tools/regex-tester/regex-tester-tool";
+import { createToolPage } from "@/components/organisms/tool-page";
+import { RegexTesterTool } from "@/components/organisms/tools/regex-tester/regex-tester-tool";
 
 const { metadata, Page } = createToolPage("regex-tester", <RegexTesterTool />);
 

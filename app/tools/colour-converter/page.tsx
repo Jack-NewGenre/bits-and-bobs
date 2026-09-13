@@ -1,5 +1,5 @@
-import { createToolPage } from "@/components/tool-page";
-import { ColourConverterTool } from "@/components/tools/colour-converter/colour-converter-tool";
+import { createToolPage } from "@/components/organisms/tool-page";
+import { ColourConverterTool } from "@/components/organisms/tools/colour-converter/colour-converter-tool";
 
 const { metadata, Page } = createToolPage(
   "colour-converter",

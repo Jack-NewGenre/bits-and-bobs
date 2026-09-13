@@ -28,8 +28,6 @@ const eslintConfig = defineConfig([
       "components/atoms/**/*.tsx",
       "components/molecules/**/*.tsx",
       "components/organisms/**/*.tsx",
-      "components/tools/**/*.tsx",
-      "components/shared/**/*.tsx",
     ],
     rules: {
       "@next/next/no-img-element": "off",

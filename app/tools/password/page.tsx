@@ -1,5 +1,5 @@
-import { createToolPage } from "@/components/tool-page";
-import { PasswordTool } from "@/components/tools/password/password-tool";
+import { createToolPage } from "@/components/organisms/tool-page";
+import { PasswordTool } from "@/components/organisms/tools/password/password-tool";
 
 const { metadata, Page } = createToolPage("password", <PasswordTool />);
 
