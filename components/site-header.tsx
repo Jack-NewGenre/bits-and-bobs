@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { SITE_NAME } from "@/lib/site";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeToggle } from "@/components/atoms/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 

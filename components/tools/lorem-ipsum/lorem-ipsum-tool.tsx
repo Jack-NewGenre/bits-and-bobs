@@ -16,9 +16,9 @@ import { clamp } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { CopyButton } from "@/components/shared/copy-button";
-import { PillButton } from "@/components/shared/pill-button";
-import { SliderRow } from "@/components/shared/slider-row";
+import { CopyButton } from "@/components/atoms/copy-button";
+import { PillButton } from "@/components/atoms/pill-button";
+import { SliderRow } from "@/components/atoms/slider-row";
 import { TextAreaField, TextPane } from "@/components/shared/text-tool-layout";
 
 const UNITS: { value: LoremUnit; label: string }[] = [

@@ -7,8 +7,8 @@ import {
   type OutputFormat,
 } from "@/lib/image/image-output";
 import { Label } from "@/components/ui/label";
-import { PillButton } from "@/components/shared/pill-button";
-import { SliderRow } from "@/components/shared/slider-row";
+import { PillButton } from "@/components/atoms/pill-button";
+import { SliderRow } from "@/components/atoms/slider-row";
 
 interface FormatOptionsProps {
   format: OutputFormat;

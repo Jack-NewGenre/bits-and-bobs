@@ -7,7 +7,7 @@ import type { BackgroundMode, BackgroundSettings } from "@/lib/image/composite";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { SliderRow } from "@/components/shared/slider-row";
+import { SliderRow } from "@/components/atoms/slider-row";
 
 const PRESET_COLORS = [
   "#ffffff",

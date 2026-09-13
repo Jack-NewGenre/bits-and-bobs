@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FormatOptions } from "@/components/shared/format-options";
-import { PillButton } from "@/components/shared/pill-button";
-import { SliderRow } from "@/components/shared/slider-row";
+import { PillButton } from "@/components/atoms/pill-button";
+import { SliderRow } from "@/components/atoms/slider-row";
 
 const FITS: { value: FitMode; label: string; hint: string }[] = [
   { value: "contain", label: "Contain", hint: "Fits the whole image in, leaving gaps." },

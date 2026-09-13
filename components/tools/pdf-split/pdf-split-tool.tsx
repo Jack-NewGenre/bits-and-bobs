@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageDropzone } from "@/components/shared/image-dropzone";
 import { PdfFileList } from "@/components/shared/pdf-file-list";
-import { PillButton } from "@/components/shared/pill-button";
+import { PillButton } from "@/components/atoms/pill-button";
 
 type Mode = "extract" | "remove" | "every";
 

@@ -21,7 +21,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { BeforeAfterSlider } from "@/components/shared/before-after-slider";
-import { ResultError } from "@/components/shared/result-error";
+import { ResultError } from "@/components/atoms/result-error";
 import { BackgroundOptions } from "@/components/tools/background-removal/background-options";
 
 const composite = (cutout: Blob, settings: BackgroundSettings) =>

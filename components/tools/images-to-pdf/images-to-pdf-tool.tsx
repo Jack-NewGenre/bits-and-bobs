@@ -24,9 +24,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ImageDropzone } from "@/components/shared/image-dropzone";
-import { PillButton } from "@/components/shared/pill-button";
+import { PillButton } from "@/components/atoms/pill-button";
 import { QueueList } from "@/components/shared/queue-list";
-import { SliderRow } from "@/components/shared/slider-row";
+import { SliderRow } from "@/components/atoms/slider-row";
 
 const STATUS_LABEL = {
   queued: "Queued",

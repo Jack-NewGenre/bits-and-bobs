@@ -12,8 +12,8 @@ import {
 } from "@/lib/text/json-format";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { CopyButton } from "@/components/shared/copy-button";
-import { PillButton } from "@/components/shared/pill-button";
+import { CopyButton } from "@/components/atoms/copy-button";
+import { PillButton } from "@/components/atoms/pill-button";
 import {
   TextAreaField,
   TextPane,

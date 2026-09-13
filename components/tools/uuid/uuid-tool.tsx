@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CopyButton } from "@/components/shared/copy-button";
+import { CopyButton } from "@/components/atoms/copy-button";
 
 /** Stable, so the seed runs exactly once. */
 const seedUuids = () => generateUuids(DEFAULT_UUID_OPTIONS);

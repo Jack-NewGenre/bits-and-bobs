@@ -20,11 +20,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ColourSwatch } from "@/components/shared/colour-swatch";
-import { CopyButton } from "@/components/shared/copy-button";
-import { PreviewImage } from "@/components/shared/preview-image";
-import { ResultError } from "@/components/shared/result-error";
-import { SliderRow } from "@/components/shared/slider-row";
+import { ColourSwatch } from "@/components/atoms/colour-swatch";
+import { CopyButton } from "@/components/atoms/copy-button";
+import { PreviewImage } from "@/components/atoms/preview-image";
+import { ResultError } from "@/components/atoms/result-error";
+import { SliderRow } from "@/components/atoms/slider-row";
 
 const extract = (
   file: File,

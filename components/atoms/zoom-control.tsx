@@ -1,6 +1,6 @@
 "use client";
 
-import { PillButton } from "@/components/shared/pill-button";
+import { PillButton } from "@/components/atoms/pill-button";
 
 const ZOOM_LEVELS = [1, 2, 4] as const;
 

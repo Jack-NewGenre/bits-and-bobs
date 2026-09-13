@@ -14,7 +14,7 @@ import {
 import { bestTextOn, contrastRatio } from "@/lib/colour/colour-contrast";
 import { Card, CardContent } from "@/components/ui/card";
 import { ColourInput } from "@/components/shared/colour-input";
-import { CopyButton } from "@/components/shared/copy-button";
+import { CopyButton } from "@/components/atoms/copy-button";
 
 const INITIAL: Rgb = { r: 59, g: 130, b: 246, a: 1 };
 

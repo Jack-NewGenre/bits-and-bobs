@@ -9,8 +9,8 @@ import {
   type VectorizeSettings,
 } from "@/lib/image/vectorize";
 import { Label } from "@/components/ui/label";
-import { PillButton } from "@/components/shared/pill-button";
-import { SliderRow } from "@/components/shared/slider-row";
+import { PillButton } from "@/components/atoms/pill-button";
+import { SliderRow } from "@/components/atoms/slider-row";
 
 const MODES: { id: VectorizeMode; label: string }[] = [
   { id: "color", label: "Colour" },

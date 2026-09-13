@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { CopyButton } from "@/components/shared/copy-button";
+import { CopyButton } from "@/components/atoms/copy-button";
 
 export function Base64Tool() {
   const [mode, setMode] = useState<Base64Mode>("encode");

@@ -26,8 +26,8 @@ import {
 } from "@/components/ui/card";
 import { BeforeAfterSlider } from "@/components/shared/before-after-slider";
 import { FileSummary } from "@/components/shared/file-summary";
-import { ResultError } from "@/components/shared/result-error";
-import { ZoomControl } from "@/components/shared/zoom-control";
+import { ResultError } from "@/components/atoms/result-error";
+import { ZoomControl } from "@/components/atoms/zoom-control";
 import { EnhanceOptions } from "@/components/tools/image-enhancer/enhance-options";
 
 /** Longest edge of the quick stand-in shown while the full pass runs. */

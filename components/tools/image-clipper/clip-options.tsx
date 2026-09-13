@@ -5,7 +5,7 @@ import {
   MAX_THRESHOLD,
   type TrimSettings,
 } from "@/lib/image/trim";
-import { SliderRow } from "@/components/shared/slider-row";
+import { SliderRow } from "@/components/atoms/slider-row";
 
 interface ClipOptionsProps {
   settings: TrimSettings;

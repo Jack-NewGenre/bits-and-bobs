@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { ColourSwatch } from "@/components/shared/colour-swatch";
+import { ColourSwatch } from "@/components/atoms/colour-swatch";
 
 const YELLOW = { r: 250, g: 204, b: 21, a: 1 };
 const NAVY = { r: 30, g: 41, b: 59, a: 1 };

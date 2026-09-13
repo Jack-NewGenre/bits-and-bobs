@@ -8,8 +8,8 @@ import {
   type QrSettings,
 } from "@/lib/generators/qr";
 import { Label } from "@/components/ui/label";
-import { PillButton } from "@/components/shared/pill-button";
-import { SliderRow } from "@/components/shared/slider-row";
+import { PillButton } from "@/components/atoms/pill-button";
+import { SliderRow } from "@/components/atoms/slider-row";
 
 const SIZES = [256, 512, 1024] as const;
 

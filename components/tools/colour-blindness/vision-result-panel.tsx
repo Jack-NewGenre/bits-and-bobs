@@ -22,8 +22,8 @@ import {
 } from "@/components/ui/card";
 import { BeforeAfterSlider } from "@/components/shared/before-after-slider";
 import { FileSummary } from "@/components/shared/file-summary";
-import { ResultError } from "@/components/shared/result-error";
-import { ZoomControl } from "@/components/shared/zoom-control";
+import { ResultError } from "@/components/atoms/result-error";
+import { ZoomControl } from "@/components/atoms/zoom-control";
 import { VisionOptions } from "@/components/tools/colour-blindness/vision-options";
 
 /** Settings here are a single choice, wrapped so the shared hook can hold it. */

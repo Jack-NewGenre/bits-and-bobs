@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { CopyButton } from "@/components/shared/copy-button";
+import { CopyButton } from "@/components/atoms/copy-button";
 
 const TOGGLES: { key: keyof PasswordOptions; label: string }[] = [
   { key: "uppercase", label: "A-Z" },

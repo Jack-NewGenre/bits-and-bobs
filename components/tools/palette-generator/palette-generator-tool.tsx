@@ -12,9 +12,9 @@ import { buildHarmony, HARMONIES, type Harmony } from "@/lib/colour/colour-harmo
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ColourInput } from "@/components/shared/colour-input";
-import { ColourSwatch } from "@/components/shared/colour-swatch";
-import { CopyButton } from "@/components/shared/copy-button";
-import { PillButton } from "@/components/shared/pill-button";
+import { ColourSwatch } from "@/components/atoms/colour-swatch";
+import { CopyButton } from "@/components/atoms/copy-button";
+import { PillButton } from "@/components/atoms/pill-button";
 
 const INITIAL: Rgb = { r: 59, g: 130, b: 246, a: 1 };
 

@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/card";
 import { BeforeAfterSlider } from "@/components/shared/before-after-slider";
 import { FileSummary } from "@/components/shared/file-summary";
-import { ResultError } from "@/components/shared/result-error";
+import { ResultError } from "@/components/atoms/result-error";
 import { resolveFormat } from "@/lib/image/image-output";
 
 const transform = (

@@ -24,9 +24,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { BeforeAfterSlider } from "@/components/shared/before-after-slider";
-import { CopyButton } from "@/components/shared/copy-button";
-import { ResultError } from "@/components/shared/result-error";
-import { ZoomControl } from "@/components/shared/zoom-control";
+import { CopyButton } from "@/components/atoms/copy-button";
+import { ResultError } from "@/components/atoms/result-error";
+import { ZoomControl } from "@/components/atoms/zoom-control";
 import { VectorizeOptions } from "@/components/tools/png-to-svg/vectorize-options";
 
 /** Longest edge of the coarse trace shown while the full one runs. */
