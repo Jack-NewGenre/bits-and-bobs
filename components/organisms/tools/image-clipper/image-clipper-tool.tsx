@@ -12,7 +12,7 @@ import { ImageToolShell } from "@/components/organisms/image-tool-shell";
 import { ClipResultPanel } from "@/components/organisms/tools/image-clipper/clip-result-panel";
 
 // Stable processor: the queue's first pass uses a plain edge-to-edge trim;
-// the result panel re-clips live as the user adjusts the settings.
+// the result panel re-clips live as the user adjusts the queue.settings.
 const clipWithDefaults = (
   file: File,
   onProgress: (progress: { fraction: number }) => void,
@@ -23,21 +23,7 @@ const clipWithDefaults = (
 };
 
 export function ImageClipperTool() {
-  const {
-    items,
-    addFiles,
-    removeItem,
-    retryItem,
-    clear,
-    setPinnedId,
-    settings,
-    setSettings,
-    statusLabel,
-    doneItems,
-    selectedItem,
-    handleReject,
-    handleDownloadAll,
-  } = useImageToolQueue<TrimSettings, TrimResult>({
+  const queue = useImageToolQueue<TrimSettings, TrimResult>({
     processor: clipWithDefaults,
     defaultSettings: DEFAULT_TRIM_SETTINGS,
     processingLabel: "Clipping…",
@@ -53,27 +39,17 @@ export function ImageClipperTool() {
 
   return (
     <ImageToolShell
-      items={items}
-      statusLabel={statusLabel}
-      selectedId={selectedItem?.id}
-      onSelect={setPinnedId}
-      onRemove={removeItem}
-      onRetry={retryItem}
-      onFiles={addFiles}
-      onReject={handleReject}
-      onClear={clear}
+      queue={queue}
       dropzoneHint="PNG, JPG or WebP · up to 25MB · cropped on your device"
-      doneCount={doneItems.length}
-      onDownloadAll={handleDownloadAll}
       emptyStateLabel="Clipping… results will appear here."
       transparentThumbnails
       resultPanel={
-        selectedItem && (
+        queue.selectedItem && (
           <ClipResultPanel
-            key={selectedItem.id}
-            item={selectedItem}
-            settings={settings}
-            onSettingsChange={setSettings}
+            key={queue.selectedItem.id}
+            item={queue.selectedItem}
+            settings={queue.settings}
+            onSettingsChange={queue.setSettings}
           />
         )
       }

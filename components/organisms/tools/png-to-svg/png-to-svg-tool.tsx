@@ -12,7 +12,7 @@ import { ImageToolShell } from "@/components/organisms/image-tool-shell";
 import { VectorizeResultPanel } from "@/components/organisms/tools/png-to-svg/vectorize-result-panel";
 
 // Stable processor: the queue's first pass uses balanced defaults; the result
-// panel reuses that pass until the user tweaks the settings.
+// panel reuses that pass until the user tweaks the queue.settings.
 const traceWithDefaults = (
   file: File,
   onProgress: (progress: { fraction: number }) => void,
@@ -24,21 +24,7 @@ const traceWithDefaults = (
   });
 
 export function PngToSvgTool() {
-  const {
-    items,
-    addFiles,
-    removeItem,
-    retryItem,
-    clear,
-    setPinnedId,
-    settings,
-    setSettings,
-    statusLabel,
-    doneItems,
-    selectedItem,
-    handleReject,
-    handleDownloadAll,
-  } = useImageToolQueue<VectorizeSettings, VectorizeResult>({
+  const queue = useImageToolQueue<VectorizeSettings, VectorizeResult>({
     processor: traceWithDefaults,
     defaultSettings: DEFAULT_VECTORIZE_SETTINGS,
     processingLabel: "Tracing…",
@@ -54,26 +40,16 @@ export function PngToSvgTool() {
 
   return (
     <ImageToolShell
-      items={items}
-      statusLabel={statusLabel}
-      selectedId={selectedItem?.id}
-      onSelect={setPinnedId}
-      onRemove={removeItem}
-      onRetry={retryItem}
-      onFiles={addFiles}
-      onReject={handleReject}
-      onClear={clear}
+      queue={queue}
       dropzoneHint="PNG, JPG or WebP · up to 25MB · traced to SVG on your device"
-      doneCount={doneItems.length}
-      onDownloadAll={handleDownloadAll}
       emptyStateLabel="Tracing… results will appear here."
       resultPanel={
-        selectedItem && (
+        queue.selectedItem && (
           <VectorizeResultPanel
-            key={selectedItem.id}
-            item={selectedItem}
-            settings={settings}
-            onSettingsChange={setSettings}
+            key={queue.selectedItem.id}
+            item={queue.selectedItem}
+            settings={queue.settings}
+            onSettingsChange={queue.setSettings}
           />
         )
       }

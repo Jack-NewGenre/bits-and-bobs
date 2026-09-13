@@ -9,11 +9,9 @@ import type {
 } from "@/hooks/use-image-queue";
 import { Button } from "@/components/ui/button";
 import { ImageDropzone } from "@/components/molecules/image-dropzone";
-import {
-  type RejectedFile,
-} from "@/lib/image/file-intake";
 import { QueueList, type QueueListItem } from "@/components/molecules/queue-list";
 import { ListHeader } from "@/components/molecules/list-header";
+import type { ImageToolQueue } from "@/hooks/use-image-tool-queue";
 
 function toListItem(
   item: ImageQueueItem<QueueOutput>,
@@ -32,19 +30,10 @@ function toListItem(
   };
 }
 
-interface ImageToolShellProps {
-  items: ImageQueueItem<QueueOutput>[];
-  statusLabel: Record<ImageQueueStatus, string>;
-  selectedId?: string;
-  onSelect: (id: string) => void;
-  onRemove: (id: string) => void;
-  onRetry: (id: string) => void;
-  onFiles: (files: File[]) => void;
-  onReject: (rejected: RejectedFile[]) => void;
-  onClear: () => void;
+interface ImageToolShellProps<TSettings, TResult extends QueueOutput> {
+  /** The whole queue from useImageToolQueue: the shell wires itself up. */
+  queue: ImageToolQueue<TSettings, TResult>;
   dropzoneHint: string;
-  doneCount: number;
-  onDownloadAll: () => void;
   /** Shown in the results pane when no item is selected yet. */
   emptyStateLabel: string;
   /** The tool-specific result panel for the selected item, if any. */
@@ -58,26 +47,30 @@ interface ImageToolShellProps {
  * a "download all" action, and a results pane for the selected item. Each
  * tool supplies its own dropzone copy, status labels, and result panel.
  */
-export function ImageToolShell({
-  items,
-  statusLabel,
-  selectedId,
-  onSelect,
-  onRemove,
-  onRetry,
-  onFiles,
-  onReject,
-  onClear,
+export function ImageToolShell<TSettings, TResult extends QueueOutput>({
+  queue,
   dropzoneHint,
-  doneCount,
-  onDownloadAll,
   emptyStateLabel,
   resultPanel,
   transparentThumbnails,
-}: ImageToolShellProps) {
+}: ImageToolShellProps<TSettings, TResult>) {
+  const {
+    items,
+    statusLabel,
+    selectedItem,
+    setPinnedId,
+    removeItem,
+    retryItem,
+    addFiles,
+    clear,
+    doneItems,
+    handleReject,
+    handleDownloadAll,
+  } = queue;
+
   return (
     <div className="space-y-6">
-      <ImageDropzone onFiles={onFiles} onReject={onReject} hint={dropzoneHint} />
+      <ImageDropzone onFiles={addFiles} onReject={handleReject} hint={dropzoneHint} />
 
       {items.length > 0 && (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
@@ -85,29 +78,29 @@ export function ImageToolShell({
             <ListHeader
               title="Queue"
               count={items.length}
-              onClear={onClear}
+              onClear={clear}
               showIcon
             />
 
             <QueueList
-              items={items.map((item) =>
+              items={items.map((item: ImageQueueItem<QueueOutput>) =>
                 toListItem(item, statusLabel, transparentThumbnails),
               )}
-              selectedId={selectedId}
-              onSelect={onSelect}
-              onRemove={onRemove}
-              onRetry={onRetry}
+              selectedId={selectedItem?.id}
+              onSelect={setPinnedId}
+              onRemove={removeItem}
+              onRetry={retryItem}
             />
 
-            {doneCount > 1 && (
+            {doneItems.length > 1 && (
               <Button
                 type="button"
                 variant="outline"
-                onClick={onDownloadAll}
+                onClick={handleDownloadAll}
                 className="w-full"
               >
                 <DownloadCloud className="size-4" />
-                Download all ({doneCount})
+                Download all ({doneItems.length})
               </Button>
             )}
           </div>

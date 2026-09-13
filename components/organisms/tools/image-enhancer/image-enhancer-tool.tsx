@@ -12,7 +12,7 @@ import { ImageToolShell } from "@/components/organisms/image-tool-shell";
 import { EnhanceResultPanel } from "@/components/organisms/tools/image-enhancer/enhance-result-panel";
 
 // Stable processor: the queue's first pass uses balanced defaults; the result
-// panel reuses that pass until the user tweaks the settings.
+// panel reuses that pass until the user tweaks the queue.settings.
 const enhanceWithDefaults = (
   file: File,
   onProgress: (progress: { fraction: number }) => void,
@@ -24,21 +24,7 @@ const enhanceWithDefaults = (
   });
 
 export function ImageEnhancerTool() {
-  const {
-    items,
-    addFiles,
-    removeItem,
-    retryItem,
-    clear,
-    setPinnedId,
-    settings,
-    setSettings,
-    statusLabel,
-    doneItems,
-    selectedItem,
-    handleReject,
-    handleDownloadAll,
-  } = useImageToolQueue<EnhanceSettings, EnhanceResult>({
+  const queue = useImageToolQueue<EnhanceSettings, EnhanceResult>({
     processor: enhanceWithDefaults,
     defaultSettings: DEFAULT_ENHANCE_SETTINGS,
     processingLabel: "Enhancing…",
@@ -54,26 +40,16 @@ export function ImageEnhancerTool() {
 
   return (
     <ImageToolShell
-      items={items}
-      statusLabel={statusLabel}
-      selectedId={selectedItem?.id}
-      onSelect={setPinnedId}
-      onRemove={removeItem}
-      onRetry={retryItem}
-      onFiles={addFiles}
-      onReject={handleReject}
-      onClear={clear}
+      queue={queue}
       dropzoneHint="PNG, JPG or WebP · up to 25MB · upscaled & sharpened on your device"
-      doneCount={doneItems.length}
-      onDownloadAll={handleDownloadAll}
       emptyStateLabel="Enhancing… results will appear here."
       resultPanel={
-        selectedItem && (
+        queue.selectedItem && (
           <EnhanceResultPanel
-            key={selectedItem.id}
-            item={selectedItem}
-            settings={settings}
-            onSettingsChange={setSettings}
+            key={queue.selectedItem.id}
+            item={queue.selectedItem}
+            settings={queue.settings}
+            onSettingsChange={queue.setSettings}
           />
         )
       }

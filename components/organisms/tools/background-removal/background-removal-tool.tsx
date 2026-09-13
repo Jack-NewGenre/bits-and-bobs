@@ -33,21 +33,7 @@ const removeBackground = (
   });
 
 export function BackgroundRemovalTool() {
-  const {
-    items,
-    addFiles,
-    removeItem,
-    retryItem,
-    clear,
-    setPinnedId,
-    settings,
-    setSettings,
-    statusLabel,
-    doneItems,
-    selectedItem,
-    handleReject,
-    handleDownloadAll,
-  } = useImageToolQueue<BackgroundSettings, CutoutResult>({
+  const queue = useImageToolQueue<BackgroundSettings, CutoutResult>({
     processor: removeBackground,
     defaultSettings: DEFAULT_BACKGROUND_SETTINGS,
     processingLabel: "Removing background…",
@@ -66,37 +52,27 @@ export function BackgroundRemovalTool() {
     },
   });
 
-  // Own the background image object URL's lifecycle here, where settings
+  // Own the background image object URL's lifecycle here, where queue.settings
   // outlive the result panel: revoke it when it's replaced or on unmount.
   useEffect(() => {
-    const url = settings.imageUrl;
+    const url = queue.settings.imageUrl;
     if (!url) return;
     return () => URL.revokeObjectURL(url);
-  }, [settings.imageUrl]);
+  }, [queue.settings.imageUrl]);
 
   return (
     <ImageToolShell
-      items={items}
-      statusLabel={statusLabel}
-      selectedId={selectedItem?.id}
-      onSelect={setPinnedId}
-      onRemove={removeItem}
-      onRetry={retryItem}
-      onFiles={addFiles}
-      onReject={handleReject}
-      onClear={clear}
+      queue={queue}
       dropzoneHint="PNG, JPG or WebP · up to 25MB · removed on your device"
-      doneCount={doneItems.length}
-      onDownloadAll={handleDownloadAll}
       emptyStateLabel="Processing… results will appear here."
       transparentThumbnails
       resultPanel={
-        selectedItem && (
+        queue.selectedItem && (
           <ResultPanel
-            key={selectedItem.id}
-            item={selectedItem}
-            settings={settings}
-            onSettingsChange={setSettings}
+            key={queue.selectedItem.id}
+            item={queue.selectedItem}
+            settings={queue.settings}
+            onSettingsChange={queue.setSettings}
           />
         )
       }

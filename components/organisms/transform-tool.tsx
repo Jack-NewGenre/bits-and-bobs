@@ -13,7 +13,7 @@ import { transformedName } from "@/lib/image/transform-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
 
 interface TransformToolProps {
-  /** Starting settings; also what the queue's first pass runs with. */
+  /** Starting queue.settings; also what the queue's first pass runs with. */
   defaultSettings: TransformSettings;
   /** Verb shown in the queue and toasts, e.g. "Compressing". */
   verb: string;
@@ -22,7 +22,7 @@ interface TransformToolProps {
   zipFilename: string;
   dropzoneHint: string;
   showSaving?: boolean;
-  /** The tool's own controls, given the live settings. */
+  /** The tool's own controls, given the live queue.settings. */
   renderOptions: (
     settings: TransformSettings,
     onChange: (settings: TransformSettings) => void,
@@ -51,21 +51,7 @@ export function TransformTool({
     signal: AbortSignal,
   ) => transformInWorker(file, defaultSettings, { onProgress, signal });
 
-  const {
-    items,
-    addFiles,
-    removeItem,
-    retryItem,
-    clear,
-    setPinnedId,
-    settings,
-    setSettings,
-    statusLabel,
-    doneItems,
-    selectedItem,
-    handleReject,
-    handleDownloadAll,
-  } = useImageToolQueue<TransformSettings, TransformResult>({
+  const queue = useImageToolQueue<TransformSettings, TransformResult>({
     processor,
     defaultSettings,
     processingLabel: `${verb}…`,
@@ -81,32 +67,22 @@ export function TransformTool({
 
   return (
     <ImageToolShell
-      items={items}
-      statusLabel={statusLabel}
-      selectedId={selectedItem?.id}
-      onSelect={setPinnedId}
-      onRemove={removeItem}
-      onRetry={retryItem}
-      onFiles={addFiles}
-      onReject={handleReject}
-      onClear={clear}
+      queue={queue}
       dropzoneHint={dropzoneHint}
-      doneCount={doneItems.length}
-      onDownloadAll={handleDownloadAll}
       emptyStateLabel={`${verb}… results will appear here.`}
       transparentThumbnails
       resultPanel={
-        selectedItem && (
+        queue.selectedItem && (
           <TransformResultPanel
-            key={selectedItem.id}
-            item={selectedItem}
-            settings={settings}
+            key={queue.selectedItem.id}
+            item={queue.selectedItem}
+            settings={queue.settings}
             defaultSettings={defaultSettings}
             suffix={suffix}
             showSaving={showSaving}
-            onSettingsChange={setSettings}
+            onSettingsChange={queue.setSettings}
           >
-            {renderOptions(settings, setSettings, selectedItem)}
+            {renderOptions(queue.settings, queue.setSettings, queue.selectedItem)}
           </TransformResultPanel>
         )
       }

@@ -48,6 +48,10 @@ export interface UseImageToolQueueOptions<
  * flow that re-processes every finished item into a zip. Each tool supplies
  * its own processor, settings shape, and per-item download logic.
  */
+export type ImageToolQueue<TSettings, TResult extends QueueOutput> = ReturnType<
+  typeof useImageToolQueue<TSettings, TResult>
+>;
+
 export function useImageToolQueue<TSettings, TResult extends QueueOutput>({
   processor,
   defaultSettings,

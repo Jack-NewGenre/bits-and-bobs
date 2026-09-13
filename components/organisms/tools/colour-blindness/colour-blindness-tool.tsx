@@ -25,21 +25,7 @@ const simulateWithDefault = (
 };
 
 export function ColourBlindnessTool() {
-  const {
-    items,
-    addFiles,
-    removeItem,
-    retryItem,
-    clear,
-    setPinnedId,
-    settings,
-    setSettings,
-    statusLabel,
-    doneItems,
-    selectedItem,
-    handleReject,
-    handleDownloadAll,
-  } = useImageToolQueue<VisionSettings, SimulateResult>({
+  const queue = useImageToolQueue<VisionSettings, SimulateResult>({
     processor: simulateWithDefault,
     defaultSettings: DEFAULT_VISION_SETTINGS,
     processingLabel: "Simulating…",
@@ -55,26 +41,16 @@ export function ColourBlindnessTool() {
 
   return (
     <ImageToolShell
-      items={items}
-      statusLabel={statusLabel}
-      selectedId={selectedItem?.id}
-      onSelect={setPinnedId}
-      onRemove={removeItem}
-      onRetry={retryItem}
-      onFiles={addFiles}
-      onReject={handleReject}
-      onClear={clear}
+      queue={queue}
       dropzoneHint="PNG, JPG or WebP · up to 25MB · simulated on your device"
-      doneCount={doneItems.length}
-      onDownloadAll={handleDownloadAll}
       emptyStateLabel="Simulating… results will appear here."
       resultPanel={
-        selectedItem && (
+        queue.selectedItem && (
           <VisionResultPanel
-            key={selectedItem.id}
-            item={selectedItem}
-            settings={settings}
-            onSettingsChange={setSettings}
+            key={queue.selectedItem.id}
+            item={queue.selectedItem}
+            settings={queue.settings}
+            onSettingsChange={queue.setSettings}
           />
         )
       }
