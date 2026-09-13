@@ -6,11 +6,12 @@ import { useLiveResult } from "@/hooks/use-live-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
 import {
   simulateImage,
-  visionMode,
+  simulatedName,
   type SimulateResult,
   type VisionType,
+  visionMode,
 } from "@/lib/colour/colour-blindness";
-import { downloadBlob, withSuffix } from "@/lib/download";
+import { downloadBlob } from "@/lib/download";
 import { DownloadButton } from "@/components/atoms/download-button";
 import { ResultPanelShell } from "@/components/organisms/result-panel-shell";
 import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
@@ -31,10 +32,6 @@ const simulate = (
   settings: VisionSettings,
   { signal }: { signal: AbortSignal },
 ) => simulateImage(file, settings.vision, { signal });
-
-export function simulatedName(name: string, vision: VisionType): string {
-  return withSuffix(name, `-${vision}`, "png");
-}
 
 interface VisionResultPanelProps {
   item: ImageQueueItem<SimulateResult>;

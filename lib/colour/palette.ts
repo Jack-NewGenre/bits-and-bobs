@@ -10,6 +10,7 @@
 import { canvasToBlob, createCanvas2D, throwIfAborted } from "@/lib/image/canvas";
 import { collectPixels, quantise, type PaletteEntry } from "@/lib/image/quantise";
 import { clamp } from "@/lib/utils";
+import { formatOklch } from "@/lib/colour/colour-format";
 
 export const MIN_SWATCHES = 2;
 export const MAX_SWATCHES = 16;
@@ -98,4 +99,13 @@ export async function extractPalette(
 
   const blob = await canvasToBlob(drawBands(entries), "image/png");
   return { entries, blob };
+}
+
+/** A Tailwind v4 `@theme` block naming each swatch by its rank. */
+export function toThemeBlock(entries: PaletteEntry[]): string {
+  const lines = entries.map(
+    (entry, index) =>
+      `  --color-swatch-${index + 1}: ${formatOklch(entry.colour)};`,
+  );
+  return `@theme {\n${lines.join("\n")}\n}`;
 }

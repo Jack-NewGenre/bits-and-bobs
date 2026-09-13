@@ -2,14 +2,8 @@
 
 import { useState } from "react";
 
-import {
-  type Rgb,
-} from "@/lib/colour/colour";
-import {
-  formatHex,
-  formatOklch,
-} from "@/lib/colour/colour-format";
-import { buildShades } from "@/lib/colour/colour-harmony";
+import { type Rgb } from "@/lib/colour/colour";
+import { buildShades, toHexList, toThemeBlock } from "@/lib/colour/colour-harmony";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ColourInput } from "@/components/molecules/colour-input";
@@ -21,29 +15,6 @@ import { Input } from "@/components/ui/input";
 const INITIAL: Rgb = { r: 59, g: 130, b: 246, a: 1 };
 
 type Syntax = "css" | "hex";
-
-/** A Tailwind v4 `@theme` block, which is how v4 expects custom colours. */
-function toThemeBlock(name: string, shades: ReturnType<typeof buildShades>) {
-  const safeName =
-    name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9-]+/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "") || "brand";
-  const lines = shades.map(
-    (shade) => `  --color-${safeName}-${shade.step}: ${formatOklch(shade.colour)};`,
-  );
-  return `@theme {\n${lines.join("\n")}\n}`;
-}
-
-function toHexList(name: string, shades: ReturnType<typeof buildShades>) {
-  const safeName = name.trim() || "brand";
-  const lines = shades.map(
-    (shade) => `  ${shade.step}: "${formatHex(shade.colour)}",`,
-  );
-  return `${safeName}: {\n${lines.join("\n")}\n}`;
-}
 
 export function TailwindShadesTool() {
   const [colour, setColour] = useState<Rgb>(INITIAL);

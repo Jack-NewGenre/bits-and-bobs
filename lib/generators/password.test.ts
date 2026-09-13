@@ -5,6 +5,7 @@ import {
   DEFAULT_PASSWORD_OPTIONS,
   estimateStrength,
   generatePassword,
+  generateSafely,
   MAX_LENGTH,
   MIN_LENGTH,
   type PasswordOptions,
@@ -77,5 +78,30 @@ describe("estimateStrength", () => {
 
   it("rates a short numeric pin as weak", () => {
     expect(estimateStrength({ ...ONLY_NUMBERS, length: 4 }).label).toBe("weak");
+  });
+});
+
+describe("generateSafely", () => {
+  it("returns a password and no error for usable options", () => {
+    const { password, error } = generateSafely({
+      ...DEFAULT_PASSWORD_OPTIONS,
+      length: 20,
+    });
+
+    expect(password).toHaveLength(20);
+    expect(error).toBeUndefined();
+  });
+
+  it("turns the empty-charset throw into an error to render", () => {
+    const { password, error } = generateSafely({
+      ...DEFAULT_PASSWORD_OPTIONS,
+      lowercase: false,
+      uppercase: false,
+      numbers: false,
+      symbols: false,
+    });
+
+    expect(password).toBe("");
+    expect(error).toBeTruthy();
   });
 });

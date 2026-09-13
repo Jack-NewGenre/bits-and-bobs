@@ -13,7 +13,7 @@ import {
 } from "@/lib/image/vectorize";
 import { vectorizeInWorker } from "@/lib/workers/image-worker-client";
 import { downloadBlob } from "@/lib/download";
-import { formatBytes, shallowEqual } from "@/lib/utils";
+import { formatBytes, percentSmaller, shallowEqual } from "@/lib/utils";
 import { DownloadButton } from "@/components/atoms/download-button";
 import { ResultPanelShell } from "@/components/organisms/result-panel-shell";
 import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
@@ -38,11 +38,6 @@ const tracePreview = (
 ) => vectorizeInWorker(file, settings, { signal, maxDim: PREVIEW_MAX_DIM });
 
 /** Whole-percent size reduction the optimiser achieved. */
-function percentSaved(before: number, after: number): number {
-  if (before <= 0) return 0;
-  return Math.max(0, Math.round((1 - after / before) * 100));
-}
-
 interface VectorizeResultPanelProps {
   item: ImageQueueItem<VectorizeResult>;
   settings: VectorizeSettings;
@@ -125,7 +120,10 @@ export function VectorizeResultPanel({
               <>
                 Output: SVG · {countSvgPaths(finalResult.svg)} paths ·{" "}
                 {formatBytes(finalResult.blob.size)} ·{" "}
-                {percentSaved(finalResult.rawBytes, finalResult.blob.size)}%
+                {percentSmaller(finalResult.rawBytes, finalResult.blob.size, {
+                  clampToZero: true,
+                })}
+                %
                 smaller after optimising
               </>
             ) : (

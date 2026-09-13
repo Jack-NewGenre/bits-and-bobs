@@ -5,10 +5,10 @@ import { RefreshCw } from "lucide-react";
 
 import {
   DEFAULT_PASSWORD_OPTIONS,
-  estimateStrength,
-  generatePassword,
   MAX_LENGTH,
   MIN_LENGTH,
+  estimateStrength,
+  generateSafely,
   type PasswordOptions,
   type PasswordStrength,
 } from "@/lib/generators/password";
@@ -35,20 +35,8 @@ const STRENGTH_STYLE: Record<PasswordStrength, { label: string; bar: string; wid
   excellent: { label: "Excellent", bar: "bg-emerald-500", width: "w-full" },
 };
 
-/** Generate a password, capturing the "no charset selected" error as state. */
-function generate(options: PasswordOptions): { password: string; error?: string } {
-  try {
-    return { password: generatePassword(options), error: undefined };
-  } catch (err) {
-    return {
-      password: "",
-      error: err instanceof Error ? err.message : "Could not generate",
-    };
-  }
-}
-
 /** Stable, so the seed runs exactly once. */
-const seedPassword = () => generate(DEFAULT_PASSWORD_OPTIONS);
+const seedPassword = () => generateSafely(DEFAULT_PASSWORD_OPTIONS);
 
 export function PasswordTool() {
   const [options, setOptions] = useState<PasswordOptions>(DEFAULT_PASSWORD_OPTIONS);
@@ -63,10 +51,10 @@ export function PasswordTool() {
   // Apply an options change and regenerate from the new options in one go.
   const apply = (next: PasswordOptions) => {
     setOptions(next);
-    setResult(generate(next));
+    setResult(generateSafely(next));
   };
 
-  const regenerate = () => setResult(generate(options));
+  const regenerate = () => setResult(generateSafely(options));
 
   const setLength = (length: number) =>
     apply({ ...options, length: clamp(length, MIN_LENGTH, MAX_LENGTH) });

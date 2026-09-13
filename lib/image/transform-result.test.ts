@@ -1,26 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  percentSmaller,
   shouldSuggestWebp,
   transformedName,
 } from "@/lib/image/transform-result";
-
-describe("percentSmaller", () => {
-  it("reports a saving as a positive percentage", () => {
-    expect(percentSmaller(1000, 250)).toBe(75);
-    expect(percentSmaller(1000, 900)).toBe(10);
-  });
-
-  it("reports growth as a negative percentage", () => {
-    expect(percentSmaller(1000, 1500)).toBe(-50);
-  });
-
-  it("is zero for no change, and for an empty input", () => {
-    expect(percentSmaller(1000, 1000)).toBe(0);
-    expect(percentSmaller(0, 500)).toBe(0);
-  });
-});
 
 describe("transformedName", () => {
   it("follows the format the blob actually encoded to", () => {

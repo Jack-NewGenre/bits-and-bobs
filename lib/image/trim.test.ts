@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { findContentBounds, padBounds } from "@/lib/image/trim";
+import {
+  areaSaved,
+  findContentBounds, padBounds,
+  type TrimResult,
+} from "@/lib/image/trim";
 
 /**
  * Build an RGBA buffer from a grid of alpha values, so each test reads as a
@@ -130,5 +134,31 @@ describe("padBounds", () => {
   it("is a no-op for zero or negative padding", () => {
     expect(padBounds(bounds, 0, 20, 20)).toEqual(bounds);
     expect(padBounds(bounds, -5, 20, 20)).toEqual(bounds);
+  });
+});
+
+describe("areaSaved", () => {
+  it("reports how much of the original area the crop removed", () => {
+    expect(
+      areaSaved({
+        ...({} as TrimResult),
+        sourceWidth: 100,
+        sourceHeight: 100,
+        width: 50,
+        height: 50,
+      }),
+    ).toBe(75);
+  });
+
+  it("never reports a negative saving", () => {
+    expect(
+      areaSaved({
+        ...({} as TrimResult),
+        sourceWidth: 10,
+        sourceHeight: 10,
+        width: 20,
+        height: 20,
+      }),
+    ).toBe(0);
   });
 });

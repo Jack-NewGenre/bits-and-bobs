@@ -15,6 +15,7 @@ import {
   throwIfAborted,
 } from "@/lib/image/canvas";
 import { clamp } from "@/lib/utils";
+import { percentSmaller } from "@/lib/utils";
 
 export interface TrimSettings {
   /**
@@ -192,4 +193,13 @@ export async function trimImage(
     trimmed: bounds.width !== sourceWidth || bounds.height !== sourceHeight,
     isEmpty: false,
   };
+}
+
+/** Percentage of the original area a crop removed. */
+export function areaSaved(result: TrimResult): number {
+  return percentSmaller(
+    result.sourceWidth * result.sourceHeight,
+    result.width * result.height,
+    { clampToZero: true },
+  );
 }

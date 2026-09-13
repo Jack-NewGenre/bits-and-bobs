@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { clamp, formatBytes, shallowEqual } from "@/lib/utils";
+import { clamp, formatBytes, percentSmaller, shallowEqual } from "@/lib/utils";
 
 describe("clamp", () => {
   it("constrains to the inclusive range", () => {
@@ -33,5 +33,28 @@ describe("shallowEqual", () => {
     expect(
       shallowEqual<Record<string, unknown>>({ a: 1 }, { a: 1, b: undefined }),
     ).toBe(false);
+  });
+});
+
+describe("percentSmaller", () => {
+  it("reports a saving as a positive percentage", () => {
+    expect(percentSmaller(1000, 250)).toBe(75);
+    expect(percentSmaller(1000, 900)).toBe(10);
+  });
+
+  it("reports growth as a negative percentage", () => {
+    expect(percentSmaller(1000, 1500)).toBe(-50);
+  });
+
+  it("is zero for no change, and for an empty input", () => {
+    expect(percentSmaller(1000, 1000)).toBe(0);
+    expect(percentSmaller(0, 500)).toBe(0);
+  });
+});
+
+describe("percentSmaller clamped", () => {
+  it("floors a size increase at zero when asked", () => {
+    expect(percentSmaller(1000, 1500, { clampToZero: true })).toBe(0);
+    expect(percentSmaller(1000, 250, { clampToZero: true })).toBe(75);
   });
 });

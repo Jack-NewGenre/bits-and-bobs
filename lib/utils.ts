@@ -30,3 +30,18 @@ export function shallowEqual<T extends object>(a: T, b: T): boolean {
   if (keys.length !== Object.keys(b).length) return false
   return keys.every((key) => a[key] === b[key])
 }
+
+/**
+ * Whole-percent change in size. Negative means it grew, unless `clampToZero`
+ * is set, which is what a tool wants when "it got bigger" is not a meaningful
+ * thing to show.
+ */
+export function percentSmaller(
+  before: number,
+  after: number,
+  { clampToZero = false }: { clampToZero?: boolean } = {},
+): number {
+  if (before <= 0) return 0;
+  const percent = Math.round((1 - after / before) * 100);
+  return clampToZero ? Math.max(0, percent) : percent;
+}

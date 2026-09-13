@@ -2,16 +2,16 @@
 
 import { useLiveResult } from "@/hooks/use-live-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
-import { formatHex, formatOklch } from "@/lib/colour/colour-format";
+import { formatHex } from "@/lib/colour/colour-format";
 import {
   DEFAULT_PALETTE_SETTINGS,
-  extractPalette,
   MAX_SWATCHES,
   MIN_SWATCHES,
+  extractPalette,
+  toThemeBlock,
   type PaletteResult,
   type PaletteSettings,
 } from "@/lib/colour/palette";
-import type { PaletteEntry } from "@/lib/image/quantise";
 import { shallowEqual } from "@/lib/utils";
 import { ColourSwatch } from "@/components/atoms/colour-swatch";
 import { CopyButton } from "@/components/atoms/copy-button";
@@ -25,15 +25,6 @@ const extract = (
   settings: PaletteSettings,
   { signal }: { signal: AbortSignal },
 ) => extractPalette(file, settings, { signal });
-
-/** A Tailwind v4 `@theme` block naming each swatch by its rank. */
-export function toThemeBlock(entries: PaletteEntry[]): string {
-  const lines = entries.map(
-    (entry, index) =>
-      `  --color-swatch-${index + 1}: ${formatOklch(entry.colour)};`,
-  );
-  return `@theme {\n${lines.join("\n")}\n}`;
-}
 
 interface PaletteResultPanelProps {
   item: ImageQueueItem<PaletteResult>;

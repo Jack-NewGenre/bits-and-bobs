@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { toThemeBlock } from "@/components/organisms/tools/palette-extractor/palette-result-panel";
+import { toThemeBlock } from "@/lib/colour/palette";
 
 const entries = [
   { colour: { r: 255, g: 0, b: 0, a: 1 }, share: 0.6 },

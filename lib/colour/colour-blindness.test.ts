@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  VISION_MODES,
   simulateColour,
   simulatePixels,
-  VISION_MODES,
+  simulatedName,
   visionMode,
 } from "@/lib/colour/colour-blindness";
 
@@ -101,5 +102,13 @@ describe("simulatePixels", () => {
   it("writes in place and returns the same buffer", () => {
     const data = new Uint8ClampedArray([255, 0, 0, 255]);
     expect(simulatePixels(data, matrixFor("protanopia"))).toBe(data);
+  });
+});
+
+describe("simulatedName", () => {
+  it("tags the filename with the vision type and forces PNG", () => {
+    expect(simulatedName("photo.jpg", "protanopia")).toBe(
+      "photo-protanopia.png",
+    );
   });
 });

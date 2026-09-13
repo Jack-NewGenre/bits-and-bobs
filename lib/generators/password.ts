@@ -100,3 +100,24 @@ export function estimateStrength(options: PasswordOptions): {
 
   return { bits, label };
 }
+
+export interface SafePassword {
+  password: string;
+  error?: string;
+}
+
+/**
+ * Generate a password, turning the "no character set selected" throw into a
+ * value the UI can render. The throw is right for a caller that controls its
+ * options; a live form cannot promise that.
+ */
+export function generateSafely(options: PasswordOptions): SafePassword {
+  try {
+    return { password: generatePassword(options), error: undefined };
+  } catch (err) {
+    return {
+      password: "",
+      error: err instanceof Error ? err.message : "Could not generate",
+    };
+  }
+}

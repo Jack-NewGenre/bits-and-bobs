@@ -29,9 +29,3 @@ export function shouldSuggestWebp(
 ): boolean {
   return saving < 0 && resolveFormat(format, sourceType) !== "image/webp";
 }
-
-/** Whole-percent change in file size. Negative means it grew. */
-export function percentSmaller(before: number, after: number): number {
-  if (before <= 0) return 0;
-  return Math.round((1 - after / before) * 100);
-}

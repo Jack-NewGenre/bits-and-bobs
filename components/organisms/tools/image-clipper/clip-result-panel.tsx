@@ -5,6 +5,7 @@ import { useLiveResult } from "@/hooks/use-live-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
 import {
   DEFAULT_TRIM_SETTINGS,
+  areaSaved,
   trimImage,
   type TrimResult,
   type TrimSettings,
@@ -23,13 +24,6 @@ const clip = (
   settings: TrimSettings,
   { signal }: { signal: AbortSignal },
 ) => trimImage(file, settings, { signal });
-
-/** Percentage of the original area the crop removed. */
-function areaSaved(result: TrimResult): number {
-  const before = result.sourceWidth * result.sourceHeight;
-  if (before <= 0) return 0;
-  return Math.max(0, Math.round((1 - (result.width * result.height) / before) * 100));
-}
 
 interface ClipResultPanelProps {
   item: ImageQueueItem<TrimResult>;

@@ -20,6 +20,7 @@ import {
 } from "@/lib/image/canvas";
 import { linearToSrgb, srgbToLinear, type Rgb } from "@/lib/colour/colour";
 import { clamp } from "@/lib/utils";
+import { withSuffix } from "@/lib/download";
 
 export type VisionType =
   | "normal"
@@ -183,4 +184,9 @@ export async function simulateImage(
   }
 
   return { blob: await canvasToBlob(canvas, "image/png"), width, height };
+}
+
+/** Filename for a simulated image, tagged with the vision type it shows. */
+export function simulatedName(name: string, vision: VisionType): string {
+  return withSuffix(name, `-${vision}`, "png");
 }

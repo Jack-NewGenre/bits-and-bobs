@@ -1,11 +1,14 @@
 "use client";
 
 import { useImageToolQueue } from "@/hooks/use-image-tool-queue";
-import { simulateImage, type SimulateResult } from "@/lib/colour/colour-blindness";
+import {
+  simulateImage,
+  simulatedName,
+  type SimulateResult,
+} from "@/lib/colour/colour-blindness";
 import { ImageToolShell } from "@/components/organisms/image-tool-shell";
 import {
   DEFAULT_VISION_SETTINGS,
-  simulatedName,
   VisionResultPanel,
   type VisionSettings,
 } from "@/components/organisms/tools/colour-blindness/vision-result-panel";

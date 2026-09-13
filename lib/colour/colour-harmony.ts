@@ -9,6 +9,7 @@
 
 import { oklchToRgbInGamut, rgbToOklch, type Rgb } from "@/lib/colour/colour";
 import { clamp } from "@/lib/utils";
+import { formatHex, formatOklch } from "@/lib/colour/colour-format";
 
 export type HarmonyId =
   | "complementary"
@@ -138,4 +139,27 @@ export function buildShades(base: Rgb): Shade[] {
     }),
     isBase: step === nearest,
   }));
+}
+
+/** A Tailwind v4 `@theme` block, which is how v4 expects custom colours. */
+export function toThemeBlock(name: string, shades: Shade[]) {
+  const safeName =
+    name
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "") || "brand";
+  const lines = shades.map(
+    (shade) => `  --color-${safeName}-${shade.step}: ${formatOklch(shade.colour)};`,
+  );
+  return `@theme {\n${lines.join("\n")}\n}`;
+}
+
+export function toHexList(name: string, shades: Shade[]) {
+  const safeName = name.trim() || "brand";
+  const lines = shades.map(
+    (shade) => `  ${shade.step}: "${formatHex(shade.colour)}",`,
+  );
+  return `${safeName}: {\n${lines.join("\n")}\n}`;
 }
