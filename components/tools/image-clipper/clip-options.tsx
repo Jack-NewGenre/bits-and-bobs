@@ -4,7 +4,7 @@ import {
   MAX_PADDING,
   MAX_THRESHOLD,
   type TrimSettings,
-} from "@/lib/trim";
+} from "@/lib/image/trim";
 import { SliderRow } from "@/components/shared/slider-row";
 
 interface ClipOptionsProps {

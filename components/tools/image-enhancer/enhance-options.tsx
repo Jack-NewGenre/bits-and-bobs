@@ -4,9 +4,9 @@ import {
   type EnhanceEngine,
   type EnhanceScale,
   type EnhanceSettings,
-} from "@/lib/enhance";
+} from "@/lib/image/enhance";
 
-import { ENHANCE_PRESETS } from "@/lib/enhance-presets";
+import { ENHANCE_PRESETS } from "@/lib/image/enhance-presets";
 import { Label } from "@/components/ui/label";
 import { FormatOptions } from "@/components/shared/format-options";
 import { PillButton } from "@/components/shared/pill-button";

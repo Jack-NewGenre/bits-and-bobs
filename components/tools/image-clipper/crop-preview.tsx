@@ -1,6 +1,6 @@
 "use client";
 
-import type { TrimResult } from "@/lib/trim";
+import type { TrimResult } from "@/lib/image/trim";
 import { cn } from "@/lib/utils";
 
 interface CropPreviewProps {

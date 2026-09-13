@@ -14,7 +14,7 @@
  * Deliberately tiny and dependency-free, so it costs almost nothing to load.
  */
 
-import { replaceAll, runRegex, type RegexResult, type ReplaceResult } from "@/lib/regex";
+import { replaceAll, runRegex, type RegexResult, type ReplaceResult } from "@/lib/text/regex";
 
 export interface TextWorkerRequest {
   id: number;

@@ -5,7 +5,7 @@ import {
   transformImage,
   type TransformResult,
   type TransformSettings,
-} from "@/lib/transform";
+} from "@/lib/image/transform";
 import { transformInWorker } from "@/lib/workers/image-worker-client";
 import { ImageToolShell } from "@/components/shared/image-tool-shell";
 import {

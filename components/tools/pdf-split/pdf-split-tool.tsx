@@ -5,12 +5,12 @@ import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { baseName, usePdfFiles } from "@/hooks/use-pdf-files";
-import { extractPages, splitToPages } from "@/lib/pdf-edit";
+import { extractPages, splitToPages } from "@/lib/pdf/pdf-edit";
 import {
   formatPageRanges,
   invertSelection,
   parsePageRanges,
-} from "@/lib/pdf-pages";
+} from "@/lib/pdf/pdf-pages";
 import { downloadBlob, downloadZip } from "@/lib/download";
 import {
   MAX_PDF_BYTES,

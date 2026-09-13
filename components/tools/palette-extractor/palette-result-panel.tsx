@@ -2,7 +2,7 @@
 
 import { useLiveResult } from "@/hooks/use-live-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
-import { formatHex, formatOklch } from "@/lib/colour-format";
+import { formatHex, formatOklch } from "@/lib/colour/colour-format";
 import {
   DEFAULT_PALETTE_SETTINGS,
   extractPalette,
@@ -10,8 +10,8 @@ import {
   MIN_SWATCHES,
   type PaletteResult,
   type PaletteSettings,
-} from "@/lib/palette";
-import type { PaletteEntry } from "@/lib/quantise";
+} from "@/lib/colour/palette";
+import type { PaletteEntry } from "@/lib/image/quantise";
 import { shallowEqual } from "@/lib/utils";
 import {
   Card,

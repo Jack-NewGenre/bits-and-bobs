@@ -5,8 +5,8 @@ import {
   enhancedFileName,
   type EnhanceResult,
   type EnhanceSettings,
-} from "@/lib/enhance";
-import { DEFAULT_ENHANCE_SETTINGS } from "@/lib/enhance-presets";
+} from "@/lib/image/enhance";
+import { DEFAULT_ENHANCE_SETTINGS } from "@/lib/image/enhance-presets";
 import { enhanceInWorker } from "@/lib/workers/image-worker-client";
 import { ImageToolShell } from "@/components/shared/image-tool-shell";
 import { EnhanceResultPanel } from "@/components/tools/image-enhancer/enhance-result-panel";

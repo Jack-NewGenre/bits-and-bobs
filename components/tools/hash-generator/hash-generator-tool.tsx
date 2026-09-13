@@ -11,7 +11,7 @@ import {
   HASH_ALGORITHMS,
   type HashAlgorithm,
   type HashResult,
-} from "@/lib/hash";
+} from "@/lib/text/hash";
 import { formatBytes } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

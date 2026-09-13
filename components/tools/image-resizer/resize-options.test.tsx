@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { DEFAULT_TRANSFORM_SETTINGS } from "@/lib/transform";
+import { DEFAULT_TRANSFORM_SETTINGS } from "@/lib/image/transform";
 import { ResizeOptions } from "@/components/tools/image-resizer/resize-options";
 
 function renderOptions(overrides = {}) {

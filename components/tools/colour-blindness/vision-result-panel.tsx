@@ -10,7 +10,7 @@ import {
   visionMode,
   type SimulateResult,
   type VisionType,
-} from "@/lib/colour-blindness";
+} from "@/lib/colour/colour-blindness";
 import { downloadBlob, withSuffix } from "@/lib/download";
 import { Button } from "@/components/ui/button";
 import {

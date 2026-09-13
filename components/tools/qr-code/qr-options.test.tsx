@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { DEFAULT_QR_SETTINGS } from "@/lib/qr";
+import { DEFAULT_QR_SETTINGS } from "@/lib/generators/qr";
 import { QrOptions } from "@/components/tools/qr-code/qr-options";
 
 function renderOptions(overrides = {}) {

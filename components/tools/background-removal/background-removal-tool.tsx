@@ -6,12 +6,12 @@ import { useImageToolQueue } from "@/hooks/use-image-tool-queue";
 import {
   removeImageBackground,
   type CutoutResult,
-} from "@/lib/background-removal";
+} from "@/lib/image/background-removal";
 import {
   compositeWithSettings,
   DEFAULT_BACKGROUND_SETTINGS,
   type BackgroundSettings,
-} from "@/lib/composite";
+} from "@/lib/image/composite";
 import { toPngName } from "@/lib/download";
 import { ImageToolShell } from "@/components/shared/image-tool-shell";
 import { ResultPanel } from "@/components/tools/background-removal/result-panel";

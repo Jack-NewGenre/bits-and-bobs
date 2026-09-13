@@ -11,7 +11,7 @@ import {
   MAX_COUNT,
   type LoremSettings,
   type LoremUnit,
-} from "@/lib/lorem";
+} from "@/lib/generators/lorem";
 import { clamp } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { Crop, ImagePlus, Palette, Square } from "lucide-react";
 
-import type { BackgroundMode, BackgroundSettings } from "@/lib/composite";
+import type { BackgroundMode, BackgroundSettings } from "@/lib/image/composite";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";

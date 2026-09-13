@@ -11,7 +11,7 @@ import {
   svgFileName,
   type VectorizeResult,
   type VectorizeSettings,
-} from "@/lib/vectorize";
+} from "@/lib/image/vectorize";
 import { vectorizeInWorker } from "@/lib/workers/image-worker-client";
 import { downloadBlob } from "@/lib/download";
 import { formatBytes, shallowEqual } from "@/lib/utils";

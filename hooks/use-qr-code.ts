@@ -6,7 +6,7 @@ import {
   buildMatrix,
   matrixToSvg,
   type QrSettings,
-} from "@/lib/qr";
+} from "@/lib/generators/qr";
 
 export interface QrCode {
   svg?: string;

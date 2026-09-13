@@ -1,13 +1,13 @@
 "use client";
 
 import { useImageToolQueue } from "@/hooks/use-image-tool-queue";
-import { formatHex } from "@/lib/colour-format";
+import { formatHex } from "@/lib/colour/colour-format";
 import {
   DEFAULT_PALETTE_SETTINGS,
   extractPalette,
   type PaletteResult,
   type PaletteSettings,
-} from "@/lib/palette";
+} from "@/lib/colour/palette";
 import { withSuffix } from "@/lib/download";
 import { ImageToolShell } from "@/components/shared/image-tool-shell";
 import { PaletteResultPanel } from "@/components/tools/palette-extractor/palette-result-panel";

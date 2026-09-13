@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { ArrowDownUp } from "lucide-react";
 
-import { convertBase64, type Base64Mode } from "@/lib/base64";
+import { convertBase64, type Base64Mode } from "@/lib/text/base64";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";

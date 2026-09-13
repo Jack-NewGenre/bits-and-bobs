@@ -5,11 +5,11 @@ import { Check } from "lucide-react";
 import { useCopy } from "@/hooks/use-copy";
 import {
   type Rgb,
-} from "@/lib/colour";
+} from "@/lib/colour/colour";
 import {
   formatHex,
-} from "@/lib/colour-format";
-import { bestTextOn } from "@/lib/colour-contrast";
+} from "@/lib/colour/colour-format";
+import { bestTextOn } from "@/lib/colour/colour-contrast";
 import { cn } from "@/lib/utils";
 
 interface ColourSwatchProps {

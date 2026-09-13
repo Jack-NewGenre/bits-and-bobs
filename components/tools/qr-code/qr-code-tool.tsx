@@ -10,7 +10,7 @@ import {
   DEFAULT_QR_SETTINGS,
   svgToPng,
   type QrSettings,
-} from "@/lib/qr";
+} from "@/lib/generators/qr";
 import { downloadBlob } from "@/lib/download";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

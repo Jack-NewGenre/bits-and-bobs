@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { TriangleAlert } from "lucide-react";
 
-import { FLAGS, toSegments } from "@/lib/regex";
+import { FLAGS, toSegments } from "@/lib/text/regex";
 import {
   RegexTimeout,
   runRegexSafely,

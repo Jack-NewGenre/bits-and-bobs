@@ -4,11 +4,11 @@ import { useState } from "react";
 
 import {
   type Rgb,
-} from "@/lib/colour";
+} from "@/lib/colour/colour";
 import {
   formatHex,
   parseColour,
-} from "@/lib/colour-format";
+} from "@/lib/colour/colour-format";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 

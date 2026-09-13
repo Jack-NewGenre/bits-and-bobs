@@ -10,10 +10,10 @@ import {
   enhancedFileName,
   type EnhanceResult,
   type EnhanceSettings,
-} from "@/lib/enhance";
-import { DEFAULT_ENHANCE_SETTINGS } from "@/lib/enhance-presets";
+} from "@/lib/image/enhance";
+import { DEFAULT_ENHANCE_SETTINGS } from "@/lib/image/enhance-presets";
 import { enhanceInWorker } from "@/lib/workers/image-worker-client";
-import { AI_SCALE, aiUpscale, canUseAi, isModelLoaded } from "@/lib/ai-upscale";
+import { AI_SCALE, aiUpscale, canUseAi, isModelLoaded } from "@/lib/image/ai-upscale";
 import { downloadBlob } from "@/lib/download";
 import { shallowEqual } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useImageToolQueue } from "@/hooks/use-image-tool-queue";
-import { simulateImage, type SimulateResult } from "@/lib/colour-blindness";
+import { simulateImage, type SimulateResult } from "@/lib/colour/colour-blindness";
 import { ImageToolShell } from "@/components/shared/image-tool-shell";
 import {
   DEFAULT_VISION_SETTINGS,

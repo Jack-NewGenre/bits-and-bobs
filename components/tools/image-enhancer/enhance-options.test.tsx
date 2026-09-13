@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import {
   DEFAULT_ENHANCE_SETTINGS,
   ENHANCE_PRESETS,
-} from "@/lib/enhance-presets";
+} from "@/lib/image/enhance-presets";
 import { EnhanceOptions } from "@/components/tools/image-enhancer/enhance-options";
 
 describe("EnhanceOptions", () => {

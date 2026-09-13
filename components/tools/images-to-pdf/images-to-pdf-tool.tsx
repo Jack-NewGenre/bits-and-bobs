@@ -17,8 +17,8 @@ import {
   type ImagesToPdfSettings,
   type Orientation,
   type PageSizeId,
-} from "@/lib/pdf-edit";
-import { DEFAULT_TRANSFORM_SETTINGS, transformImage } from "@/lib/transform";
+} from "@/lib/pdf/pdf-edit";
+import { DEFAULT_TRANSFORM_SETTINGS, transformImage } from "@/lib/image/transform";
 import { downloadBlob } from "@/lib/download";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

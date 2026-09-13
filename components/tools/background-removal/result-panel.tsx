@@ -4,12 +4,12 @@ import { Download, Loader2 } from "lucide-react";
 
 import { useLiveResult } from "@/hooks/use-live-result";
 import type { DoneQueueItem } from "@/hooks/use-image-queue";
-import type { CutoutResult } from "@/lib/background-removal";
+import type { CutoutResult } from "@/lib/image/background-removal";
 import {
   compositeWithSettings,
   DEFAULT_BACKGROUND_SETTINGS,
   type BackgroundSettings,
-} from "@/lib/composite";
+} from "@/lib/image/composite";
 import { downloadBlob, toPngName } from "@/lib/download";
 import { formatBytes } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

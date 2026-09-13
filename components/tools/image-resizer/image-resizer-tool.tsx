@@ -1,6 +1,6 @@
 "use client";
 
-import { DEFAULT_TRANSFORM_SETTINGS } from "@/lib/transform";
+import { DEFAULT_TRANSFORM_SETTINGS } from "@/lib/image/transform";
 import { TransformTool } from "@/components/shared/transform-tool";
 import { ResizeOptions } from "@/components/tools/image-resizer/resize-options";
 

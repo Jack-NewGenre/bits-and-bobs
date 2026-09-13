@@ -4,14 +4,14 @@ import { useState } from "react";
 
 import {
   type Rgb,
-} from "@/lib/colour";
+} from "@/lib/colour/colour";
 import {
   formatHex,
   formatHsl,
   formatOklch,
   formatRgb,
-} from "@/lib/colour-format";
-import { bestTextOn, contrastRatio } from "@/lib/colour-contrast";
+} from "@/lib/colour/colour-format";
+import { bestTextOn, contrastRatio } from "@/lib/colour/colour-contrast";
 import { Card, CardContent } from "@/components/ui/card";
 import { ColourInput } from "@/components/shared/colour-input";
 import { CopyButton } from "@/components/shared/copy-button";

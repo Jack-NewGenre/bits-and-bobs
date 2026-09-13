@@ -9,17 +9,17 @@
  * functions run inline instead, so the tools always work.
  */
 
-import { enhanceImage, type EnhanceResult, type EnhanceSettings } from "@/lib/enhance";
+import { enhanceImage, type EnhanceResult, type EnhanceSettings } from "@/lib/image/enhance";
 import {
   transformImage,
   type TransformResult,
   type TransformSettings,
-} from "@/lib/transform";
+} from "@/lib/image/transform";
 import {
   vectorizeImage,
   type VectorizeResult,
   type VectorizeSettings,
-} from "@/lib/vectorize";
+} from "@/lib/image/vectorize";
 import type {
   JobKind,
   JobResultByKind,

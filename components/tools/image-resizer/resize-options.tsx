@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Link, Unlink } from "lucide-react";
 
-import { computeBox, type FitMode, type TransformSettings } from "@/lib/transform";
+import { computeBox, type FitMode, type TransformSettings } from "@/lib/image/transform";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

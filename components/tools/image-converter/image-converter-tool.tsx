@@ -3,7 +3,7 @@
 import {
   DEFAULT_TRANSFORM_SETTINGS,
   type TransformSettings,
-} from "@/lib/transform";
+} from "@/lib/image/transform";
 import { FormatOptions } from "@/components/shared/format-options";
 import { TransformTool } from "@/components/shared/transform-tool";
 

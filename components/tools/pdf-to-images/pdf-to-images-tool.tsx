@@ -5,8 +5,8 @@ import { Download, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { baseName, usePdfFiles } from "@/hooks/use-pdf-files";
-import { renderPages } from "@/lib/pdf";
-import { formatPageRanges, parsePageRanges } from "@/lib/pdf-pages";
+import { renderPages } from "@/lib/pdf/pdf";
+import { formatPageRanges, parsePageRanges } from "@/lib/pdf/pdf-pages";
 import { downloadBlob, downloadZip } from "@/lib/download";
 import {
   MAX_PDF_BYTES,

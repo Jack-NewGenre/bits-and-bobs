@@ -9,7 +9,7 @@ import {
   trimImage,
   type TrimResult,
   type TrimSettings,
-} from "@/lib/trim";
+} from "@/lib/image/trim";
 import { downloadBlob, toPngName } from "@/lib/download";
 import { shallowEqual } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

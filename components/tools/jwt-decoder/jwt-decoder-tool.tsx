@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Check, TriangleAlert } from "lucide-react";
 
-import { decodeJwt } from "@/lib/jwt";
+import { decodeJwt } from "@/lib/text/jwt";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";

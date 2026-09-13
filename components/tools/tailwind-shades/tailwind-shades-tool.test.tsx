@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { SHADE_STEPS } from "@/lib/colour-harmony";
+import { SHADE_STEPS } from "@/lib/colour/colour-harmony";
 import { TailwindShadesTool } from "@/components/tools/tailwind-shades/tailwind-shades-tool";
 
 describe("TailwindShadesTool", () => {

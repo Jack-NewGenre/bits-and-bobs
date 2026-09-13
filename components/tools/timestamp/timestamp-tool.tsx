@@ -8,7 +8,7 @@ import {
   parseDate,
   parseTimestamp,
   type TimestampParts,
-} from "@/lib/timestamp";
+} from "@/lib/text/timestamp";
 import { useClientSeed, useHydrated } from "@/hooks/use-client-seed";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

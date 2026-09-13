@@ -5,7 +5,7 @@ import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { usePdfFiles } from "@/hooks/use-pdf-files";
-import { mergePdfs } from "@/lib/pdf-edit";
+import { mergePdfs } from "@/lib/pdf/pdf-edit";
 import { downloadBlob } from "@/lib/download";
 import {
   MAX_PDF_BYTES,

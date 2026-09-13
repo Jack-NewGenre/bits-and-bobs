@@ -8,7 +8,7 @@ import {
   transformImage,
   type TransformResult,
   type TransformSettings,
-} from "@/lib/transform";
+} from "@/lib/image/transform";
 import { transformInWorker } from "@/lib/workers/image-worker-client";
 import { downloadBlob, extensionForType, withSuffix } from "@/lib/download";
 import { shallowEqual } from "@/lib/utils";
@@ -23,7 +23,7 @@ import {
 import { BeforeAfterSlider } from "@/components/shared/before-after-slider";
 import { FileSummary } from "@/components/shared/file-summary";
 import { ResultError } from "@/components/shared/result-error";
-import { resolveFormat } from "@/lib/image-output";
+import { resolveFormat } from "@/lib/image/image-output";
 
 const transform = (
   file: File,

@@ -6,7 +6,7 @@ import {
   MIN_MARGIN,
   MODULE_SHAPES,
   type QrSettings,
-} from "@/lib/qr";
+} from "@/lib/generators/qr";
 import { Label } from "@/components/ui/label";
 import { PillButton } from "@/components/shared/pill-button";
 import { SliderRow } from "@/components/shared/slider-row";

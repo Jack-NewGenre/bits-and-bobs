@@ -6,7 +6,7 @@ import {
   trimImage,
   type TrimResult,
   type TrimSettings,
-} from "@/lib/trim";
+} from "@/lib/image/trim";
 import { toPngName } from "@/lib/download";
 import { ImageToolShell } from "@/components/shared/image-tool-shell";
 import { ClipResultPanel } from "@/components/tools/image-clipper/clip-result-panel";

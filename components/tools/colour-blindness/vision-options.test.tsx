@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { VISION_MODES } from "@/lib/colour-blindness";
+import { VISION_MODES } from "@/lib/colour/colour-blindness";
 import { VisionOptions } from "@/components/tools/colour-blindness/vision-options";
 
 describe("VisionOptions", () => {

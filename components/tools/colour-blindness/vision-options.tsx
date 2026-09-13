@@ -1,6 +1,6 @@
 "use client";
 
-import { VISION_MODES, type VisionType } from "@/lib/colour-blindness";
+import { VISION_MODES, type VisionType } from "@/lib/colour/colour-blindness";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 

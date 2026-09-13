@@ -5,11 +5,11 @@ import { Check, X } from "lucide-react";
 
 import {
   type Rgb,
-} from "@/lib/colour";
+} from "@/lib/colour/colour";
 import {
   formatHex,
-} from "@/lib/colour-format";
-import { gradeContrast } from "@/lib/colour-contrast";
+} from "@/lib/colour/colour-format";
+import { gradeContrast } from "@/lib/colour/colour-contrast";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";

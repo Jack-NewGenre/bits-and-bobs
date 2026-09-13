@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-import type { TrimResult } from "@/lib/trim";
+import type { TrimResult } from "@/lib/image/trim";
 import { CropPreview } from "@/components/tools/image-clipper/crop-preview";
 
 function result(overrides: Partial<TrimResult> = {}): TrimResult {

@@ -7,9 +7,9 @@
  * `lib/canvas` already abstracts.
  */
 
-import { enhanceImage } from "@/lib/enhance";
-import { transformImage } from "@/lib/transform";
-import { vectorizeImage } from "@/lib/vectorize";
+import { enhanceImage } from "@/lib/image/enhance";
+import { transformImage } from "@/lib/image/transform";
+import { vectorizeImage } from "@/lib/image/vectorize";
 import type {
   JobRequest,
   WorkerRequest,

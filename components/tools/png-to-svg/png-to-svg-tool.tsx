@@ -6,7 +6,7 @@ import {
   svgFileName,
   type VectorizeResult,
   type VectorizeSettings,
-} from "@/lib/vectorize";
+} from "@/lib/image/vectorize";
 import { vectorizeInWorker } from "@/lib/workers/image-worker-client";
 import { ImageToolShell } from "@/components/shared/image-tool-shell";
 import { VectorizeResultPanel } from "@/components/tools/png-to-svg/vectorize-result-panel";

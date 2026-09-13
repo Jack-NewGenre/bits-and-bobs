@@ -4,11 +4,11 @@ import { useState } from "react";
 
 import {
   type Rgb,
-} from "@/lib/colour";
+} from "@/lib/colour/colour";
 import {
   formatHex,
-} from "@/lib/colour-format";
-import { buildHarmony, HARMONIES, type Harmony } from "@/lib/colour-harmony";
+} from "@/lib/colour/colour-format";
+import { buildHarmony, HARMONIES, type Harmony } from "@/lib/colour/colour-harmony";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ColourInput } from "@/components/shared/colour-input";

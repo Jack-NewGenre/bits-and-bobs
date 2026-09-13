@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { DEFAULT_TRIM_SETTINGS, MAX_PADDING } from "@/lib/trim";
+import { DEFAULT_TRIM_SETTINGS, MAX_PADDING } from "@/lib/image/trim";
 import { ClipOptions } from "@/components/tools/image-clipper/clip-options";
 
 describe("ClipOptions", () => {

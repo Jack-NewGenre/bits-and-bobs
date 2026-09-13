@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { HARMONIES } from "@/lib/colour-harmony";
+import { HARMONIES } from "@/lib/colour/colour-harmony";
 import { PaletteGeneratorTool } from "@/components/tools/palette-generator/palette-generator-tool";
 
 const swatches = () =>

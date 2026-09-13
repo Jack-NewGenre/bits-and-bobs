@@ -11,7 +11,7 @@ import {
   MIN_LENGTH,
   type PasswordOptions,
   type PasswordStrength,
-} from "@/lib/password";
+} from "@/lib/generators/password";
 import { useClientSeed } from "@/hooks/use-client-seed";
 import { clamp } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

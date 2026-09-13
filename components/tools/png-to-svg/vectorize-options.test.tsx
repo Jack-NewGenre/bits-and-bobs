@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { DEFAULT_VECTORIZE_SETTINGS, VECTORIZE_PRESETS } from "@/lib/vectorize";
+import { DEFAULT_VECTORIZE_SETTINGS, VECTORIZE_PRESETS } from "@/lib/image/vectorize";
 import { VectorizeOptions } from "@/components/tools/png-to-svg/vectorize-options";
 
 describe("VectorizeOptions", () => {

@@ -9,7 +9,7 @@ import {
   MAX_COUNT,
   MIN_COUNT,
   type UuidOptions,
-} from "@/lib/uuid";
+} from "@/lib/generators/uuid";
 import { useClientSeed } from "@/hooks/use-client-seed";
 import { clamp } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

@@ -7,7 +7,7 @@ import {
   VECTORIZE_PRESETS,
   type VectorizeMode,
   type VectorizeSettings,
-} from "@/lib/vectorize";
+} from "@/lib/image/vectorize";
 import { Label } from "@/components/ui/label";
 import { PillButton } from "@/components/shared/pill-button";
 import { SliderRow } from "@/components/shared/slider-row";

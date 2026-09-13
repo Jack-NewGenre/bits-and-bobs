@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import type { BackgroundSettings } from "@/lib/composite";
+import type { BackgroundSettings } from "@/lib/image/composite";
 import { BackgroundOptions } from "@/components/tools/background-removal/background-options";
 
 const baseSettings: BackgroundSettings = {
