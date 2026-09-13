@@ -1,13 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { FLAGS, toSegments } from "@/lib/text/regex";
-import {
-  RegexTimeout,
-  runRegexSafely,
-  type RegexRun,
-} from "@/lib/workers/text-worker-client";
+import { useRegexRun } from "@/hooks/use-regex-run";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +13,8 @@ import { TextAreaField } from "@/components/atoms/text-area-field";
 import { TextPane } from "@/components/molecules/text-pane";
 import { TwoPane } from "@/components/atoms/two-pane";
 import { ResultError } from "@/components/atoms/result-error";
+import { CaptureList } from "@/components/organisms/tools/regex-tester/capture-list";
+import { MatchHighlight } from "@/components/organisms/tools/regex-tester/match-highlight";
 
 const SAMPLE_TEXT = `Ada Lovelace <ada@example.com>
 Alan Turing <alan@example.org>
@@ -29,39 +27,12 @@ export function RegexTesterTool() {
   const [replacement, setReplacement] = useState("");
 
   const flagString = flags.join("");
-  const [run, setRun] = useState<RegexRun>({
-    result: { ok: true, matches: [], truncated: false },
-  });
-  const [timedOut, setTimedOut] = useState(false);
-
-  // Matching and replacing both run in the worker, under one deadline, so a
-  // runaway pattern is killed rather than freezing the page. Running the
-  // replacement here instead would put the same backtracking straight back on
-  // the main thread, where nothing can stop it. The state is set from a
-  // promise, never synchronously.
-  useEffect(() => {
-    let cancelled = false;
-
-    runRegexSafely(pattern, flagString, input, {
-      replacement: replacement === "" ? undefined : replacement,
-    })
-      .then((next) => {
-        if (cancelled) return;
-        setRun(next);
-        setTimedOut(false);
-      })
-      .catch((error: unknown) => {
-        if (cancelled) return;
-        setTimedOut(error instanceof RegexTimeout);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [pattern, flagString, input, replacement]);
-
-  const result = run.result;
-  const replaced = timedOut ? undefined : run.replaced;
+  const { result, replaced, timedOut } = useRegexRun(
+    pattern,
+    flagString,
+    input,
+    replacement,
+  );
 
   const segments = useMemo(
     () => toSegments(input, timedOut ? [] : result.matches),
@@ -143,47 +114,13 @@ export function RegexTesterTool() {
             </span>
           }
         >
-          <div className="bg-muted min-h-48 flex-1 overflow-auto rounded-md p-3 font-mono text-sm whitespace-pre-wrap">
-            {segments.map((segment, index) =>
-              segment.isMatch ? (
-                <mark
-                  key={index}
-                  className="rounded bg-emerald-500/30 text-inherit"
-                >
-                  {segment.text}
-                </mark>
-              ) : (
-                <span key={index}>{segment.text}</span>
-              ),
-            )}
-          </div>
+          <MatchHighlight segments={segments} />
         </TextPane>
       </TwoPane>
 
-      {!timedOut &&
-        result.matches.length > 0 &&
-        result.matches.some((m) => m.groups.length > 0) && (
-        <Card>
-          <CardContent className="space-y-2">
-            <Label className="text-xs">Captures</Label>
-            <ul className="divide-border divide-y text-sm">
-              {result.matches.slice(0, 20).map((match, index) => (
-                <li key={index} className="flex flex-wrap items-baseline gap-x-3 py-2">
-                  <span className="text-muted-foreground w-16 shrink-0 text-xs tabular-nums">
-                    at {match.index}
-                  </span>
-                  <code className="font-mono">{match.text}</code>
-                  {match.groups.map((group) => (
-                    <span key={group.name} className="text-muted-foreground text-xs">
-                      {group.name}: <code className="font-mono">{group.value ?? "-"}</code>
-                    </span>
-                  ))}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-        )}
+      {!timedOut && result.matches.some((match) => match.groups.length > 0) && (
+        <CaptureList matches={result.matches} />
+      )}
 
       <Card>
         <CardContent className="space-y-3">
