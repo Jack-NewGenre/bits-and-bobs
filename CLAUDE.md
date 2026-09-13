@@ -150,7 +150,7 @@ Rules:
 Server components by default. Only add `"use client"` when you need React hooks,
 browser APIs, DOM event handlers, or a client-only library. Tool pages under
 `app/tools/` stay server components: they call `createToolPage()` and hand it a
-client component from `components/tools/`.
+client component from `components/organisms/tools/`.
 
 ### Props & Exports
 
