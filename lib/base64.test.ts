@@ -16,7 +16,7 @@ describe("encode/decode round-trip", () => {
   });
 
   it("round-trips multibyte Unicode", () => {
-    const text = "café — 日本語 — 🚀";
+    const text = "café / 日本語 / 🚀";
     const encoded = encodeBase64(text);
     expect(encoded.ok).toBe(true);
     expect(decodeBase64(encoded.value).value).toBe(text);
@@ -58,3 +58,25 @@ describe("convertBase64", () => {
     expect(convertBase64("aGk=", "decode").value).toBe("hi");
   });
 });
+
+describe("URL-safe guidance", () => {
+  it("points at the toggle when the input is clearly URL-safe", () => {
+    const result = decodeBase64("SGVsbG8_d29ybGQ-Zm9v");
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain("URL-safe");
+  });
+
+  it("gives the plain error for input that is simply not Base64", () => {
+    const result = decodeBase64("!!!nope!!!");
+    expect(result.ok).toBe(false);
+    expect(result.error).toBe("Not a valid Base64 string");
+  });
+
+  it("decodes the same input once the toggle is on", () => {
+    expect(decodeBase64("SGVsbG8_d29ybGQ-Zm9v", true)).toEqual({
+      ok: true,
+      value: "Hello?world>foo",
+    });
+  });
+});
+

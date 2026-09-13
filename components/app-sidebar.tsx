@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Wrench } from "lucide-react";
 
-import { TOOL_CATEGORIES, getToolsByCategory } from "@/lib/tools";
+import { TOOL_CATEGORIES, getToolsByCategory, isAvailable } from "@/lib/tools";
 import {
   Sidebar,
   SidebarContent,
@@ -48,17 +48,12 @@ export function AppSidebar() {
             <SidebarGroupLabel>{category.name}</SidebarGroupLabel>
             <SidebarMenu>
               {getToolsByCategory(category.id).map((tool) => {
-                const isAvailable = Boolean(
-                  tool.status === "available" && tool.href,
-                );
-                const isActive = isAvailable && pathname === tool.href;
-
-                if (!isAvailable) {
+                if (!isAvailable(tool)) {
                   return (
                     <SidebarMenuItem key={tool.slug}>
                       <SidebarMenuButton
                         disabled
-                        tooltip={`${tool.name} — coming soon`}
+                        tooltip={`${tool.name} (coming soon)`}
                       >
                         <tool.icon />
                         <span>{tool.name}</span>
@@ -72,10 +67,10 @@ export function AppSidebar() {
                   <SidebarMenuItem key={tool.slug}>
                     <SidebarMenuButton
                       asChild
-                      isActive={isActive}
+                      isActive={pathname === tool.href}
                       tooltip={tool.name}
                     >
-                      <Link href={tool.href!}>
+                      <Link href={tool.href}>
                         <tool.icon />
                         <span>{tool.name}</span>
                       </Link>

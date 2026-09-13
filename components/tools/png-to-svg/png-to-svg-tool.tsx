@@ -3,28 +3,32 @@
 import { useImageToolQueue } from "@/hooks/use-image-tool-queue";
 import {
   DEFAULT_VECTORIZE_SETTINGS,
-  vectorizeImage,
+  svgFileName,
+  type VectorizeResult,
   type VectorizeSettings,
 } from "@/lib/vectorize";
-import { withSuffix } from "@/lib/download";
+import { vectorizeInWorker } from "@/lib/workers/image-worker-client";
 import { ImageToolShell } from "@/components/shared/image-tool-shell";
 import { VectorizeResultPanel } from "@/components/tools/png-to-svg/vectorize-result-panel";
 
 // Stable processor: the queue's first pass uses balanced defaults; the result
-// panel then re-traces live as the user tweaks the settings.
+// panel reuses that pass until the user tweaks the settings.
 const traceWithDefaults = (
   file: File,
-  onProgress: (fraction: number) => void,
+  onProgress: (progress: { fraction: number }) => void,
+  signal: AbortSignal,
 ) =>
-  vectorizeImage(file, DEFAULT_VECTORIZE_SETTINGS, {
-    onProgress: ({ fraction }) => onProgress(fraction),
-  }).then(({ blob }) => blob);
+  vectorizeInWorker(file, DEFAULT_VECTORIZE_SETTINGS, {
+    onProgress: ({ fraction }) => onProgress({ fraction }),
+    signal,
+  });
 
 export function PngToSvgTool() {
   const {
     items,
     addFiles,
     removeItem,
+    retryItem,
     clear,
     setPinnedId,
     settings,
@@ -34,7 +38,7 @@ export function PngToSvgTool() {
     selectedItem,
     handleReject,
     handleDownloadAll,
-  } = useImageToolQueue<VectorizeSettings>({
+  } = useImageToolQueue<VectorizeSettings, VectorizeResult>({
     processor: traceWithDefaults,
     defaultSettings: DEFAULT_VECTORIZE_SETTINGS,
     processingLabel: "Tracing…",
@@ -42,8 +46,8 @@ export function PngToSvgTool() {
       actionLabel: "Tracing",
       zipFilename: "vectorized-images.zip",
       buildEntry: async (item, currentSettings) => {
-        const { blob } = await vectorizeImage(item.file, currentSettings);
-        return { name: withSuffix(item.name, "", "svg"), blob };
+        const { blob } = await vectorizeInWorker(item.file, currentSettings);
+        return { name: svgFileName(item.name), blob };
       },
     },
   });
@@ -55,6 +59,7 @@ export function PngToSvgTool() {
       selectedId={selectedItem?.id}
       onSelect={setPinnedId}
       onRemove={removeItem}
+      onRetry={retryItem}
       onFiles={addFiles}
       onReject={handleReject}
       onClear={clear}

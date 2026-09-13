@@ -1,6 +1,14 @@
 "use client";
 
-import { CheckCircle2, Loader2, Trash2, TriangleAlert } from "lucide-react";
+import {
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  RotateCw,
+  Trash2,
+  TriangleAlert,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,7 +19,7 @@ export type ProcessStatus = "queued" | "processing" | "done" | "error";
 export interface QueueListItem {
   id: string;
   name: string;
-  /** Thumbnail URL — typically the result if ready, else the original. */
+  /** Thumbnail URL, typically the result if ready, else the original. */
   previewUrl: string;
   status: ProcessStatus;
   /** Human-readable label for the current status. */
@@ -28,6 +36,10 @@ interface QueueListProps {
   selectedId?: string;
   onSelect: (id: string) => void;
   onRemove: (id: string) => void;
+  /** Re-run a failed item. Omit to hide the retry action. */
+  onRetry?: (id: string) => void;
+  /** Reorder. Omit where the queue's order does not affect the output. */
+  onMove?: (id: string, direction: -1 | 1) => void;
 }
 
 export function QueueList({
@@ -35,10 +47,12 @@ export function QueueList({
   selectedId,
   onSelect,
   onRemove,
+  onRetry,
+  onMove,
 }: QueueListProps) {
   return (
     <ul className="space-y-2">
-      {items.map((item) => {
+      {items.map((item, index) => {
         const isBusy = item.status === "processing" || item.status === "queued";
 
         return (
@@ -96,6 +110,53 @@ export function QueueList({
                   />
                 )}
               </div>
+
+              {onMove && items.length > 1 && (
+                <div className="flex shrink-0 flex-col">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`Move ${item.name} up`}
+                    disabled={index === 0}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onMove(item.id, -1);
+                    }}
+                  >
+                    <ChevronUp className="size-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`Move ${item.name} down`}
+                    disabled={index === items.length - 1}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onMove(item.id, 1);
+                    }}
+                  >
+                    <ChevronDown className="size-4" />
+                  </Button>
+                </div>
+              )}
+
+              {onRetry && item.status === "error" && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0"
+                  aria-label={`Retry ${item.name}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onRetry(item.id);
+                  }}
+                >
+                  <RotateCw className="size-4" />
+                </Button>
+              )}
 
               <Button
                 type="button"

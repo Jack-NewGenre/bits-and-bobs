@@ -1,20 +1,37 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   downloadZip,
   extensionForType,
   toPngName,
+  uniqueNames,
   withSuffix,
 } from "@/lib/download";
 
-const fileMock = vi.fn();
+/**
+ * Read the names and uncompressed sizes out of a real zip's central
+ * directory. The archiver is deliberately NOT mocked here: a mock only
+ * proves we called it, and calling it with the wrong field name produced
+ * archives full of empty folders that every mocked test happily passed.
+ */
+function readZip(bytes: Uint8Array): { name: string; size: number }[] {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const entries: { name: string; size: number }[] = [];
 
-vi.mock("jszip", () => ({
-  default: class {
-    file = fileMock;
-    generateAsync = vi.fn(async () => new Blob(["zip"]));
-  },
-}));
+  for (let at = 0; at < bytes.length - 4; at++) {
+    // Central directory file header.
+    if (view.getUint32(at, true) !== 0x02014b50) continue;
+
+    const size = view.getUint32(at + 24, true);
+    const nameLength = view.getUint16(at + 28, true);
+    const name = new TextDecoder().decode(
+      bytes.subarray(at + 46, at + 46 + nameLength),
+    );
+    entries.push({ name, size });
+  }
+
+  return entries;
+}
 
 describe("toPngName", () => {
   it("swaps any extension for .png", () => {
@@ -51,70 +68,46 @@ describe("withSuffix", () => {
   });
 });
 
-describe("downloadZip", () => {
-  beforeEach(() => {
-    fileMock.mockClear();
-    vi.stubGlobal("URL", {
-      createObjectURL: vi.fn(() => "blob:zip"),
-      revokeObjectURL: vi.fn(),
-    });
-    vi.spyOn(document, "createElement").mockReturnValue({
-      href: "",
-      download: "",
-      click: vi.fn(),
-      remove: vi.fn(),
-    } as unknown as HTMLAnchorElement);
-    vi.spyOn(document.body, "appendChild").mockImplementation(
-      ((node: Node) => node) as typeof document.body.appendChild,
-    );
+describe("uniqueNames", () => {
+  const blob = new Blob(["a"]);
+
+  it("leaves distinct names alone", () => {
+    const named = uniqueNames([
+      { name: "a.png", blob },
+      { name: "b.png", blob },
+    ]);
+    expect(named.map((entry) => entry.name)).toEqual(["a.png", "b.png"]);
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-    vi.unstubAllGlobals();
+  it("de-duplicates colliding non-png names without dropping entries", () => {
+    const named = uniqueNames([
+      { name: "photo-enhanced.jpg", blob },
+      { name: "photo-enhanced.jpg", blob },
+    ]);
+    expect(named.map((entry) => entry.name)).toEqual([
+      "photo-enhanced.jpg",
+      "photo-enhanced-1.jpg",
+    ]);
   });
 
-  it("de-duplicates colliding non-png names without dropping entries", async () => {
-    const blob = new Blob(["a"], { type: "image/jpeg" });
-    await downloadZip(
-      [
-        { name: "photo-enhanced.jpg", blob },
-        { name: "photo-enhanced.jpg", blob },
-      ],
-      "out.zip",
-    );
-
-    const usedNames = fileMock.mock.calls.map((call) => call[0]);
-    expect(usedNames).toEqual(["photo-enhanced.jpg", "photo-enhanced-1.jpg"]);
-    // No collision: both entries are written under distinct names.
-    expect(new Set(usedNames).size).toBe(2);
+  it("de-duplicates png names too", () => {
+    const named = uniqueNames([
+      { name: "cutout.png", blob },
+      { name: "cutout.png", blob },
+      { name: "cutout.png", blob },
+    ]);
+    expect(named.map((entry) => entry.name)).toEqual([
+      "cutout.png",
+      "cutout-1.png",
+      "cutout-2.png",
+    ]);
   });
 
-  it("de-duplicates png names too", async () => {
-    const blob = new Blob(["a"], { type: "image/png" });
-    await downloadZip(
-      [
-        { name: "cutout.png", blob },
-        { name: "cutout.png", blob },
-      ],
-      "out.zip",
-    );
-
-    const usedNames = fileMock.mock.calls.map((call) => call[0]);
-    expect(usedNames).toEqual(["cutout.png", "cutout-1.png"]);
-  });
-
-  it("de-duplicates names without an extension", async () => {
-    const blob = new Blob(["a"]);
-    await downloadZip(
-      [
-        { name: "image", blob },
-        { name: "image", blob },
-      ],
-      "out.zip",
-    );
-
-    const usedNames = fileMock.mock.calls.map((call) => call[0]);
-    expect(usedNames).toEqual(["image", "image-1"]);
+  it("de-duplicates names without an extension", () => {
+    const named = uniqueNames([
+      { name: "image", blob },
+      { name: "image", blob },
+    ]);
+    expect(named.map((entry) => entry.name)).toEqual(["image", "image-1"]);
   });
 });

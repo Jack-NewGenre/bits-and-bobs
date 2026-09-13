@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { isAvailable } from "@/lib/tools";
 import type { Tool } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -16,15 +17,13 @@ interface ToolCardProps {
 }
 
 export function ToolCard({ tool }: ToolCardProps) {
-  const isAvailable = tool.status === "available" && tool.href;
+  const available = isAvailable(tool);
 
   const content = (
     <Card
       className={cn(
         "group h-full gap-0 transition-colors",
-        isAvailable
-          ? "hover:border-primary/40 hover:bg-accent/40"
-          : "opacity-70",
+        available ? "hover:border-primary/40 hover:bg-accent/40" : "opacity-70",
       )}
     >
       <CardHeader>
@@ -32,7 +31,7 @@ export function ToolCard({ tool }: ToolCardProps) {
           <div className="bg-muted text-foreground flex size-10 items-center justify-center rounded-lg">
             <tool.icon className="size-5" />
           </div>
-          {isAvailable ? (
+          {available ? (
             <ArrowRight className="text-muted-foreground size-4 transition-transform group-hover:translate-x-0.5" />
           ) : (
             <Badge variant="secondary">Soon</Badge>
@@ -44,12 +43,12 @@ export function ToolCard({ tool }: ToolCardProps) {
     </Card>
   );
 
-  if (!isAvailable) {
+  if (!isAvailable(tool)) {
     return content;
   }
 
   return (
-    <Link href={tool.href!} className="block">
+    <Link href={tool.href} className="block">
       {content}
     </Link>
   );

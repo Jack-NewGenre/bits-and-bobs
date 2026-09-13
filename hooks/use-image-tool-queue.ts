@@ -5,8 +5,9 @@ import { toast } from "sonner";
 
 import {
   useImageQueue,
-  type ImageQueueItem,
+  type DoneQueueItem,
   type ImageQueueStatus,
+  type QueueOutput,
   type QueueProcessor,
 } from "@/hooks/use-image-queue";
 import type { RejectedFile } from "@/components/shared/image-dropzone";
@@ -19,23 +20,26 @@ const BASE_STATUS_LABEL: Record<Exclude<ImageQueueStatus, "processing">, string>
     error: "Failed",
   };
 
-export interface DownloadAllOptions<TSettings> {
+export interface DownloadAllOptions<TSettings, TResult extends QueueOutput> {
   /** Verb shown in the loading toast, e.g. "Tracing" or "Enhancing". */
   actionLabel: string;
   /** Re-process a done item with the current settings for the zip entry. */
   buildEntry: (
-    item: ImageQueueItem,
+    item: DoneQueueItem<TResult>,
     settings: TSettings,
   ) => Promise<{ name: string; blob: Blob }>;
   zipFilename: string;
 }
 
-export interface UseImageToolQueueOptions<TSettings> {
-  processor: QueueProcessor;
+export interface UseImageToolQueueOptions<
+  TSettings,
+  TResult extends QueueOutput,
+> {
+  processor: QueueProcessor<TResult>;
   defaultSettings: TSettings;
   /** Status label shown in the queue while an item processes, e.g. "Tracing…". */
   processingLabel: string;
-  downloadAll: DownloadAllOptions<TSettings>;
+  downloadAll: DownloadAllOptions<TSettings, TResult>;
 }
 
 /**
@@ -44,13 +48,14 @@ export interface UseImageToolQueueOptions<TSettings> {
  * flow that re-processes every finished item into a zip. Each tool supplies
  * its own processor, settings shape, and per-item download logic.
  */
-export function useImageToolQueue<TSettings>({
+export function useImageToolQueue<TSettings, TResult extends QueueOutput>({
   processor,
   defaultSettings,
   processingLabel,
   downloadAll,
-}: UseImageToolQueueOptions<TSettings>) {
-  const { items, addFiles, removeItem, clear } = useImageQueue(processor);
+}: UseImageToolQueueOptions<TSettings, TResult>) {
+  const { items, addFiles, removeItem, retryItem, clear } =
+    useImageQueue(processor);
   // The user's explicit choice; falls back to the first finished item.
   const [pinnedId, setPinnedId] = useState<string>();
   const [settings, setSettings] = useState<TSettings>(defaultSettings);
@@ -61,7 +66,13 @@ export function useImageToolQueue<TSettings>({
   );
 
   const doneItems = useMemo(
-    () => items.filter((item) => item.status === "done"),
+    () =>
+      items.filter(
+        (item): item is DoneQueueItem<TResult> =>
+          item.status === "done" &&
+          item.result !== undefined &&
+          item.resultUrl !== undefined,
+      ),
     [items],
   );
 
@@ -97,6 +108,7 @@ export function useImageToolQueue<TSettings>({
     items,
     addFiles,
     removeItem,
+    retryItem,
     clear,
     setPinnedId,
     settings,

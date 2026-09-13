@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Copy } from "lucide-react";
+import { toast } from "sonner";
 
 import { useCopy } from "@/hooks/use-copy";
 import { cn } from "@/lib/utils";
@@ -34,7 +35,15 @@ export function CopyButton({
 
   const handleClick = () => {
     const text = typeof value === "function" ? value() : value;
-    if (text) void copy(text);
+    if (!text) return;
+
+    // Say so rather than doing nothing: a browser can refuse the clipboard,
+    // and a button that silently fails looks like a broken button.
+    void copy(text).then((ok) => {
+      if (!ok) {
+        toast.error("Your browser blocked the clipboard. Select and copy manually.");
+      }
+    });
   };
 
   return (

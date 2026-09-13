@@ -1,17 +1,28 @@
 "use client";
 
 import {
-  ENHANCE_PRESETS,
+  type EnhanceEngine,
   type EnhanceScale,
   type EnhanceSettings,
 } from "@/lib/enhance";
+
+import { ENHANCE_PRESETS } from "@/lib/enhance-presets";
 import { Label } from "@/components/ui/label";
+import { FormatOptions } from "@/components/shared/format-options";
 import { PillButton } from "@/components/shared/pill-button";
 import { SliderRow } from "@/components/shared/slider-row";
 
 const SCALES: EnhanceScale[] = [1, 2, 4];
 
+const ENGINES: { value: EnhanceEngine; label: string }[] = [
+  { value: "fast", label: "Fast" },
+  { value: "ai", label: "AI" },
+];
+
 const SETTINGS_KEYS: (keyof EnhanceSettings)[] = [
+  "engine",
+  "format",
+  "quality",
   "scale",
   "sharpen",
   "denoise",
@@ -27,9 +38,18 @@ function settingsEqual(a: EnhanceSettings, b: EnhanceSettings): boolean {
 interface EnhanceOptionsProps {
   settings: EnhanceSettings;
   onChange: (settings: EnhanceSettings) => void;
+  /** False when the image is too large to hand to the model. */
+  aiAvailable?: boolean;
+  /** MIME type of the dropped file, so "Same" can be resolved for the UI. */
+  sourceType?: string;
 }
 
-export function EnhanceOptions({ settings, onChange }: EnhanceOptionsProps) {
+export function EnhanceOptions({
+  settings,
+  onChange,
+  aiAvailable = true,
+  sourceType,
+}: EnhanceOptionsProps) {
   const setField = <K extends keyof EnhanceSettings>(
     key: K,
     value: EnhanceSettings[K],
@@ -57,6 +77,30 @@ export function EnhanceOptions({ settings, onChange }: EnhanceOptionsProps) {
       </div>
 
       <div className="space-y-2">
+        <Label className="text-xs">Upscaler</Label>
+        <div className="grid grid-cols-2 gap-2">
+          {ENGINES.map(({ value, label }) => (
+            <PillButton
+              key={value}
+              active={settings.engine === value}
+              ariaPressed={settings.engine === value}
+              disabled={value === "ai" && !aiAvailable}
+              onClick={() => setField("engine", value)}
+            >
+              {label}
+            </PillButton>
+          ))}
+        </div>
+        <p className="text-muted-foreground text-xs">
+          {!aiAvailable
+            ? "This image is too large for the AI upscaler."
+            : settings.engine === "ai"
+              ? "Reconstructs detail with a model. Slower, and downloads once."
+              : "Resamples on a canvas. Instant, but cannot invent detail."}
+        </p>
+      </div>
+
+      <div className="space-y-2">
         <Label className="text-xs">Upscale</Label>
         <div className="grid grid-cols-3 gap-2">
           {SCALES.map((scale) => (
@@ -71,6 +115,17 @@ export function EnhanceOptions({ settings, onChange }: EnhanceOptionsProps) {
           ))}
         </div>
       </div>
+
+      <FormatOptions
+        format={settings.format}
+        quality={settings.quality}
+        matte="#ffffff"
+        sourceType={sourceType}
+        showMatte={false}
+        onFormatChange={(format) => setField("format", format)}
+        onQualityChange={(quality) => setField("quality", quality)}
+        onMatteChange={() => {}}
+      />
 
       <div className="space-y-4">
         <SliderRow

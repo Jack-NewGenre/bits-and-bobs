@@ -2,22 +2,25 @@
 
 import { useImageToolQueue } from "@/hooks/use-image-tool-queue";
 import {
-  DEFAULT_ENHANCE_SETTINGS,
-  enhanceImage,
+  enhancedFileName,
+  type EnhanceResult,
   type EnhanceSettings,
 } from "@/lib/enhance";
-import { extensionForType, withSuffix } from "@/lib/download";
+import { DEFAULT_ENHANCE_SETTINGS } from "@/lib/enhance-presets";
+import { enhanceInWorker } from "@/lib/workers/image-worker-client";
 import { ImageToolShell } from "@/components/shared/image-tool-shell";
 import { EnhanceResultPanel } from "@/components/tools/image-enhancer/enhance-result-panel";
 
 // Stable processor: the queue's first pass uses balanced defaults; the result
-// panel then re-enhances live as the user tweaks the settings.
+// panel reuses that pass until the user tweaks the settings.
 const enhanceWithDefaults = (
   file: File,
-  onProgress: (fraction: number) => void,
+  onProgress: (progress: { fraction: number }) => void,
+  signal: AbortSignal,
 ) =>
-  enhanceImage(file, DEFAULT_ENHANCE_SETTINGS, {
-    onProgress: ({ fraction }) => onProgress(fraction),
+  enhanceInWorker(file, DEFAULT_ENHANCE_SETTINGS, {
+    onProgress: ({ fraction }) => onProgress({ fraction }),
+    signal,
   });
 
 export function ImageEnhancerTool() {
@@ -25,6 +28,7 @@ export function ImageEnhancerTool() {
     items,
     addFiles,
     removeItem,
+    retryItem,
     clear,
     setPinnedId,
     settings,
@@ -34,7 +38,7 @@ export function ImageEnhancerTool() {
     selectedItem,
     handleReject,
     handleDownloadAll,
-  } = useImageToolQueue<EnhanceSettings>({
+  } = useImageToolQueue<EnhanceSettings, EnhanceResult>({
     processor: enhanceWithDefaults,
     defaultSettings: DEFAULT_ENHANCE_SETTINGS,
     processingLabel: "Enhancing…",
@@ -42,11 +46,8 @@ export function ImageEnhancerTool() {
       actionLabel: "Enhancing",
       zipFilename: "enhanced-images.zip",
       buildEntry: async (item, currentSettings) => {
-        const blob = await enhanceImage(item.file, currentSettings);
-        return {
-          name: withSuffix(item.name, "-enhanced", extensionForType(blob.type)),
-          blob,
-        };
+        const { blob } = await enhanceInWorker(item.file, currentSettings);
+        return { name: enhancedFileName(item.name, blob), blob };
       },
     },
   });
@@ -58,6 +59,7 @@ export function ImageEnhancerTool() {
       selectedId={selectedItem?.id}
       onSelect={setPinnedId}
       onRemove={removeItem}
+      onRetry={retryItem}
       onFiles={addFiles}
       onReject={handleReject}
       onClear={clear}

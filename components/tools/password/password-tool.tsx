@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RefreshCw } from "lucide-react";
 
 import {
@@ -12,6 +12,7 @@ import {
   type PasswordOptions,
   type PasswordStrength,
 } from "@/lib/password";
+import { useClientSeed } from "@/hooks/use-client-seed";
 import { clamp } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -46,17 +47,17 @@ function generate(options: PasswordOptions): { password: string; error?: string 
   }
 }
 
+/** Stable, so the seed runs exactly once. */
+const seedPassword = () => generate(DEFAULT_PASSWORD_OPTIONS);
+
 export function PasswordTool() {
   const [options, setOptions] = useState<PasswordOptions>(DEFAULT_PASSWORD_OPTIONS);
-  // Seeded client-side only to avoid a SSR/hydration mismatch (crypto is
-  // non-deterministic so server and client would produce different passwords).
-  const [result, setResult] = useState<{ password: string; error?: string }>({
-    password: "",
-  });
-
-  useEffect(() => {
-    setResult(generate(DEFAULT_PASSWORD_OPTIONS));
-  }, []);
+  // Client-only: crypto is non-deterministic, so the server cannot render
+  // this without the two disagreeing at hydration.
+  const [result, setResult] = useClientSeed<{ password: string; error?: string }>(
+    seedPassword,
+    { password: "" },
+  );
   const { password, error } = result;
 
   // Apply an options change and regenerate from the new options in one go.
@@ -82,7 +83,7 @@ export function PasswordTool() {
         <CardContent className="space-y-3">
           <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg border px-4 py-3">
             <code className="font-mono text-lg break-all">
-              {password || error || "—"}
+              {password || error || "-"}
             </code>
             <div className="flex shrink-0 items-center gap-1.5">
               <Button

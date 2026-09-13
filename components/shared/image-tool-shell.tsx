@@ -2,7 +2,11 @@
 
 import { DownloadCloud, Trash2 } from "lucide-react";
 
-import type { ImageQueueItem, ImageQueueStatus } from "@/hooks/use-image-queue";
+import type {
+  ImageQueueItem,
+  ImageQueueStatus,
+  QueueOutput,
+} from "@/hooks/use-image-queue";
 import { Button } from "@/components/ui/button";
 import {
   ImageDropzone,
@@ -11,26 +15,29 @@ import {
 import { QueueList, type QueueListItem } from "@/components/shared/queue-list";
 
 function toListItem(
-  item: ImageQueueItem,
+  item: ImageQueueItem<QueueOutput>,
   statusLabel: Record<ImageQueueStatus, string>,
+  transparent?: boolean,
 ): QueueListItem {
   return {
     id: item.id,
     name: item.name,
     previewUrl: item.resultUrl ?? item.originalUrl,
     status: item.status,
-    statusLabel: statusLabel[item.status],
+    statusLabel: item.progressLabel ?? statusLabel[item.status],
     progress: item.progress,
     error: item.error,
+    transparent,
   };
 }
 
 interface ImageToolShellProps {
-  items: ImageQueueItem[];
+  items: ImageQueueItem<QueueOutput>[];
   statusLabel: Record<ImageQueueStatus, string>;
   selectedId?: string;
   onSelect: (id: string) => void;
   onRemove: (id: string) => void;
+  onRetry: (id: string) => void;
   onFiles: (files: File[]) => void;
   onReject: (rejected: RejectedFile[]) => void;
   onClear: () => void;
@@ -41,6 +48,8 @@ interface ImageToolShellProps {
   emptyStateLabel: string;
   /** The tool-specific result panel for the selected item, if any. */
   resultPanel: React.ReactNode;
+  /** Render a checkerboard behind queue thumbnails (for transparent results). */
+  transparentThumbnails?: boolean;
 }
 
 /**
@@ -54,6 +63,7 @@ export function ImageToolShell({
   selectedId,
   onSelect,
   onRemove,
+  onRetry,
   onFiles,
   onReject,
   onClear,
@@ -62,6 +72,7 @@ export function ImageToolShell({
   onDownloadAll,
   emptyStateLabel,
   resultPanel,
+  transparentThumbnails,
 }: ImageToolShellProps) {
   return (
     <div className="space-y-6">
@@ -90,10 +101,13 @@ export function ImageToolShell({
             </div>
 
             <QueueList
-              items={items.map((item) => toListItem(item, statusLabel))}
+              items={items.map((item) =>
+                toListItem(item, statusLabel, transparentThumbnails),
+              )}
               selectedId={selectedId}
               onSelect={onSelect}
               onRemove={onRemove}
+              onRetry={onRetry}
             />
 
             {doneCount > 1 && (
