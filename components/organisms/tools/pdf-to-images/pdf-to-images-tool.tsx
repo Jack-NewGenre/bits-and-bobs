@@ -22,6 +22,7 @@ import { ImageDropzone } from "@/components/molecules/image-dropzone";
 import { PdfFileList } from "@/components/molecules/pdf-file-list";
 import { DownloadButton } from "@/components/atoms/download-button";
 import { OptionGroup } from "@/components/molecules/option-group";
+import { ListHeader } from "@/components/molecules/list-header";
 
 const RESOLUTIONS = [
   { value: 800, label: "Screen", note: "800px" },
@@ -103,18 +104,10 @@ export function PdfToImagesTool() {
       {files.length > 0 && (
         <Card>
           <CardContent className="space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium">Document</h2>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={clear}
-                className="text-muted-foreground"
-              >
-                Clear
-              </Button>
-            </div>
+            <ListHeader
+              title="Document"
+              onClear={clear}
+            />
 
             <PdfFileList files={files} onRemove={remove} />
 

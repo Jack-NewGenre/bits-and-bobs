@@ -10,11 +10,11 @@ import {
   MAX_PDF_BYTES,
   PDF_TYPES,
 } from "@/lib/image/file-intake";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImageDropzone } from "@/components/molecules/image-dropzone";
 import { PdfFileList } from "@/components/molecules/pdf-file-list";
 import { DownloadButton } from "@/components/atoms/download-button";
+import { ListHeader } from "@/components/molecules/list-header";
 
 export function PdfMergeTool() {
   const { files, usable, totalPages, add, remove, clear, move, handleReject } =
@@ -50,23 +50,11 @@ export function PdfMergeTool() {
       {files.length > 0 && (
         <Card>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium">
-                Order
-                <span className="text-muted-foreground ml-1.5 font-normal">
-                  ({files.length})
-                </span>
-              </h2>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={clear}
-                className="text-muted-foreground"
-              >
-                Clear
-              </Button>
-            </div>
+            <ListHeader
+              title="Order"
+              count={files.length}
+              onClear={clear}
+            />
 
             <PdfFileList files={files} onRemove={remove} onMove={move} />
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { DownloadCloud, Trash2 } from "lucide-react";
+import { DownloadCloud } from "lucide-react";
 
 import type {
   ImageQueueItem,
@@ -13,6 +13,7 @@ import {
   type RejectedFile,
 } from "@/lib/image/file-intake";
 import { QueueList, type QueueListItem } from "@/components/molecules/queue-list";
+import { ListHeader } from "@/components/molecules/list-header";
 
 function toListItem(
   item: ImageQueueItem<QueueOutput>,
@@ -81,24 +82,12 @@ export function ImageToolShell({
       {items.length > 0 && (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium">
-                Queue
-                <span className="text-muted-foreground ml-1.5 font-normal">
-                  ({items.length})
-                </span>
-              </h2>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={onClear}
-                className="text-muted-foreground"
-              >
-                <Trash2 className="size-4" />
-                Clear
-              </Button>
-            </div>
+            <ListHeader
+              title="Queue"
+              count={items.length}
+              onClear={onClear}
+              showIcon
+            />
 
             <QueueList
               items={items.map((item) =>

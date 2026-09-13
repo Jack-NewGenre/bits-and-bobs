@@ -16,7 +16,6 @@ import {
   MAX_PDF_BYTES,
   PDF_TYPES,
 } from "@/lib/image/file-intake";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +23,7 @@ import { ImageDropzone } from "@/components/molecules/image-dropzone";
 import { PdfFileList } from "@/components/molecules/pdf-file-list";
 import { PillButton } from "@/components/atoms/pill-button";
 import { DownloadButton } from "@/components/atoms/download-button";
+import { ListHeader } from "@/components/molecules/list-header";
 
 type Mode = "extract" | "remove" | "every";
 
@@ -107,18 +107,10 @@ export function PdfSplitTool() {
       {files.length > 0 && (
         <Card>
           <CardContent className="space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-medium">Document</h2>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={clear}
-                className="text-muted-foreground"
-              >
-                Clear
-              </Button>
-            </div>
+            <ListHeader
+              title="Document"
+              onClear={clear}
+            />
 
             <PdfFileList files={files} onRemove={remove} />
 

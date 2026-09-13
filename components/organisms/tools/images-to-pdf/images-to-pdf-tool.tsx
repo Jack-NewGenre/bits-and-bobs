@@ -19,7 +19,6 @@ import {
 } from "@/lib/pdf/pdf-edit";
 import { DEFAULT_TRANSFORM_SETTINGS, transformImage } from "@/lib/image/transform";
 import { downloadBlob } from "@/lib/download";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ImageDropzone } from "@/components/molecules/image-dropzone";
@@ -28,6 +27,7 @@ import { QueueList } from "@/components/molecules/queue-list";
 import { SliderRow } from "@/components/atoms/slider-row";
 import { DownloadButton } from "@/components/atoms/download-button";
 import { OptionGroup } from "@/components/molecules/option-group";
+import { ListHeader } from "@/components/molecules/list-header";
 
 const STATUS_LABEL = {
   queued: "Queued",
@@ -104,23 +104,11 @@ export function ImagesToPdfTool() {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Card>
             <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-medium">
-                  Pages
-                  <span className="text-muted-foreground ml-1.5 font-normal">
-                    ({items.length})
-                  </span>
-                </h2>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={clear}
-                  className="text-muted-foreground"
-                >
-                  Clear
-                </Button>
-              </div>
+              <ListHeader
+                title="Pages"
+                count={items.length}
+                onClear={clear}
+              />
 
               <QueueList
                 items={items.map((item) => ({

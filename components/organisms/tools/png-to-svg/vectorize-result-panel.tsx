@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 
 import { useLiveResult } from "@/hooks/use-live-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
@@ -16,11 +15,10 @@ import { downloadBlob } from "@/lib/download";
 import { formatBytes, percentSmaller, shallowEqual } from "@/lib/utils";
 import { DownloadButton } from "@/components/atoms/download-button";
 import { ResultPanelShell } from "@/components/organisms/result-panel-shell";
-import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
 import { CopyButton } from "@/components/atoms/copy-button";
 import { ResultError } from "@/components/atoms/result-error";
-import { ZoomControl } from "@/components/atoms/zoom-control";
 import { VectorizeOptions } from "@/components/organisms/tools/png-to-svg/vectorize-options";
+import { ZoomableComparison } from "@/components/molecules/zoomable-comparison";
 
 /** Longest edge of the coarse trace shown while the full one runs. */
 const PREVIEW_MAX_DIM = 480;
@@ -49,7 +47,6 @@ export function VectorizeResultPanel({
   settings,
   onSettingsChange,
 }: VectorizeResultPanelProps) {
-  const [zoom, setZoom] = useState(1);
   const vectorized = useLiveResult({
     source: item.file,
     settings,
@@ -95,22 +92,14 @@ export function VectorizeResultPanel({
       }
     >
         {previewUrl && (
-          <div className="space-y-2">
-            <BeforeAfterSlider
-              beforeUrl={item.originalUrl}
-              afterUrl={previewUrl}
-              beforeLabel="Original"
-              afterLabel="Vector"
-              zoom={zoom}
-              isStale={isBusy}
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs">
-                Drag to compare · zoom in to inspect the traced paths
-              </span>
-              <ZoomControl zoom={zoom} onZoomChange={setZoom} />
-            </div>
-          </div>
+          <ZoomableComparison
+            beforeUrl={item.originalUrl}
+            afterUrl={previewUrl}
+            beforeLabel="Original"
+            afterLabel="Vector"
+            isStale={isBusy}
+            caption="Drag to compare · zoom in to inspect the traced paths"
+          />
         )}
         {vectorized.error ? (
           <ResultError message={vectorized.error} />

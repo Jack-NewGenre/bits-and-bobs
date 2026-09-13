@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { toast } from "sonner";
 
 import { useLiveResult } from "@/hooks/use-live-result";
@@ -17,11 +16,10 @@ import { downloadBlob } from "@/lib/download";
 import { shallowEqual } from "@/lib/utils";
 import { DownloadButton } from "@/components/atoms/download-button";
 import { ResultPanelShell } from "@/components/organisms/result-panel-shell";
-import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
 import { FileSummary } from "@/components/molecules/file-summary";
 import { ResultError } from "@/components/atoms/result-error";
-import { ZoomControl } from "@/components/atoms/zoom-control";
 import { EnhanceOptions } from "@/components/organisms/tools/image-enhancer/enhance-options";
+import { ZoomableComparison } from "@/components/molecules/zoomable-comparison";
 
 /** Longest edge of the quick stand-in shown while the full pass runs. */
 const PREVIEW_MAX_DIM = 1400;
@@ -77,7 +75,6 @@ export function EnhanceResultPanel({
   settings,
   onSettingsChange,
 }: EnhanceResultPanelProps) {
-  const [zoom, setZoom] = useState(1);
 
   // The queue measures the dropped file once; that is what the model's limit
   // has to be judged against, not whatever a previous pass produced.
@@ -128,22 +125,14 @@ export function EnhanceResultPanel({
       }
     >
         {previewUrl && (
-          <div className="space-y-2">
-            <BeforeAfterSlider
-              beforeUrl={item.originalUrl}
-              afterUrl={previewUrl}
-              beforeLabel="Original"
-              afterLabel="Enhanced"
-              zoom={zoom}
-              isStale={isBusy}
-            />
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground text-xs">
-                Drag to compare · zoom in to inspect detail
-              </span>
-              <ZoomControl zoom={zoom} onZoomChange={setZoom} />
-            </div>
-          </div>
+          <ZoomableComparison
+            beforeUrl={item.originalUrl}
+            afterUrl={previewUrl}
+            beforeLabel="Original"
+            afterLabel="Enhanced"
+            isStale={isBusy}
+            caption="Drag to compare · zoom in to inspect detail"
+          />
         )}
         <div className="space-y-1">
           <FileSummary
