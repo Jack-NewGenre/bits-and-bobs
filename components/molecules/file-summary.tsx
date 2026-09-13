@@ -1,7 +1,7 @@
 "use client";
 
 import { extensionForType } from "@/lib/download";
-import { formatBytes } from "@/lib/utils";
+import { cn, formatBytes } from "@/lib/utils";
 
 interface FileSummaryProps {
   label: string;
@@ -13,6 +13,7 @@ interface FileSummaryProps {
   bytes?: number;
   /** Extra facts appended after the standard ones, e.g. "14 paths". */
   extra?: string;
+  className?: string;
 }
 
 /**
@@ -27,6 +28,7 @@ export function FileSummary({
   type,
   bytes,
   extra,
+  className,
 }: FileSummaryProps) {
   const parts = [
     width && height ? `${width} × ${height}` : undefined,
@@ -38,7 +40,7 @@ export function FileSummary({
   if (parts.length === 0) return null;
 
   return (
-    <p className="text-muted-foreground text-xs">
+    <p className={cn("text-muted-foreground text-xs", className)}>
       {label}: {parts.join(" · ")}
     </p>
   );

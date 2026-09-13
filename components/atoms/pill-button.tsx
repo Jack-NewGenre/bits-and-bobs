@@ -10,6 +10,7 @@ interface PillButtonProps {
   disabled?: boolean;
   /** `sm` is a more compact pill, used for inline toggles like zoom levels. */
   size?: "default" | "sm";
+  className?: string;
 }
 
 export function PillButton({
@@ -19,6 +20,7 @@ export function PillButton({
   ariaPressed,
   disabled,
   size = "default",
+  className,
 }: PillButtonProps) {
   return (
     <button
@@ -31,6 +33,7 @@ export function PillButton({
         size === "sm" ? "rounded-md px-2 py-0.5" : "rounded-lg p-2",
         active ? "border-primary bg-accent" : "hover:bg-accent/50",
         disabled && "pointer-events-none opacity-50",
+        className,
       )}
     >
       {children}

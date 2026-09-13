@@ -11,11 +11,17 @@ interface PdfFileListProps {
   onRemove: (id: string) => void;
   /** Omit to hide the reorder controls, where order does not matter. */
   onMove?: (id: string, direction: -1 | 1) => void;
+  className?: string;
 }
 
-export function PdfFileList({ files, onRemove, onMove }: PdfFileListProps) {
+export function PdfFileList({
+  files,
+  onRemove,
+  onMove,
+  className,
+}: PdfFileListProps) {
   return (
-    <ul className="space-y-2">
+    <ul className={cn("space-y-2", className)}>
       {files.map((entry, index) => (
         <li
           key={entry.id}

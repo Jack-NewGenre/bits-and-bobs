@@ -9,6 +9,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { PillButton } from "@/components/atoms/pill-button";
 import { SliderRow } from "@/components/atoms/slider-row";
+import { cn } from "@/lib/utils";
 
 interface FormatOptionsProps {
   format: OutputFormat;
@@ -21,6 +22,7 @@ interface FormatOptionsProps {
   sourceType?: string;
   /** Hide the matte picker when the source has no transparency to lose. */
   showMatte?: boolean;
+  className?: string;
 }
 
 /**
@@ -36,9 +38,10 @@ export function FormatOptions({
   onMatteChange,
   sourceType,
   showMatte = true,
+  className,
 }: FormatOptionsProps) {
   return (
-    <div className="space-y-3">
+    <div className={cn("space-y-3", className)}>
       <div className="space-y-2">
         <Label className="text-xs">Format</Label>
         <div className="grid grid-cols-4 gap-2">

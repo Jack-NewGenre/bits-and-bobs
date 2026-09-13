@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { readPdf, type PdfInfo } from "@/lib/pdf/pdf";
-import type { RejectedFile } from "@/components/molecules/image-dropzone";
+import type { RejectedFile } from "@/lib/image/file-intake";
 
 export interface PdfFile {
   id: string;

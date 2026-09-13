@@ -10,8 +10,8 @@ import {
   type QueueOutput,
   type QueueProcessor,
 } from "@/hooks/use-image-queue";
-import type { RejectedFile } from "@/components/molecules/image-dropzone";
-import { downloadZip } from "@/lib/download";
+import type { RejectedFile } from "@/lib/image/file-intake";
+import { downloadZip } from "@/lib/zip";
 
 const BASE_STATUS_LABEL: Record<Exclude<ImageQueueStatus, "processing">, string> =
   {

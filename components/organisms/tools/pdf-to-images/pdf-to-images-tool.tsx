@@ -1,17 +1,18 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { Download, Loader2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 
 import { baseName, usePdfFiles } from "@/hooks/use-pdf-files";
 import { renderPages } from "@/lib/pdf/pdf";
 import { formatPageRanges, parsePageRanges } from "@/lib/pdf/pdf-pages";
-import { downloadBlob, downloadZip } from "@/lib/download";
+import { downloadBlob } from "@/lib/download";
+import { downloadZip } from "@/lib/zip";
 import {
   MAX_PDF_BYTES,
   PDF_TYPES,
-} from "@/components/molecules/image-dropzone";
+} from "@/lib/image/file-intake";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ import { Progress } from "@/components/ui/progress";
 import { ImageDropzone } from "@/components/molecules/image-dropzone";
 import { PdfFileList } from "@/components/molecules/pdf-file-list";
 import { PillButton } from "@/components/atoms/pill-button";
+import { DownloadButton } from "@/components/atoms/download-button";
 
 const RESOLUTIONS = [
   { value: 800, label: "Screen", note: "800px" },
@@ -169,21 +171,15 @@ export function PdfToImagesTool() {
                 )}
 
                 <div className="flex gap-2">
-                  <Button
-                    type="button"
+                  <DownloadButton
                     onClick={handleRender}
+                    busy={isRendering}
                     disabled={pages.length === 0 || isRendering}
                     className="flex-1"
-                  >
-                    {isRendering ? (
-                      <Loader2 className="size-4 animate-spin" />
-                    ) : (
-                      <Download className="size-4" />
-                    )}
-                    {pages.length === 1
+                    label={pages.length === 1
                       ? "Download the page as PNG"
                       : `Download ${pages.length} PNGs as a zip`}
-                  </Button>
+                  />
 
                   {/* A long export is worth being able to abandon. */}
                   {isRendering && (

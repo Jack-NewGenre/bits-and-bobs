@@ -4,7 +4,7 @@ import {
   percentSmaller,
   shouldSuggestWebp,
   transformedName,
-} from "@/components/organisms/transform-result-panel";
+} from "@/lib/image/transform-result";
 
 describe("percentSmaller", () => {
   it("reports a saving as a positive percentage", () => {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useLiveResult } from "@/hooks/use-live-result";
@@ -16,14 +15,8 @@ import { enhanceInWorker } from "@/lib/workers/image-worker-client";
 import { AI_SCALE, aiUpscale, canUseAi, isModelLoaded } from "@/lib/image/ai-upscale";
 import { downloadBlob } from "@/lib/download";
 import { shallowEqual } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { DownloadButton } from "@/components/atoms/download-button";
+import { ResultPanelShell } from "@/components/organisms/result-panel-shell";
 import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
 import { FileSummary } from "@/components/molecules/file-summary";
 import { ResultError } from "@/components/atoms/result-error";
@@ -123,11 +116,17 @@ export function EnhanceResultPanel({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="truncate text-base">{item.name}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
+    <ResultPanelShell
+      title={item.name}
+      footer={
+        <DownloadButton
+          onClick={handleDownload}
+          busy={isBusy}
+          disabled={!finalResult}
+          label="Download"
+        />
+      }
+    >
         {previewUrl && (
           <div className="space-y-2">
             <BeforeAfterSlider
@@ -178,22 +177,6 @@ export function EnhanceResultPanel({
           aiAvailable={aiAvailable}
           sourceType={item.file.type}
         />
-      </CardContent>
-      <CardFooter>
-        <Button
-          type="button"
-          onClick={handleDownload}
-          disabled={!finalResult || isBusy}
-          className="w-full"
-        >
-          {isBusy ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Download className="size-4" />
-          )}
-          Download
-        </Button>
-      </CardFooter>
-    </Card>
+    </ResultPanelShell>
   );
 }

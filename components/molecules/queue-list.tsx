@@ -40,6 +40,7 @@ interface QueueListProps {
   onRetry?: (id: string) => void;
   /** Reorder. Omit where the queue's order does not affect the output. */
   onMove?: (id: string, direction: -1 | 1) => void;
+  className?: string;
 }
 
 export function QueueList({
@@ -49,9 +50,10 @@ export function QueueList({
   onRemove,
   onRetry,
   onMove,
+  className,
 }: QueueListProps) {
   return (
-    <ul className="space-y-2">
+    <ul className={cn("space-y-2", className)}>
       {items.map((item, index) => {
         const isBusy = item.status === "processing" || item.status === "queued";
 

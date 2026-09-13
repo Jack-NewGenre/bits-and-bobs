@@ -1,7 +1,5 @@
 "use client";
 
-import { Download, Loader2 } from "lucide-react";
-
 import { useLiveResult } from "@/hooks/use-live-result";
 import type { DoneQueueItem } from "@/hooks/use-image-queue";
 import type { CutoutResult } from "@/lib/image/background-removal";
@@ -12,16 +10,10 @@ import {
 } from "@/lib/image/composite";
 import { downloadBlob, toPngName } from "@/lib/download";
 import { formatBytes } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
 import { ResultError } from "@/components/atoms/result-error";
+import { DownloadButton } from "@/components/atoms/download-button";
+import { ResultPanelShell } from "@/components/organisms/result-panel-shell";
 import { BackgroundOptions } from "@/components/organisms/tools/background-removal/background-options";
 
 const composite = (cutout: Blob, settings: BackgroundSettings) =>
@@ -63,11 +55,17 @@ export function ResultPanel({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="truncate text-base">{item.name}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
+    <ResultPanelShell
+      title={item.name}
+      footer={
+        <DownloadButton
+          onClick={handleDownload}
+          busy={composited.isProcessing}
+          disabled={!result}
+          label="Download PNG"
+        />
+      }
+    >
         {previewUrl && (
           <BeforeAfterSlider
             beforeUrl={item.originalUrl}
@@ -85,22 +83,6 @@ export function ResultPanel({
         )}
         {composited.error && <ResultError message={composited.error} />}
         <BackgroundOptions settings={settings} onChange={onSettingsChange} />
-      </CardContent>
-      <CardFooter>
-        <Button
-          type="button"
-          onClick={handleDownload}
-          disabled={!result || composited.isProcessing}
-          className="w-full"
-        >
-          {composited.isProcessing ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Download className="size-4" />
-          )}
-          Download PNG
-        </Button>
-      </CardFooter>
-    </Card>
+    </ResultPanelShell>
   );
 }

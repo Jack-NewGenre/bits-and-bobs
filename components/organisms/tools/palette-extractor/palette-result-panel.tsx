@@ -13,18 +13,12 @@ import {
 } from "@/lib/colour/palette";
 import type { PaletteEntry } from "@/lib/image/quantise";
 import { shallowEqual } from "@/lib/utils";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { ColourSwatch } from "@/components/atoms/colour-swatch";
 import { CopyButton } from "@/components/atoms/copy-button";
 import { PreviewImage } from "@/components/atoms/preview-image";
 import { ResultError } from "@/components/atoms/result-error";
 import { SliderRow } from "@/components/atoms/slider-row";
+import { ResultPanelShell } from "@/components/organisms/result-panel-shell";
 
 const extract = (
   file: File,
@@ -66,11 +60,28 @@ export function PaletteResultPanel({
   const entries = palette.result?.entries ?? [];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="truncate text-base">{item.name}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
+    <ResultPanelShell
+      title={item.name}
+      footerClassName="gap-2"
+      footer={
+        <>
+        <CopyButton
+            value={() => entries.map((entry) => formatHex(entry.colour)).join("\n")}
+            label="Copy hex"
+            size="default"
+            className="flex-1"
+            disabled={entries.length === 0}
+          />
+          <CopyButton
+            value={() => toThemeBlock(entries)}
+            label="Copy theme"
+            size="default"
+            className="flex-1"
+            disabled={entries.length === 0}
+          />
+        </>
+      }
+    >
         <PreviewImage src={item.originalUrl} className="max-h-64" />
 
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -96,23 +107,6 @@ export function PaletteResultPanel({
           Each percentage is the share of the image that colour actually
           covers, so the first swatch is the one you see most of.
         </p>
-      </CardContent>
-      <CardFooter className="gap-2">
-        <CopyButton
-          value={() => entries.map((entry) => formatHex(entry.colour)).join("\n")}
-          label="Copy hex"
-          size="default"
-          className="flex-1"
-          disabled={entries.length === 0}
-        />
-        <CopyButton
-          value={() => toThemeBlock(entries)}
-          label="Copy theme"
-          size="default"
-          className="flex-1"
-          disabled={entries.length === 0}
-        />
-      </CardFooter>
-    </Card>
+    </ResultPanelShell>
   );
 }

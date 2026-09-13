@@ -11,11 +11,13 @@ import {
 } from "@/lib/colour/colour-format";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface ColourInputProps {
   label: string;
   value: Rgb;
   onChange: (colour: Rgb) => void;
+  className?: string;
 }
 
 /**
@@ -26,7 +28,12 @@ interface ColourInputProps {
  * like `#ff` is not thrown away mid-keystroke; the colour only moves once
  * what is in the box actually parses.
  */
-export function ColourInput({ label, value, onChange }: ColourInputProps) {
+export function ColourInput({
+  label,
+  value,
+  onChange,
+  className,
+}: ColourInputProps) {
   const [text, setText] = useState(() => formatHex(value));
   const [seen, setSeen] = useState(value);
 
@@ -52,7 +59,7 @@ export function ColourInput({ label, value, onChange }: ColourInputProps) {
   const swatchHex = formatHex({ ...value, a: 1 });
 
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", className)}>
       <Label className="text-xs" htmlFor={`colour-${label}`}>
         {label}
       </Label>

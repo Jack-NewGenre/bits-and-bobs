@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 
-import { buildZip } from "@/lib/download";
+import { buildZip } from "@/lib/zip";
 
 /**
  * Read the names and uncompressed sizes out of a real zip's central

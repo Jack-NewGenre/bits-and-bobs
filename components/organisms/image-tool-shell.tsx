@@ -8,10 +8,10 @@ import type {
   QueueOutput,
 } from "@/hooks/use-image-queue";
 import { Button } from "@/components/ui/button";
+import { ImageDropzone } from "@/components/molecules/image-dropzone";
 import {
-  ImageDropzone,
   type RejectedFile,
-} from "@/components/molecules/image-dropzone";
+} from "@/lib/image/file-intake";
 import { QueueList, type QueueListItem } from "@/components/molecules/queue-list";
 
 function toListItem(

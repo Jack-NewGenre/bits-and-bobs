@@ -14,9 +14,10 @@ import {
 
 interface ToolCardProps {
   tool: Tool;
+  className?: string;
 }
 
-export function ToolCard({ tool }: ToolCardProps) {
+export function ToolCard({ tool, className }: ToolCardProps) {
   const available = isAvailable(tool);
 
   const content = (
@@ -48,7 +49,7 @@ export function ToolCard({ tool }: ToolCardProps) {
   }
 
   return (
-    <Link href={tool.href} className="block">
+    <Link href={tool.href} className={cn("block", className)}>
       {content}
     </Link>
   );

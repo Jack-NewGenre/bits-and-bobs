@@ -1,6 +1,5 @@
 "use client";
 
-import { Download, Loader2 } from "lucide-react";
 
 import { useLiveResult } from "@/hooks/use-live-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
@@ -10,7 +9,7 @@ import {
   type TransformSettings,
 } from "@/lib/image/transform";
 import { transformInWorker } from "@/lib/workers/image-worker-client";
-import { downloadBlob, extensionForType, withSuffix } from "@/lib/download";
+import { downloadBlob } from "@/lib/download";
 import { shallowEqual } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,41 +22,18 @@ import {
 import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
 import { FileSummary } from "@/components/molecules/file-summary";
 import { ResultError } from "@/components/atoms/result-error";
-import { resolveFormat } from "@/lib/image/image-output";
+import { DownloadButton } from "@/components/atoms/download-button";
+import {
+  percentSmaller,
+  shouldSuggestWebp,
+  transformedName,
+} from "@/lib/image/transform-result";
 
 const transform = (
   file: File,
   settings: TransformSettings,
   { signal }: { signal: AbortSignal },
 ) => transformInWorker(file, settings, { signal });
-
-/** Filename for a transformed blob, following the format it encoded to. */
-export function transformedName(
-  name: string,
-  blob: Blob,
-  suffix: string,
-): string {
-  return withSuffix(name, suffix, extensionForType(blob.type));
-}
-
-/**
- * Whether to offer WebP as a way out. The browser's PNG encoder is weaker
- * than whatever wrote the original, so re-encoding a PNG usually inflates it;
- * rather than just reporting that, the panel offers the format that wins.
- */
-export function shouldSuggestWebp(
-  saving: number,
-  format: TransformSettings["format"],
-  sourceType?: string,
-): boolean {
-  return saving < 0 && resolveFormat(format, sourceType) !== "image/webp";
-}
-
-/** Whole-percent change in file size. Negative means it grew. */
-export function percentSmaller(before: number, after: number): number {
-  if (before <= 0) return 0;
-  return Math.round((1 - after / before) * 100);
-}
 
 interface TransformResultPanelProps {
   item: ImageQueueItem<TransformResult>;
@@ -174,19 +150,11 @@ export function TransformResultPanel({
         {children}
       </CardContent>
       <CardFooter>
-        <Button
-          type="button"
+        <DownloadButton
           onClick={handleDownload}
-          disabled={!result || transformed.isProcessing}
-          className="w-full"
-        >
-          {transformed.isProcessing ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Download className="size-4" />
-          )}
-          Download
-        </Button>
+          busy={transformed.isProcessing}
+          disabled={!result}
+        />
       </CardFooter>
     </Card>
   );

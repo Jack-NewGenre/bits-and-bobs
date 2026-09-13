@@ -8,10 +8,8 @@ import {
 } from "@/lib/image/transform";
 import { transformInWorker } from "@/lib/workers/image-worker-client";
 import { ImageToolShell } from "@/components/organisms/image-tool-shell";
-import {
-  TransformResultPanel,
-  transformedName,
-} from "@/components/organisms/transform-result-panel";
+import { TransformResultPanel } from "@/components/organisms/transform-result-panel";
+import { transformedName } from "@/lib/image/transform-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
 
 interface TransformToolProps {

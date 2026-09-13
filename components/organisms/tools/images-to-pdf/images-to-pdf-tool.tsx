@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -27,6 +26,7 @@ import { ImageDropzone } from "@/components/molecules/image-dropzone";
 import { PillButton } from "@/components/atoms/pill-button";
 import { QueueList } from "@/components/molecules/queue-list";
 import { SliderRow } from "@/components/atoms/slider-row";
+import { DownloadButton } from "@/components/atoms/download-button";
 
 const STATUS_LABEL = {
   queued: "Queued",
@@ -189,19 +189,13 @@ export function ImagesToPdfTool() {
                 onChange={(margin) => set("margin", margin)}
               />
 
-              <Button
-                type="button"
+              <DownloadButton
                 onClick={handleBuild}
+                busy={isBuilding}
                 disabled={ready.length === 0 || isBuilding}
                 className="w-full"
-              >
-                {isBuilding ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  <Download className="size-4" />
-                )}
-                Build a {ready.length}-page PDF
-              </Button>
+                label={`Build a ${ready.length}-page PDF`}
+              />
             </CardContent>
           </Card>
         </div>

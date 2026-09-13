@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { usePdfFiles } from "@/hooks/use-pdf-files";
@@ -10,11 +9,12 @@ import { downloadBlob } from "@/lib/download";
 import {
   MAX_PDF_BYTES,
   PDF_TYPES,
-} from "@/components/molecules/image-dropzone";
+} from "@/lib/image/file-intake";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImageDropzone } from "@/components/molecules/image-dropzone";
 import { PdfFileList } from "@/components/molecules/pdf-file-list";
+import { DownloadButton } from "@/components/atoms/download-button";
 
 export function PdfMergeTool() {
   const { files, usable, totalPages, add, remove, clear, move, handleReject } =
@@ -77,24 +77,18 @@ export function PdfMergeTool() {
               </p>
             )}
 
-            <Button
-              type="button"
+            <DownloadButton
               onClick={handleMerge}
+              busy={isMerging}
               disabled={usable.length < 2 || isMerging}
               className="w-full"
-            >
-              {isMerging ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Download className="size-4" />
-              )}
-              {usable.length >= 2
+              label={usable.length >= 2
                 ? `Merge ${usable.length} files`
                 : unreadable > 0
                   ? // Saying "add two" when they added two is just confusing.
                     `${unreadable} of these cannot be read, add another`
                   : "Add at least two PDFs"}
-            </Button>
+            />
           </CardContent>
         </Card>
       )}

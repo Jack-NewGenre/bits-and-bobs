@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Loader2 } from "lucide-react";
 
 import { useLiveResult } from "@/hooks/use-live-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
@@ -15,14 +14,8 @@ import {
 import { vectorizeInWorker } from "@/lib/workers/image-worker-client";
 import { downloadBlob } from "@/lib/download";
 import { formatBytes, shallowEqual } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { DownloadButton } from "@/components/atoms/download-button";
+import { ResultPanelShell } from "@/components/organisms/result-panel-shell";
 import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
 import { CopyButton } from "@/components/atoms/copy-button";
 import { ResultError } from "@/components/atoms/result-error";
@@ -85,11 +78,27 @@ export function VectorizeResultPanel({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="truncate text-base">{item.name}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
+    <ResultPanelShell
+      title={item.name}
+      footerClassName="gap-2"
+      footer={
+        <>
+          <DownloadButton
+            onClick={handleDownload}
+            busy={isBusy}
+            disabled={!finalResult}
+            label="Download SVG"
+            className="flex-1"
+          />
+          <CopyButton
+            value={() => finalResult?.svg ?? ""}
+            label="Copy SVG"
+            size="default"
+            disabled={!finalResult || isBusy}
+          />
+        </>
+      }
+    >
         {previewUrl && (
           <div className="space-y-2">
             <BeforeAfterSlider
@@ -125,28 +134,6 @@ export function VectorizeResultPanel({
           </p>
         )}
         <VectorizeOptions settings={settings} onChange={onSettingsChange} />
-      </CardContent>
-      <CardFooter className="gap-2">
-        <Button
-          type="button"
-          onClick={handleDownload}
-          disabled={!finalResult || isBusy}
-          className="flex-1"
-        >
-          {isBusy ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Download className="size-4" />
-          )}
-          Download SVG
-        </Button>
-        <CopyButton
-          value={() => finalResult?.svg ?? ""}
-          label="Copy SVG"
-          size="default"
-          disabled={!finalResult || isBusy}
-        />
-      </CardFooter>
-    </Card>
+    </ResultPanelShell>
   );
 }

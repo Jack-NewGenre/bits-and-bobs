@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Download, Loader2, TriangleAlert } from "lucide-react";
+import { Download, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { useQrCode } from "@/hooks/use-qr-code";
@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/atoms/copy-button";
 import { TextAreaField } from "@/components/atoms/text-area-field";
 import { QrOptions } from "@/components/organisms/tools/qr-code/qr-options";
+import { DownloadButton } from "@/components/atoms/download-button";
 
 const SAMPLE = "https://example.com";
 
@@ -121,20 +122,14 @@ export function QrCodeTool() {
           )}
 
           <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              variant={code.svg ? "default" : "secondary"}
+            <DownloadButton
               onClick={handlePng}
+              busy={isSaving}
               disabled={!code.svg || isSaving}
+              variant={code.svg ? "default" : "secondary"}
               className="flex-1"
-            >
-              {isSaving ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Download className="size-4" />
-              )}
-              PNG
-            </Button>
+              label={"PNG"}
+            />
             <Button
               type="button"
               variant="outline"

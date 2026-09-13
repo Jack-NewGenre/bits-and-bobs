@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Download, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { baseName, usePdfFiles } from "@/hooks/use-pdf-files";
@@ -11,11 +10,12 @@ import {
   invertSelection,
   parsePageRanges,
 } from "@/lib/pdf/pdf-pages";
-import { downloadBlob, downloadZip } from "@/lib/download";
+import { downloadBlob } from "@/lib/download";
+import { downloadZip } from "@/lib/zip";
 import {
   MAX_PDF_BYTES,
   PDF_TYPES,
-} from "@/components/molecules/image-dropzone";
+} from "@/lib/image/file-intake";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { ImageDropzone } from "@/components/molecules/image-dropzone";
 import { PdfFileList } from "@/components/molecules/pdf-file-list";
 import { PillButton } from "@/components/atoms/pill-button";
+import { DownloadButton } from "@/components/atoms/download-button";
 
 type Mode = "extract" | "remove" | "every";
 
@@ -166,21 +167,15 @@ export function PdfSplitTool() {
                   </div>
                 )}
 
-                <Button
-                  type="button"
+                <DownloadButton
                   onClick={handleRun}
+                  busy={isWorking}
                   disabled={!canRun || isWorking}
                   className="w-full"
-                >
-                  {isWorking ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Download className="size-4" />
-                  )}
-                  {mode === "every"
+                  label={mode === "every"
                     ? `Split into ${total} files`
                     : `Download ${chosen.length} pages`}
-                </Button>
+                />
               </>
             )}
           </CardContent>

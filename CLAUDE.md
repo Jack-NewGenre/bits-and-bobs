@@ -66,7 +66,9 @@ build and test scripts all run it first.
 Tests sit next to what they test: `lib/generators/uuid.ts` and
 `lib/generators/uuid.test.ts`.
 
-There are no barrel `index.ts` files. Import the module you want, directly.
+No barrel `index.ts` files: import the module you want, directly. The one
+`index.ts` in `lib/tool-registry/` is not a barrel, it assembles the five
+category lists into the single `TOOLS` catalogue.
 
 ## Code Conventions
 
@@ -153,7 +155,9 @@ client component from `components/tools/`.
 ### Props & Exports
 
 - Named exports: `export function MyComponent`
-- Accept `className?: string` on anything that renders a root element
+- Atoms and molecules accept `className?: string` and merge it with `cn()`, so a
+  caller can adjust spacing without a wrapper. Organisms own their own layout
+  and do not need one.
 - Export types alongside: `export type { MyComponentProps }`
 
 ### Logic Lives in `lib/`

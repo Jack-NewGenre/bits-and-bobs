@@ -1,6 +1,5 @@
 "use client";
 
-import { Download, Loader2 } from "lucide-react";
 
 import { useLiveResult } from "@/hooks/use-live-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
@@ -12,18 +11,12 @@ import {
 } from "@/lib/image/trim";
 import { downloadBlob, toPngName } from "@/lib/download";
 import { shallowEqual } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { FileSummary } from "@/components/molecules/file-summary";
 import { ResultError } from "@/components/atoms/result-error";
 import { ClipOptions } from "@/components/organisms/tools/image-clipper/clip-options";
 import { CropPreview } from "@/components/organisms/tools/image-clipper/crop-preview";
+import { DownloadButton } from "@/components/atoms/download-button";
+import { ResultPanelShell } from "@/components/organisms/result-panel-shell";
 
 const clip = (
   file: File,
@@ -67,11 +60,17 @@ export function ClipResultPanel({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="truncate text-base">{item.name}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
+    <ResultPanelShell
+      title={item.name}
+      footer={
+        <DownloadButton
+          onClick={handleDownload}
+          busy={clipped.isProcessing}
+          disabled={!result}
+          label="Download PNG"
+        />
+      }
+    >
         <CropPreview
           src={item.originalUrl}
           result={result}
@@ -113,22 +112,6 @@ export function ClipResultPanel({
         </div>
 
         <ClipOptions settings={settings} onChange={onSettingsChange} />
-      </CardContent>
-      <CardFooter>
-        <Button
-          type="button"
-          onClick={handleDownload}
-          disabled={!result || clipped.isProcessing}
-          className="w-full"
-        >
-          {clipped.isProcessing ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Download className="size-4" />
-          )}
-          Download PNG
-        </Button>
-      </CardFooter>
-    </Card>
+    </ResultPanelShell>
   );
 }
