@@ -9,6 +9,7 @@ import {
   parseTimestamp,
   type TimestampParts,
 } from "@/lib/timestamp";
+import { useClientSeed, useHydrated } from "@/hooks/use-client-seed";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,21 +27,22 @@ const RESULT_ROWS: { key: keyof TimestampParts; label: string }[] = [
   { key: "relative", label: "Relative" },
 ];
 
+/** Stable, so the seed runs exactly once. */
+const readClock = () => Date.now();
+
 export function TimestampTool() {
   const [mode, setMode] = useState<Mode>("timestamp");
   const [input, setInput] = useState("");
   // A live "now" so the relative time and the default reading stay current.
-  // Initialised to 0 on the server; the effect below sets the real client value
-  // immediately on mount, preventing a SSR/hydration mismatch.
-  const [now, setNow] = useState(0);
-  const [mounted, setMounted] = useState(false);
+  // The clock is client-only: the server has a different one, and rendering
+  // it would make the two disagree at hydration.
+  const [now, setNow] = useClientSeed(readClock, 0);
+  const mounted = useHydrated();
 
   useEffect(() => {
-    setMounted(true);
-    setNow(Date.now());
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [setNow]);
 
   const parsed = useMemo(() => {
     // Only show the live "current time" after mount so SSR renders no output
@@ -106,7 +108,7 @@ export function TimestampTool() {
             )}
             {usingNow && (
               <p className="text-muted-foreground text-xs">
-                Showing the current time — type a value to convert.
+                Showing the current time. Type a value to convert.
               </p>
             )}
           </div>

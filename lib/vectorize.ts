@@ -1,16 +1,24 @@
 /**
- * Client-side raster → vector tracing, powered by imagetracerjs. Runs entirely
- * in the browser — no uploads.
+ * Client-side raster → vector tracing. Runs entirely in the browser, with no
+ * uploads.
  *
- * The raster is drawn to a canvas (downscaled if huge, since tracing cost
- * grows with pixels × colours), quantised into a small palette, traced into
- * coloured SVG paths, then scaled back so the SVG's coordinate space matches
- * the original image.
+ * Two engines, chosen by mode:
+ *   - Colour and greyscale go through imagetracerjs, which quantises the
+ *     raster into a small palette and traces each colour into its own paths.
+ *   - Black & white goes through Potrace, the long-standing standard for
+ *     bichrome tracing. Its curve fitting is markedly better than a palette
+ *     tracer's on line art: smoother outlines from far fewer nodes.
+ *
+ * Either way the raster is drawn to a canvas first (downscaled if huge, since
+ * tracing cost grows with pixels × colours) and the traced coordinates are
+ * scaled back so the SVG matches the original image's dimensions.
  */
 
 import type { TraceOptions, TracePaletteColor } from "imagetracerjs";
 
 import { createCanvas2D, nextTick, throwIfAborted } from "@/lib/canvas";
+import { withSuffix } from "@/lib/download";
+import { optimizeSvg } from "@/lib/svg-optimize";
 import { clamp } from "@/lib/utils";
 
 export type VectorizeMode = "color" | "grayscale" | "bw";
@@ -66,7 +74,7 @@ export const MAX_COLORS = 64;
  */
 export const GRAYSCALE_MAX_COLORS = 7;
 
-/** Longest traced edge — tracing above this gets very slow for little gain. */
+/** Longest traced edge. Tracing above this gets very slow for little gain. */
 export const MAX_TRACE_DIM = 1024;
 
 const BW_PALETTE: TracePaletteColor[] = [
@@ -75,7 +83,7 @@ const BW_PALETTE: TracePaletteColor[] = [
 ];
 
 /** Round to 4 decimals to keep option values and SVG coordinates tidy. */
-function round4(value: number): number {
+export function round4(value: number): number {
   return Math.round(value * 10_000) / 10_000;
 }
 
@@ -84,9 +92,22 @@ export function smoothingToTolerance(smoothing: number): number {
   return round4(0.1 + (clamp(smoothing, 0, 100) / 100) * 2.4);
 }
 
-/** Map 0–100 despeckle to `pathomit` — paths shorter than this are dropped. */
+/** Map 0-100 despeckle to `pathomit`, so paths shorter than this are dropped. */
 export function despeckleToPathOmit(despeckle: number): number {
   return Math.round((clamp(despeckle, 0, 100) / 100) * 32);
+}
+
+/** Map 0-100 despeckle to Potrace's `turdsize`, so speckles below this go. */
+export function despeckleToTurdSize(despeckle: number): number {
+  return Math.round((clamp(despeckle, 0, 100) / 100) * 20);
+}
+
+/**
+ * Map 0–100 smoothing to Potrace's `alphamax`, which decides how readily a
+ * corner becomes a curve. Its useful range tops out at 1.34.
+ */
+export function smoothingToAlphaMax(smoothing: number): number {
+  return round4((clamp(smoothing, 0, 100) / 100) * 1.34);
 }
 
 /**
@@ -153,11 +174,20 @@ export function countSvgPaths(svg: string): number {
   return svg.match(/<path/g)?.length ?? 0;
 }
 
+/** Filename for a traced result. */
+export function svgFileName(name: string): string {
+  return withSuffix(name, "", "svg");
+}
+
 export function svgToBlob(svg: string): Blob {
   return new Blob([svg], { type: "image/svg+xml" });
 }
 
-export type VectorizeStage = "preparing" | "tracing" | "done";
+export type VectorizeStage =
+  | "preparing"
+  | "tracing"
+  | "optimizing"
+  | "done";
 
 export interface VectorizeProgress {
   stage: VectorizeStage;
@@ -168,6 +198,11 @@ export interface VectorizeProgress {
 export interface VectorizeOptions {
   onProgress?: (progress: VectorizeProgress) => void;
   signal?: AbortSignal;
+  /**
+   * Cap the longest traced edge below `MAX_TRACE_DIM`. Used for the live
+   * preview, where a coarser trace is enough to judge the settings by.
+   */
+  maxTraceDim?: number;
 }
 
 export interface VectorizeResult {
@@ -175,6 +210,8 @@ export interface VectorizeResult {
   svg: string;
   /** The same markup as an `image/svg+xml` blob, for preview and download. */
   blob: Blob;
+  /** Bytes the raw trace occupied before optimisation, for reporting. */
+  rawBytes: number;
 }
 
 /**
@@ -184,7 +221,7 @@ export interface VectorizeResult {
 export async function vectorizeImage(
   source: Blob,
   settings: VectorizeSettings,
-  { onProgress, signal }: VectorizeOptions = {},
+  { onProgress, signal, maxTraceDim }: VectorizeOptions = {},
 ): Promise<VectorizeResult> {
   throwIfAborted(signal);
   onProgress?.({ stage: "preparing", fraction: 0 });
@@ -195,6 +232,7 @@ export async function vectorizeImage(
   const { width, height, scale } = computeTraceSize(
     bitmap.width,
     bitmap.height,
+    Math.min(MAX_TRACE_DIM, maxTraceDim ?? MAX_TRACE_DIM),
   );
 
   const { ctx } = createCanvas2D(width, height);
@@ -210,13 +248,19 @@ export async function vectorizeImage(
   await nextTick();
   throwIfAborted(signal);
 
-  const { default: ImageTracer } = await import("imagetracerjs");
-  const svg = ImageTracer.imagedataToSVG(
-    imageData,
-    buildTraceOptions(settings, scale),
+  const { traceImageTracer, tracePotrace } = await import(
+    "@/lib/trace-engines"
   );
+  const traced =
+    settings.mode === "bw"
+      ? await tracePotrace(imageData, settings, scale)
+      : await traceImageTracer(imageData, settings, scale);
+  throwIfAborted(signal);
+
+  onProgress?.({ stage: "optimizing", fraction: 0.85 });
+  const svg = optimizeSvg(traced);
   throwIfAborted(signal);
 
   onProgress?.({ stage: "done", fraction: 1 });
-  return { svg, blob: svgToBlob(svg) };
+  return { svg, blob: svgToBlob(svg), rawBytes: traced.length };
 }

@@ -36,25 +36,47 @@ export function withSuffix(name: string, suffix: string, ext?: string): string {
   return `${base}${suffix}.${finalExt}`;
 }
 
+/**
+ * Give every entry a unique name, keeping the real extension intact so a
+ * collision produces `photo-1.png` rather than `photo.png-1`.
+ */
+export function uniqueNames(
+  entries: { name: string; blob: Blob }[],
+): { name: string; blob: Blob }[] {
+  const seen = new Map<string, number>();
+
+  return entries.map(({ name, blob }) => {
+    const count = seen.get(name) ?? 0;
+    seen.set(name, count + 1);
+    return {
+      name: count === 0 ? name : name.replace(/(\.[^.]+)?$/, `-${count}$1`),
+      blob,
+    };
+  });
+}
+
+/**
+ * Bundle named blobs into a zip. Kept apart from the download so it can be
+ * tested against a real archive rather than a mock of the archiver.
+ */
+export async function buildZip(
+  entries: { name: string; blob: Blob }[],
+): Promise<Blob> {
+  // client-zip streams the archive out as the entries are read, rather than
+  // buffering every file twice the way a general-purpose zip library does.
+  // The content field must be `input`: an entry with only a name is a valid
+  // request for an empty *folder*, so getting this wrong yields an archive
+  // full of directories rather than files, with no error anywhere.
+  const { downloadZip: makeZip } = await import("client-zip");
+  return makeZip(
+    uniqueNames(entries).map(({ name, blob }) => ({ name, input: blob })),
+  ).blob();
+}
+
 /** Bundle named blobs into a single zip and download it. */
 export async function downloadZip(
   entries: { name: string; blob: Blob }[],
   zipName: string,
 ): Promise<void> {
-  const { default: JSZip } = await import("jszip");
-  const zip = new JSZip();
-  const seen = new Map<string, number>();
-
-  for (const { name, blob } of entries) {
-    const count = seen.get(name) ?? 0;
-    seen.set(name, count + 1);
-    // De-duplicate by inserting the counter before the real extension (which
-    // may be .png, .jpg, .webp, …) so colliding names don't overwrite.
-    const entryName =
-      count === 0 ? name : name.replace(/(\.[^.]+)?$/, `-${count}$1`);
-    zip.file(entryName, blob);
-  }
-
-  const archive = await zip.generateAsync({ type: "blob" });
-  downloadBlob(archive, zipName);
+  downloadBlob(await buildZip(entries), zipName);
 }

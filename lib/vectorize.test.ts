@@ -10,6 +10,8 @@ import {
   DEFAULT_VECTORIZE_SETTINGS,
   MAX_TRACE_DIM,
   type VectorizeSettings,
+  despeckleToTurdSize,
+  smoothingToAlphaMax,
 } from "@/lib/vectorize";
 
 const BASE: VectorizeSettings = {
@@ -93,7 +95,7 @@ describe("buildTraceOptions", () => {
     expect(options.colorsampling).toBe(0);
     expect(options.colorquantcycles).toBe(1);
     // imagetracerjs's generatepalette only builds a true grey ramp below 8
-    // colours — at or above that it builds an RGB colour cube instead.
+    // colours. At or above that it builds an RGB colour cube instead.
     expect(options.numberofcolors).toBeLessThan(8);
   });
 
@@ -147,5 +149,24 @@ describe("svgToBlob", () => {
 describe("presets", () => {
   it("defaults to the auto preset", () => {
     expect(DEFAULT_VECTORIZE_SETTINGS).toEqual(BASE);
+  });
+});
+
+describe("potrace parameter mapping", () => {
+  it("maps smoothing onto alphamax's useful range", () => {
+    expect(smoothingToAlphaMax(0)).toBe(0);
+    expect(smoothingToAlphaMax(100)).toBe(1.34);
+    expect(smoothingToAlphaMax(50)).toBe(0.67);
+  });
+
+  it("maps despeckle onto turdsize", () => {
+    expect(despeckleToTurdSize(0)).toBe(0);
+    expect(despeckleToTurdSize(100)).toBe(20);
+    expect(despeckleToTurdSize(25)).toBe(5);
+  });
+
+  it("clamps out-of-range input", () => {
+    expect(smoothingToAlphaMax(500)).toBe(1.34);
+    expect(despeckleToTurdSize(-5)).toBe(0);
   });
 });

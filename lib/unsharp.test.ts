@@ -32,6 +32,14 @@ describe("unsharpMask", () => {
     expect(unsharpMask(base, blurred, 0.5)[0]).toBe(170);
   });
 
+  it("writes in place to avoid a second full-size buffer", () => {
+    const base = new Uint8ClampedArray([200, 200, 200, 255]);
+    const blurred = new Uint8ClampedArray([150, 150, 150, 255]);
+    const out = unsharpMask(base, blurred, 1);
+    expect(out).toBe(base);
+    expect(base[0]).toBe(250);
+  });
+
   it("clamps to the byte range", () => {
     const base = new Uint8ClampedArray([255, 0, 0, 255]);
     const blurred = new Uint8ClampedArray([100, 50, 0, 255]);

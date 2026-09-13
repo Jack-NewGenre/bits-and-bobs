@@ -1,12 +1,19 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 export const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+export const PDF_TYPES = ["application/pdf"];
 export const MAX_FILE_BYTES = 25 * 1024 * 1024; // 25MB
+/**
+ * PDFs are routinely far larger than images (a scanned document runs to tens
+ * of megabytes) and nothing is uploaded, so the only real limit is the
+ * browser's own memory.
+ */
+export const MAX_PDF_BYTES = 200 * 1024 * 1024; // 200MB
 
 export interface RejectedFile {
   name: string;
@@ -19,9 +26,48 @@ interface ImageDropzoneProps {
   disabled?: boolean;
   /** Override the helper text shown beneath the prompt. */
   hint?: string;
+  /** MIME types to accept. Defaults to the image formats. */
+  accept?: string[];
+  /** Override the main prompt, e.g. for a tool that takes PDFs. */
+  prompt?: string;
+  /** Only take one file at a time. */
+  single?: boolean;
+  /** Largest file accepted. Defaults to the image limit. */
+  maxBytes?: number;
 }
 
-export function partitionFiles(files: File[]): {
+/**
+ * Pull image files out of a clipboard payload. Screenshots arrive as an
+ * unnamed `image.png`, so each one is given a distinct, sortable name.
+ */
+export function filesFromClipboard(
+  items: DataTransferItemList | undefined,
+  now: number = Date.now(),
+): File[] {
+  if (!items) return [];
+
+  return Array.from(items)
+    .filter((item) => item.kind === "file" && item.type.startsWith("image/"))
+    .map((item) => item.getAsFile())
+    .filter((file): file is File => file !== null)
+    .map((file, index) => {
+      const extension = file.type.split("/")[1] ?? "png";
+      const suffix = index === 0 ? "" : `-${index + 1}`;
+      return new File([file], `pasted-${now}${suffix}.${extension}`, {
+        type: file.type,
+      });
+    });
+}
+
+function describeLimit(bytes: number): string {
+  return `${Math.round(bytes / 1024 / 1024)}MB`;
+}
+
+export function partitionFiles(
+  files: File[],
+  types: string[] = ACCEPTED_TYPES,
+  maxBytes: number = MAX_FILE_BYTES,
+): {
   accepted: File[];
   rejected: RejectedFile[];
 } {
@@ -29,10 +75,13 @@ export function partitionFiles(files: File[]): {
   const rejected: RejectedFile[] = [];
 
   for (const file of files) {
-    if (!ACCEPTED_TYPES.includes(file.type)) {
+    if (!types.includes(file.type)) {
       rejected.push({ name: file.name, reason: "Unsupported file type" });
-    } else if (file.size > MAX_FILE_BYTES) {
-      rejected.push({ name: file.name, reason: "File is larger than 25MB" });
+    } else if (file.size > maxBytes) {
+      rejected.push({
+        name: file.name,
+        reason: `File is larger than ${describeLimit(maxBytes)}`,
+      });
     } else {
       accepted.push(file);
     }
@@ -46,19 +95,41 @@ export function ImageDropzone({
   onReject,
   disabled,
   hint = "PNG, JPG or WebP · up to 25MB · multiple at once",
+  accept = ACCEPTED_TYPES,
+  prompt = "Drop images here, paste, or click to browse",
+  single = false,
+  maxBytes = MAX_FILE_BYTES,
 }: ImageDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFiles = useCallback(
-    (fileList: FileList | null) => {
-      if (!fileList || fileList.length === 0) return;
-      const { accepted, rejected } = partitionFiles(Array.from(fileList));
+    (files: File[]) => {
+      if (files.length === 0) return;
+      const { accepted, rejected } = partitionFiles(files, accept, maxBytes);
       if (rejected.length > 0) onReject?.(rejected);
       if (accepted.length > 0) onFiles(accepted);
     },
-    [onFiles, onReject],
+    [onFiles, onReject, accept, maxBytes],
   );
+
+  // Paste anywhere on the page: a screenshot goes straight in, with no detour
+  // through saving it to disk first.
+  useEffect(() => {
+    if (disabled) return;
+
+    const onPaste = (event: ClipboardEvent) => {
+      // Pasting only makes sense for images; a PDF is not on the clipboard.
+      if (!accept.includes("image/png")) return;
+      const pasted = filesFromClipboard(event.clipboardData?.items);
+      if (pasted.length === 0) return;
+      event.preventDefault();
+      handleFiles(pasted);
+    };
+
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+  }, [disabled, handleFiles, accept]);
 
   return (
     <div
@@ -82,7 +153,7 @@ export function ImageDropzone({
       onDrop={(event) => {
         event.preventDefault();
         setIsDragging(false);
-        if (!disabled) handleFiles(event.dataTransfer.files);
+        if (!disabled) handleFiles(Array.from(event.dataTransfer.files));
       }}
       className={cn(
         "flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-12 text-center transition-colors outline-none",
@@ -97,19 +168,17 @@ export function ImageDropzone({
         <ImageUp className="size-6" />
       </div>
       <div>
-        <p className="text-sm font-medium">
-          Drop images here, or click to browse
-        </p>
+        <p className="text-sm font-medium">{prompt}</p>
         <p className="text-muted-foreground mt-1 text-xs">{hint}</p>
       </div>
       <input
         ref={inputRef}
         type="file"
-        accept={ACCEPTED_TYPES.join(",")}
-        multiple
+        accept={accept.join(",")}
+        multiple={!single}
         hidden
         onChange={(event) => {
-          handleFiles(event.target.files);
+          handleFiles(Array.from(event.target.files ?? []));
           event.target.value = "";
         }}
       />

@@ -28,7 +28,7 @@ export default function Home() {
         <h1 className="text-3xl font-semibold tracking-tight">Toolbox</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl text-base">
           A growing set of clean, fast utilities that run entirely in your
-          browser — no uploads, no sign-up, no cost.
+          browser. No uploads, no sign-up, no cost.
         </p>
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
           {HIGHLIGHTS.map(({ icon: Icon, title, description }) => (

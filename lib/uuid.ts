@@ -1,5 +1,5 @@
 /**
- * UUID generation — runs entirely in the browser via the Web Crypto API.
+ * UUID generation, running entirely in the browser via the Web Crypto API.
  * Pure helpers so they can be unit-tested without a DOM.
  */
 

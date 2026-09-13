@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Built by `bun run build:worker` from lib/workers/image-worker.ts
+/public/image-worker.js
+
+# Browser automation scratch space (screenshots, fixtures)
+/.agent-browser
+/public/text-worker.js
+/public/pdf.worker.min.mjs

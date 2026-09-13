@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { compositeCutout } from "@/lib/composite";
+import {
+  compositeCutout,
+  compositeWithSettings,
+  featherRadius,
+} from "@/lib/composite";
 
 interface MockCtx {
   fillStyle: string;
@@ -46,12 +50,12 @@ afterEach(() => {
 describe("compositeCutout", () => {
   const cutout = new Blob(["cutout"], { type: "image/png" });
 
-  it("returns a PNG blob for transparent mode without filling", async () => {
+  it("hands the cutout straight back for transparent mode", async () => {
     const result = await compositeCutout(cutout, { mode: "transparent" });
-    expect(result).toBe(outputBlob);
+    // No canvas round trip: transparent mode has nothing to composite.
+    expect(result).toBe(cutout);
     expect(ctx.fillRect).not.toHaveBeenCalled();
-    // Only the foreground is drawn.
-    expect(ctx.drawImage).toHaveBeenCalledTimes(1);
+    expect(ctx.drawImage).not.toHaveBeenCalled();
   });
 
   it("fills the canvas for colour mode", async () => {
@@ -70,5 +74,63 @@ describe("compositeCutout", () => {
     expect(ctx.fillRect).not.toHaveBeenCalled();
     // Background + foreground.
     expect(ctx.drawImage).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("compositeWithSettings", () => {
+  const cutout = new Blob(["cutout"], { type: "image/png" });
+
+  it("returns the untouched cutout in transparent mode", async () => {
+    const { blob } = await compositeWithSettings(cutout, {
+      mode: "transparent",
+      color: "#ffffff",
+      feather: 0,
+      trim: false,
+    });
+    expect(blob).toBe(cutout);
+  });
+
+  it("bakes in the chosen colour, so a zip matches the preview", async () => {
+    const { blob } = await compositeWithSettings(cutout, {
+      mode: "color",
+      color: "#3b82f6",
+      feather: 0,
+      trim: false,
+    });
+    expect(blob).toBe(outputBlob);
+    expect(ctx.fillStyle).toBe("#3b82f6");
+    expect(ctx.fillRect).toHaveBeenCalledWith(0, 0, 100, 80);
+  });
+
+  it("falls back to a plain cutout when image mode has no image yet", async () => {
+    const { blob } = await compositeWithSettings(cutout, {
+      mode: "image",
+      color: "#ffffff",
+      feather: 0,
+      trim: false,
+    });
+    expect(blob).toBe(outputBlob);
+    expect(ctx.fillRect).not.toHaveBeenCalled();
+    // Foreground only, so there is no background to draw.
+    expect(ctx.drawImage).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("featherRadius", () => {
+  it("is zero when feathering is off", () => {
+    expect(featherRadius(0, 2000)).toBe(0);
+  });
+
+  it("scales with the image, so softening looks the same at any size", () => {
+    expect(featherRadius(100, 250)).toBe(1);
+    expect(featherRadius(100, 2000)).toBe(8);
+    // Never below a 1px radius, however small the image.
+    expect(featherRadius(100, 10)).toBe(1);
+  });
+
+  it("is proportional to the slider and clamps out-of-range input", () => {
+    expect(featherRadius(50, 1000)).toBe(2);
+    expect(featherRadius(500, 1000)).toBe(4);
+    expect(featherRadius(-10, 1000)).toBe(0);
   });
 });

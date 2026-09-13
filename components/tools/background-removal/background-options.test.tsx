@@ -2,12 +2,14 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import type { BackgroundSettings } from "@/hooks/use-composited-result";
+import type { BackgroundSettings } from "@/lib/composite";
 import { BackgroundOptions } from "@/components/tools/background-removal/background-options";
 
 const baseSettings: BackgroundSettings = {
   mode: "transparent",
   color: "#ffffff",
+  feather: 0,
+  trim: false,
 };
 
 describe("BackgroundOptions", () => {
@@ -56,6 +58,46 @@ describe("BackgroundOptions", () => {
     await user.click(screen.getByRole("tab", { name: /image/i }));
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({ mode: "image" }),
+    );
+  });
+
+  it("toggles trimming to the subject", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    const { rerender } = render(
+      <BackgroundOptions settings={baseSettings} onChange={onChange} />,
+    );
+
+    const toggle = screen.getByRole("button", { name: /trim to subject/i });
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+    await user.click(toggle);
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ trim: true }),
+    );
+
+    rerender(
+      <BackgroundOptions
+        settings={{ ...baseSettings, trim: true }}
+        onChange={onChange}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: /trim to subject/i }),
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("offers edge feathering", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<BackgroundOptions settings={baseSettings} onChange={onChange} />);
+
+    const feather = screen.getByRole("slider");
+    feather.focus();
+    await user.keyboard("{ArrowRight}");
+
+    expect(onChange).toHaveBeenCalledWith(
+      expect.objectContaining({ feather: 1 }),
     );
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RefreshCw } from "lucide-react";
 
 import {
@@ -10,12 +10,16 @@ import {
   MIN_COUNT,
   type UuidOptions,
 } from "@/lib/uuid";
+import { useClientSeed } from "@/hooks/use-client-seed";
 import { clamp } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/shared/copy-button";
+
+/** Stable, so the seed runs exactly once. */
+const seedUuids = () => generateUuids(DEFAULT_UUID_OPTIONS);
 
 const TOGGLES: { key: keyof UuidOptions; label: string }[] = [
   { key: "uppercase", label: "Uppercase" },
@@ -24,13 +28,9 @@ const TOGGLES: { key: keyof UuidOptions; label: string }[] = [
 
 export function UuidTool() {
   const [options, setOptions] = useState<UuidOptions>(DEFAULT_UUID_OPTIONS);
-  // Seeded client-side only to avoid a SSR/hydration mismatch (crypto is
-  // non-deterministic so server and client would produce different UUIDs).
-  const [uuids, setUuids] = useState<string[]>([]);
-
-  useEffect(() => {
-    setUuids(generateUuids(DEFAULT_UUID_OPTIONS));
-  }, []);
+  // Client-only: crypto is non-deterministic, so the server cannot render
+  // these without the two disagreeing at hydration.
+  const [uuids, setUuids] = useClientSeed(seedUuids, []);
 
   // Apply an options change and regenerate from the new options in one go.
   const apply = (next: UuidOptions) => {

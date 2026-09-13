@@ -1,11 +1,12 @@
 /**
- * Client-side image enhancement — runs entirely on a <canvas>, no uploads.
+ * Client-side image enhancement, running entirely on a <canvas>, no uploads.
  *
  * Low-quality images are improved with a classic, dependency-free pipeline:
  *   1. High-quality upscaling (bilinear/bicubic via the browser's resampler)
- *   2. Tone adjustments (brightness / contrast / saturation) + optional denoise
- *      blur, applied natively through `ctx.filter` in a single draw
- *   3. An unsharp 3x3 convolution to restore crisp edges
+ *   2. Tone adjustments (brightness / contrast / saturation) applied natively
+ *      through `ctx.filter` in a single draw
+ *   3. An edge-preserving median denoise
+ *   4. An unsharp mask to restore crisp edges
  *
  * Everything below the orchestrator is a small pure function so the maths can
  * be unit-tested without a real canvas.
@@ -17,12 +18,30 @@ import {
   nextTick,
   throwIfAborted,
 } from "@/lib/canvas";
+import { medianDenoise } from "@/lib/denoise";
+import { outputTypeFor, type OutputFormat } from "@/lib/image-output";
+import { extensionForType, withSuffix } from "@/lib/download";
 import { clamp } from "@/lib/utils";
 import { unsharpMask } from "@/lib/unsharp";
 
 export type EnhanceScale = 1 | 2 | 4;
 
+/**
+ * `fast` resamples on a canvas: instant, but it can only interpolate between
+ * pixels that already exist. `ai` reconstructs detail with a super-resolution
+ * model: far better on small, soft images, at the cost of a one-off model
+ * download and a much slower pass.
+ */
+export type EnhanceEngine = "fast" | "ai";
+
+
 export interface EnhanceSettings {
+  /** Which upscaler produces the enlargement. */
+  engine: EnhanceEngine;
+  /** Encoding of the downloaded file. */
+  format: OutputFormat;
+  /** Encoder quality for the lossy formats, 1–100. Ignored by PNG. */
+  quality: number;
   /** Output size multiplier. */
   scale: EnhanceScale;
   /** Edge sharpening strength, 0–100. */
@@ -37,70 +56,20 @@ export interface EnhanceSettings {
   saturation: number;
 }
 
-export interface EnhancePreset {
-  id: string;
-  label: string;
-  settings: EnhanceSettings;
+/** Filename for an enhanced blob, keeping whichever format it encoded to. */
+export function enhancedFileName(name: string, blob: Blob): string {
+  return withSuffix(name, "-enhanced", extensionForType(blob.type));
 }
-
-export const ENHANCE_PRESETS: EnhancePreset[] = [
-  {
-    id: "auto",
-    label: "Auto",
-    settings: {
-      scale: 2,
-      sharpen: 35,
-      denoise: 18,
-      brightness: 2,
-      contrast: 8,
-      saturation: 6,
-    },
-  },
-  {
-    id: "sharpen",
-    label: "Sharpen",
-    settings: {
-      scale: 2,
-      sharpen: 65,
-      denoise: 0,
-      brightness: 0,
-      contrast: 6,
-      saturation: 0,
-    },
-  },
-  {
-    id: "denoise",
-    label: "Denoise",
-    settings: {
-      scale: 2,
-      sharpen: 18,
-      denoise: 55,
-      brightness: 0,
-      contrast: 4,
-      saturation: 0,
-    },
-  },
-  {
-    id: "vivid",
-    label: "Vivid",
-    settings: {
-      scale: 2,
-      sharpen: 28,
-      denoise: 10,
-      brightness: 4,
-      contrast: 14,
-      saturation: 28,
-    },
-  },
-];
-
-export const DEFAULT_ENHANCE_SETTINGS: EnhanceSettings = ENHANCE_PRESETS[0]
-  .settings;
 
 /** Longest output edge, to keep memory and processing time bounded. */
 export const MAX_OUTPUT_DIM = 4096;
 
-export type EnhanceStage = "preparing" | "enhancing" | "encoding" | "done";
+export type EnhanceStage =
+  | "preparing"
+  | "denoising"
+  | "enhancing"
+  | "encoding"
+  | "done";
 
 export interface EnhanceProgress {
   stage: EnhanceStage;
@@ -111,6 +80,28 @@ export interface EnhanceProgress {
 export interface EnhanceOptions {
   onProgress?: (progress: EnhanceProgress) => void;
   signal?: AbortSignal;
+  /**
+   * Cap the longest output edge below `MAX_OUTPUT_DIM`. Used for the live
+   * preview, which only has to look right on screen.
+   */
+  maxOutputDim?: number;
+  /**
+   * Resample by this factor instead of `settings.scale`. The AI engine has
+   * already enlarged the source by a fixed amount, so the canvas pass only
+   * covers whatever enlargement is left over.
+   */
+  scaleOverride?: number;
+}
+
+export interface EnhanceResult {
+  /** Encoded output, ready to preview or download. */
+  blob: Blob;
+  /** Actual output size in pixels, after the clamp. */
+  width: number;
+  height: number;
+  /** Size a full-quality pass would produce, for honest UI labelling. */
+  fullWidth: number;
+  fullHeight: number;
 }
 
 /** Round to 3 decimals to keep filter strings tidy. */
@@ -139,7 +130,7 @@ export function computeTargetSize(
   return { width: w, height: h };
 }
 
-/** Build the CSS `ctx.filter` string for tone + denoise, or "none". */
+/** Build the CSS `ctx.filter` string for the tone adjustments, or "none". */
 export function buildFilter(settings: EnhanceSettings): string {
   const parts: string[] = [];
   const brightness = 1 + clamp(settings.brightness, -100, 100) / 100;
@@ -150,20 +141,7 @@ export function buildFilter(settings: EnhanceSettings): string {
   if (contrast !== 1) parts.push(`contrast(${round(contrast)})`);
   if (saturation !== 1) parts.push(`saturate(${round(saturation)})`);
 
-  const blurPx = (clamp(settings.denoise, 0, 100) / 100) * 1.1;
-  if (blurPx > 0) parts.push(`blur(${round(blurPx)}px)`);
-
   return parts.length > 0 ? parts.join(" ") : "none";
-}
-
-/** Choose an output encoding, preferring to keep the source format. */
-export function outputTypeFor(inputType?: string): {
-  type: string;
-  quality?: number;
-} {
-  if (inputType === "image/jpeg") return { type: "image/jpeg", quality: 0.92 };
-  if (inputType === "image/webp") return { type: "image/webp", quality: 0.92 };
-  return { type: "image/png" };
 }
 
 /** Sharpen gain at amount = 1 (the slider's 0–100 maps to a 0–1 amount). */
@@ -175,24 +153,32 @@ function sharpenRadius(scale: number): number {
 }
 
 /**
- * Enhance an image and return the result as a Blob.
+ * Enhance an image and return the encoded result with its true output size.
  * Throws `DOMException` (name "AbortError") if aborted.
  */
 export async function enhanceImage(
   source: Blob,
   settings: EnhanceSettings,
-  { onProgress, signal }: EnhanceOptions = {},
-): Promise<Blob> {
+  {
+    onProgress,
+    signal,
+    maxOutputDim,
+    scaleOverride,
+  }: EnhanceOptions = {},
+): Promise<EnhanceResult> {
   throwIfAborted(signal);
   onProgress?.({ stage: "preparing", fraction: 0 });
 
   const bitmap = await createImageBitmap(source);
   throwIfAborted(signal);
 
+  const scale = scaleOverride ?? settings.scale;
+  const full = computeTargetSize(bitmap.width, bitmap.height, scale);
   const { width, height } = computeTargetSize(
     bitmap.width,
     bitmap.height,
-    settings.scale,
+    scale,
+    Math.min(MAX_OUTPUT_DIM, maxOutputDim ?? MAX_OUTPUT_DIM),
   );
 
   const { canvas, ctx } = createCanvas2D(width, height);
@@ -204,7 +190,19 @@ export async function enhanceImage(
   ctx.filter = "none";
   bitmap.close?.();
 
-  onProgress?.({ stage: "enhancing", fraction: 0.5 });
+  const denoise = clamp(settings.denoise, 0, 100) / 100;
+  if (denoise > 0) {
+    onProgress?.({ stage: "denoising", fraction: 0.35 });
+    // Yield once so the UI can paint the busy state before the heavy pass.
+    await nextTick();
+    throwIfAborted(signal);
+
+    const image = ctx.getImageData(0, 0, width, height);
+    image.data.set(medianDenoise(image.data, width, height, denoise));
+    ctx.putImageData(image, 0, 0);
+  }
+
+  onProgress?.({ stage: "enhancing", fraction: 0.6 });
 
   const amount = clamp(settings.sharpen, 0, 100) / 100;
   if (amount > 0) {
@@ -216,26 +214,31 @@ export async function enhanceImage(
     // difference between the sharp and blurred versions. The radius grows with
     // the upscale factor so the effect stays visible after enlarging.
     const blur = createCanvas2D(width, height);
-    blur.ctx.filter = `blur(${sharpenRadius(settings.scale)}px)`;
+    blur.ctx.filter = `blur(${sharpenRadius(scale)}px)`;
     blur.ctx.drawImage(canvas, 0, 0);
 
     const baseImage = ctx.getImageData(0, 0, width, height);
     const blurImage = blur.ctx.getImageData(0, 0, width, height);
-    const sharpened = unsharpMask(
-      baseImage.data,
-      blurImage.data,
-      amount * SHARPEN_GAIN,
-    );
-    baseImage.data.set(sharpened);
+    unsharpMask(baseImage.data, blurImage.data, amount * SHARPEN_GAIN);
     ctx.putImageData(baseImage, 0, 0);
   }
 
   onProgress?.({ stage: "encoding", fraction: 0.9 });
 
-  const { type, quality } = outputTypeFor(source.type);
+  const { type, quality } = outputTypeFor(
+    source.type,
+    settings.format,
+    settings.quality,
+  );
   const blob = await canvasToBlob(canvas, type, quality);
   throwIfAborted(signal);
 
   onProgress?.({ stage: "done", fraction: 1 });
-  return blob;
+  return {
+    blob,
+    width,
+    height,
+    fullWidth: full.width,
+    fullHeight: full.height,
+  };
 }

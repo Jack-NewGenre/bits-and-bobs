@@ -1,13 +1,13 @@
 "use client";
 
 import { useRef } from "react";
-import { ImagePlus, Palette, Square } from "lucide-react";
+import { Crop, ImagePlus, Palette, Square } from "lucide-react";
 
-import type { BackgroundSettings } from "@/hooks/use-composited-result";
-import type { BackgroundMode } from "@/lib/composite";
+import type { BackgroundMode, BackgroundSettings } from "@/lib/composite";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { SliderRow } from "@/components/shared/slider-row";
 
 const PRESET_COLORS = [
   "#ffffff",
@@ -101,6 +101,30 @@ export function BackgroundOptions({
           </div>
         </div>
       )}
+
+      <SliderRow
+        label="Feather edge"
+        value={settings.feather}
+        min={0}
+        max={100}
+        onChange={(feather) => onChange({ ...settings, feather })}
+      />
+
+      <button
+        type="button"
+        aria-pressed={settings.trim}
+        onClick={() => onChange({ ...settings, trim: !settings.trim })}
+        className={cn(
+          "flex w-full items-center gap-2 rounded-lg border p-3 text-xs font-medium transition-colors",
+          settings.trim ? "border-primary bg-accent" : "hover:bg-accent/50",
+        )}
+      >
+        <Crop className="size-4" />
+        Trim to subject
+        <span className="text-muted-foreground ml-auto font-normal">
+          {settings.trim ? "On" : "Off"}
+        </span>
+      </button>
 
       {settings.mode === "image" && (
         <div className="space-y-2">

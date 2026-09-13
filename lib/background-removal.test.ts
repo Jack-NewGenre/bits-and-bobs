@@ -72,7 +72,7 @@ describe("removeImageBackground", () => {
     const removeImageBackground = await importFresh();
     const result = await removeImageBackground(source);
 
-    expect(result).toBe(outputBlob);
+    expect(result.blob).toBe(outputBlob);
     expect(autoModelMock.from_pretrained).toHaveBeenCalledWith(
       "briaai/RMBG-1.4",
       expect.objectContaining({ dtype: "q8", device: "wasm" }),
@@ -106,5 +106,47 @@ describe("removeImageBackground", () => {
       removeImageBackground(source, { signal: controller.signal }),
     ).rejects.toMatchObject({ name: "AbortError" });
     expect(autoModelMock.from_pretrained).not.toHaveBeenCalled();
+  });
+});
+
+describe("detectDevice", () => {
+  async function importDetect() {
+    return (await import("@/lib/background-removal")).detectDevice;
+  }
+
+  it("falls back to wasm when the browser has no WebGPU", async () => {
+    const detectDevice = await importDetect();
+    expect(await detectDevice()).toBe("wasm");
+  });
+
+  it("picks webgpu when an adapter is available", async () => {
+    vi.stubGlobal("navigator", {
+      gpu: { requestAdapter: async () => ({}) },
+    });
+    const detectDevice = await importDetect();
+    expect(await detectDevice()).toBe("webgpu");
+    vi.unstubAllGlobals();
+  });
+
+  it("falls back to wasm when no adapter is granted", async () => {
+    vi.stubGlobal("navigator", {
+      gpu: { requestAdapter: async () => null },
+    });
+    const detectDevice = await importDetect();
+    expect(await detectDevice()).toBe("wasm");
+    vi.unstubAllGlobals();
+  });
+
+  it("falls back to wasm when the adapter request throws", async () => {
+    vi.stubGlobal("navigator", {
+      gpu: {
+        requestAdapter: async () => {
+          throw new Error("denied");
+        },
+      },
+    });
+    const detectDevice = await importDetect();
+    expect(await detectDevice()).toBe("wasm");
+    vi.unstubAllGlobals();
   });
 });

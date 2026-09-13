@@ -4,11 +4,13 @@ import {
   buildFilter,
   computeTargetSize,
   enhanceImage,
-  outputTypeFor,
   type EnhanceSettings,
 } from "@/lib/enhance";
 
 const NEUTRAL: EnhanceSettings = {
+  engine: "fast",
+  format: "source",
+  quality: 92,
   scale: 2,
   sharpen: 0,
   denoise: 0,
@@ -39,35 +41,23 @@ describe("buildFilter", () => {
     expect(buildFilter(NEUTRAL)).toBe("none");
   });
 
-  it("composes tone and denoise functions", () => {
+  it("composes the tone functions", () => {
     const filter = buildFilter({
       ...NEUTRAL,
       brightness: 10,
       contrast: 20,
       saturation: -50,
-      denoise: 100,
     });
     expect(filter).toContain("brightness(1.1)");
     expect(filter).toContain("contrast(1.2)");
     expect(filter).toContain("saturate(0.5)");
-    expect(filter).toContain("blur(1.1px)");
+  });
+
+  it("no longer blurs for denoise, which would fight the sharpen pass", () => {
+    expect(buildFilter({ ...NEUTRAL, denoise: 100 })).toBe("none");
   });
 });
 
-describe("outputTypeFor", () => {
-  it("keeps jpeg and webp, defaults to png", () => {
-    expect(outputTypeFor("image/jpeg")).toEqual({
-      type: "image/jpeg",
-      quality: 0.92,
-    });
-    expect(outputTypeFor("image/webp")).toEqual({
-      type: "image/webp",
-      quality: 0.92,
-    });
-    expect(outputTypeFor("image/png")).toEqual({ type: "image/png" });
-    expect(outputTypeFor(undefined)).toEqual({ type: "image/png" });
-  });
-});
 
 interface MockCtx {
   filter: string;
@@ -126,11 +116,13 @@ describe("enhanceImage", () => {
     vi.unstubAllGlobals();
   });
 
-  it("returns the encoded blob and reports a final done stage", async () => {
+  it("returns the encoded blob, its true size, and a final done stage", async () => {
     const onProgress = vi.fn();
     const result = await enhanceImage(source, NEUTRAL, { onProgress });
 
-    expect(result).toBe(output);
+    expect(result.blob).toBe(output);
+    // The 40x20 source at scale 1 (NEUTRAL) stays 40x20.
+    expect(result).toMatchObject({ width: 40, height: 20 });
     expect(toBlobType).toBe("image/jpeg"); // keeps the source format
     expect(onProgress).toHaveBeenLastCalledWith({ stage: "done", fraction: 1 });
   });

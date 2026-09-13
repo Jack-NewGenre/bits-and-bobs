@@ -48,6 +48,15 @@ export function encodeBase64(text: string, urlSafe = false): Base64Result {
   }
 }
 
+/**
+ * Whether a string uses the URL-safe alphabet. `-` and `_` are only valid in
+ * that variant, so their presence is a reliable tell, and the reason a
+ * paste from a URL or a JWT fails to decode as standard Base64.
+ */
+export function looksUrlSafe(input: string): boolean {
+  return /[-_]/.test(input);
+}
+
 /** Decode Base64 (standard or URL-safe) back to UTF-8 text. */
 export function decodeBase64(input: string, urlSafe = false): Base64Result {
   const trimmed = input.trim();
@@ -57,7 +66,14 @@ export function decodeBase64(input: string, urlSafe = false): Base64Result {
     const bytes = binaryToBytes(atob(normalised));
     return { ok: true, value: new TextDecoder().decode(bytes) };
   } catch {
-    return { ok: false, value: "", error: "Not a valid Base64 string" };
+    return {
+      ok: false,
+      value: "",
+      error:
+        !urlSafe && looksUrlSafe(trimmed)
+          ? "Not valid standard Base64. It contains - or _, so try the URL-safe toggle."
+          : "Not a valid Base64 string",
+    };
   }
 }
 

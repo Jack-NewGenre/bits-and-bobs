@@ -1,17 +1,22 @@
 /**
  * General-purpose background removal running fully in the browser via
- * @huggingface/transformers. Images never leave the device — only the model
+ * @huggingface/transformers. Images never leave the device. Only the model
  * weights are fetched once (~44MB, q8) from the Hugging Face CDN and cached.
  *
  * Uses RMBG-1.4 (BRIA) loaded through the low-level AutoModel/AutoProcessor API.
  * Unlike MODNet (portrait-only) or the high-level background-removal pipeline,
- * RMBG-1.4 is trained for arbitrary subjects — people, products, animals,
- * patterns — so it generalises across the range of images a tools site sees.
+ * RMBG-1.4 is trained for arbitrary subjects (people, products, animals,
+ * patterns), so it generalises across the range of images a tools site sees.
+ *
+ * The model runs on WebGPU where the browser offers it, typically several
+ * times faster than WASM for this network, and falls back to WASM otherwise.
  *
  * The model is loaded lazily via dynamic import and memoised across images.
  * This flow (model_type "custom", input key "input", output key "output" with
  * values already in 0–1, then RawImage.putAlpha) is verified end-to-end.
  */
+
+import { throwIfAborted } from "@/lib/canvas";
 
 import type * as Transformers from "@huggingface/transformers";
 import type {
@@ -55,8 +60,34 @@ export interface RemoveBackgroundOptions {
   signal?: AbortSignal;
 }
 
+export interface CutoutResult {
+  /** Transparent PNG with the background removed. */
+  blob: Blob;
+}
+
 let modelPromise: Promise<PreTrainedModel> | null = null;
 let processorPromise: Promise<Processor> | null = null;
+
+export type RemovalDevice = "webgpu" | "wasm";
+
+/** Minimal shape of `navigator.gpu`; the full WebGPU types are not needed. */
+interface GpuLike {
+  requestAdapter: () => Promise<unknown>;
+}
+
+/**
+ * WebGPU when the browser exposes an adapter, WASM otherwise. Probed once and
+ * reused, since the model is memoised against whichever device it loaded on.
+ */
+export async function detectDevice(): Promise<RemovalDevice> {
+  const gpu = (navigator as Navigator & { gpu?: GpuLike }).gpu;
+  if (!gpu) return "wasm";
+  try {
+    return (await gpu.requestAdapter()) ? "webgpu" : "wasm";
+  } catch {
+    return "wasm";
+  }
+}
 
 function loadModel(
   tf: typeof Transformers,
@@ -65,10 +96,12 @@ function loadModel(
   return (modelPromise ??= (async () => {
     // Always fetch from the CDN; never probe this origin for model files.
     tf.env.allowLocalModels = false;
+    const device = await detectDevice();
     return tf.AutoModel.from_pretrained(MODEL_ID, {
       config: { model_type: "custom" } as PretrainedConfig,
-      device: "wasm",
-      dtype: "q8",
+      device,
+      // q8 is not a valid WebGPU quantisation for this model; fp16 is.
+      dtype: device === "webgpu" ? "fp16" : "q8",
       progress_callback: (info: ProgressInfo) => {
         if (info.status === "progress") {
           onProgress?.({
@@ -88,16 +121,14 @@ function loadProcessor(tf: typeof Transformers): Promise<Processor> {
 }
 
 /**
- * Remove the background from an image, returning a transparent PNG blob.
+ * Remove the background from an image, returning a transparent PNG.
  * Throws `DOMException` (name "AbortError") if aborted.
  */
 export async function removeImageBackground(
   source: Blob,
   { onProgress, signal }: RemoveBackgroundOptions = {},
-): Promise<Blob> {
-  if (signal?.aborted) {
-    throw new DOMException("Aborted", "AbortError");
-  }
+): Promise<CutoutResult> {
+  throwIfAborted(signal);
 
   const tf = await import("@huggingface/transformers");
   const { RawImage } = tf;
@@ -106,9 +137,7 @@ export async function removeImageBackground(
     loadProcessor(tf),
   ]);
 
-  if (signal?.aborted) {
-    throw new DOMException("Aborted", "AbortError");
-  }
+  throwIfAborted(signal);
 
   onProgress?.({ stage: "computing", fraction: 0 });
 
@@ -131,10 +160,8 @@ export async function removeImageBackground(
   const cutout = image.clone().putAlpha(mask);
   const blob = (await cutout.toBlob("image/png")) as Blob;
 
-  if (signal?.aborted) {
-    throw new DOMException("Aborted", "AbortError");
-  }
+  throwIfAborted(signal);
 
   onProgress?.({ stage: "done", fraction: 1 });
-  return blob;
+  return { blob };
 }

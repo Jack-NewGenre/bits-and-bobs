@@ -22,3 +22,11 @@ export function formatBytes(bytes: number): string {
   }
   return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[unitIndex]}`
 }
+
+/** Shallow-compare two flat objects of primitives. */
+export function shallowEqual<T extends object>(a: T, b: T): boolean {
+  if (a === b) return true
+  const keys = Object.keys(a) as (keyof T)[]
+  if (keys.length !== Object.keys(b).length) return false
+  return keys.every((key) => a[key] === b[key])
+}
