@@ -17,6 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/atoms/copy-button";
+import { PillButton } from "@/components/atoms/pill-button";
 
 /** Stable, so the seed runs exactly once. */
 const seedUuids = () => generateUuids(DEFAULT_UUID_OPTIONS);
@@ -66,19 +67,14 @@ export function UuidTool() {
             <Label>Format</Label>
             <div className="grid grid-cols-2 gap-2">
               {TOGGLES.map(({ key, label }) => (
-                <button
+                <PillButton
                   key={key}
-                  type="button"
-                  aria-pressed={Boolean(options[key])}
+                  active={Boolean(options[key])}
+                  ariaPressed={Boolean(options[key])}
                   onClick={() => toggle(key)}
-                  className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
-                    options[key]
-                      ? "border-primary bg-accent"
-                      : "hover:bg-accent/50"
-                  }`}
                 >
                   {label}
-                </button>
+                </PillButton>
               ))}
             </div>
           </div>

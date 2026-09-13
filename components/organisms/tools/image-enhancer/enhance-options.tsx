@@ -7,12 +7,14 @@ import {
 } from "@/lib/image/enhance";
 
 import { ENHANCE_PRESETS } from "@/lib/image/enhance-presets";
-import { Label } from "@/components/ui/label";
 import { FormatOptions } from "@/components/molecules/format-options";
-import { PillButton } from "@/components/atoms/pill-button";
 import { SliderRow } from "@/components/atoms/slider-row";
+import { OptionGroup } from "@/components/molecules/option-group";
 
-const SCALES: EnhanceScale[] = [1, 2, 4];
+const SCALE_CHOICES = ([1, 2, 4] as EnhanceScale[]).map((scale) => ({
+  value: scale,
+  label: `${scale}×`,
+}));
 
 const ENGINES: { value: EnhanceEngine; label: string }[] = [
   { value: "fast", label: "Fast" },
@@ -61,60 +63,45 @@ export function EnhanceOptions({
 
   return (
     <div className="space-y-5">
-      <div className="space-y-2">
-        <Label className="text-xs">Preset</Label>
-        <div className="grid grid-cols-4 gap-2">
-          {ENHANCE_PRESETS.map((preset) => (
-            <PillButton
-              key={preset.id}
-              active={activePreset === preset.id}
-              onClick={() => onChange(preset.settings)}
-            >
-              {preset.label}
-            </PillButton>
-          ))}
-        </div>
-      </div>
+      <OptionGroup
+        label="Preset"
+        choices={ENHANCE_PRESETS.map((preset) => ({
+          value: preset.id,
+          label: preset.label,
+        }))}
+        value={activePreset ?? ""}
+        onChange={(id) => {
+          const preset = ENHANCE_PRESETS.find((entry) => entry.id === id);
+          if (preset) onChange(preset.settings);
+        }}
+        columns={4}
+      />
 
-      <div className="space-y-2">
-        <Label className="text-xs">Upscaler</Label>
-        <div className="grid grid-cols-2 gap-2">
-          {ENGINES.map(({ value, label }) => (
-            <PillButton
-              key={value}
-              active={settings.engine === value}
-              ariaPressed={settings.engine === value}
-              disabled={value === "ai" && !aiAvailable}
-              onClick={() => setField("engine", value)}
-            >
-              {label}
-            </PillButton>
-          ))}
-        </div>
-        <p className="text-muted-foreground text-xs">
-          {!aiAvailable
+      <OptionGroup
+        label="Upscaler"
+        choices={ENGINES.map((engine) => ({
+          ...engine,
+          disabled: engine.value === "ai" && !aiAvailable,
+        }))}
+        value={settings.engine}
+        onChange={(engine) => setField("engine", engine)}
+        columns={2}
+        hint={
+          !aiAvailable
             ? "This image is too large for the AI upscaler."
             : settings.engine === "ai"
               ? "Reconstructs detail with a model. Slower, and downloads once."
-              : "Resamples on a canvas. Instant, but cannot invent detail."}
-        </p>
-      </div>
+              : "Resamples on a canvas. Instant, but cannot invent detail."
+        }
+      />
 
-      <div className="space-y-2">
-        <Label className="text-xs">Upscale</Label>
-        <div className="grid grid-cols-3 gap-2">
-          {SCALES.map((scale) => (
-            <PillButton
-              key={scale}
-              active={settings.scale === scale}
-              ariaPressed={settings.scale === scale}
-              onClick={() => setField("scale", scale)}
-            >
-              {scale}×
-            </PillButton>
-          ))}
-        </div>
-      </div>
+      <OptionGroup
+        label="Upscale"
+        choices={SCALE_CHOICES}
+        value={settings.scale}
+        onChange={(scale) => setField("scale", scale)}
+        columns={3}
+      />
 
       <FormatOptions
         format={settings.format}

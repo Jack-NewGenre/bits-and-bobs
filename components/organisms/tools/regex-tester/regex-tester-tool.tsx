@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { TriangleAlert } from "lucide-react";
 
 import { FLAGS, toSegments } from "@/lib/text/regex";
 import {
@@ -17,6 +16,7 @@ import { CopyButton } from "@/components/atoms/copy-button";
 import { TextAreaField } from "@/components/atoms/text-area-field";
 import { TextPane } from "@/components/molecules/text-pane";
 import { TwoPane } from "@/components/atoms/two-pane";
+import { ResultError } from "@/components/atoms/result-error";
 
 const SAMPLE_TEXT = `Ada Lovelace <ada@example.com>
 Alan Turing <alan@example.org>
@@ -113,12 +113,13 @@ export function RegexTesterTool() {
           </div>
 
           {(result.error || timedOut) && (
-            <p className="text-destructive flex items-start gap-2 text-xs">
-              <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
-              {timedOut
-                ? "This pattern took too long and was stopped. Nested quantifiers such as (a+)+ can backtrack exponentially on text that does not match."
-                : result.error}
-            </p>
+            <ResultError
+              message={
+                timedOut
+                  ? "This pattern took too long and was stopped. Nested quantifiers such as (a+)+ can backtrack exponentially on text that does not match."
+                  : (result.error ?? "")
+              }
+            />
           )}
         </CardContent>
       </Card>

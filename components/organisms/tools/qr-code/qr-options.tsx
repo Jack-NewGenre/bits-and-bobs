@@ -8,10 +8,13 @@ import {
   type QrSettings,
 } from "@/lib/generators/qr";
 import { Label } from "@/components/ui/label";
-import { PillButton } from "@/components/atoms/pill-button";
 import { SliderRow } from "@/components/atoms/slider-row";
+import { OptionGroup } from "@/components/molecules/option-group";
 
-const SIZES = [256, 512, 1024] as const;
+const SIZE_CHOICES = [256, 512, 1024].map((size) => ({
+  value: size,
+  label: `${size}px`,
+}));
 
 interface QrOptionsProps {
   settings: QrSettings;
@@ -26,45 +29,23 @@ export function QrOptions({ settings, onChange }: QrOptionsProps) {
 
   return (
     <div className="space-y-5">
-      <div className="space-y-2">
-        <Label className="text-xs">Module shape</Label>
-        <div className="grid grid-cols-3 gap-2">
-          {MODULE_SHAPES.map(({ value, label }) => (
-            <PillButton
-              key={value}
-              active={settings.shape === value}
-              ariaPressed={settings.shape === value}
-              onClick={() => set("shape", value)}
-            >
-              {label}
-            </PillButton>
-          ))}
-        </div>
-        <p className="text-muted-foreground text-xs">
-          The three corner squares stay solid whatever you pick. They are how
-          a scanner finds the code in the first place.
-        </p>
-      </div>
+      <OptionGroup
+        label="Module shape"
+        choices={MODULE_SHAPES}
+        value={settings.shape}
+        onChange={(shape) => set("shape", shape)}
+        columns={3}
+        hint="The three corner squares stay solid whatever you pick. They are how a scanner finds the code in the first place."
+      />
 
-      <div className="space-y-2">
-        <Label className="text-xs">Error correction</Label>
-        <div className="grid grid-cols-4 gap-2">
-          {ERROR_LEVELS.map(({ value, label }) => (
-            <PillButton
-              key={value}
-              active={settings.ecc === value}
-              ariaPressed={settings.ecc === value}
-              onClick={() => set("ecc", value)}
-            >
-              {label}
-            </PillButton>
-          ))}
-        </div>
-        <p className="text-muted-foreground text-xs">
-          {level?.recovers}, how much of the code can be scratched, covered or
-          printed badly and still read. More correction means a denser code.
-        </p>
-      </div>
+      <OptionGroup
+        label="Error correction"
+        choices={ERROR_LEVELS}
+        value={settings.ecc}
+        onChange={(ecc) => set("ecc", ecc)}
+        columns={4}
+        hint={`${level?.recovers}, how much of the code can be scratched, covered or printed badly and still read. More correction means a denser code.`}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
@@ -114,21 +95,13 @@ export function QrOptions({ settings, onChange }: QrOptionsProps) {
         onChange={(margin) => set("margin", margin)}
       />
 
-      <div className="space-y-2">
-        <Label className="text-xs">PNG size</Label>
-        <div className="grid grid-cols-3 gap-2">
-          {SIZES.map((size) => (
-            <PillButton
-              key={size}
-              active={settings.size === size}
-              ariaPressed={settings.size === size}
-              onClick={() => set("size", size)}
-            >
-              {size}px
-            </PillButton>
-          ))}
-        </div>
-      </div>
+      <OptionGroup
+        label="PNG size"
+        choices={SIZE_CHOICES}
+        value={settings.size}
+        onChange={(size) => set("size", size)}
+        columns={3}
+      />
     </div>
   );
 }

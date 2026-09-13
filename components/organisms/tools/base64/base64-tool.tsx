@@ -9,6 +9,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CopyButton } from "@/components/atoms/copy-button";
+import { PillButton } from "@/components/atoms/pill-button";
+import { cn } from "@/lib/utils";
 
 export function Base64Tool() {
   const [mode, setMode] = useState<Base64Mode>("encode");
@@ -38,24 +40,24 @@ export function Base64Tool() {
                 role="tab"
                 aria-selected={mode === value}
                 onClick={() => setMode(value)}
-                className={`rounded-lg border px-4 py-2 text-sm font-medium capitalize transition-colors ${
-                  mode === value ? "border-primary bg-accent" : "hover:bg-accent/50"
-                }`}
+                className={cn(
+                  "rounded-lg border px-4 py-2 text-sm font-medium capitalize transition-colors",
+                  mode === value
+                    ? "border-primary bg-accent"
+                    : "hover:bg-accent/50",
+                )}
               >
                 {value}
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            aria-pressed={urlSafe}
+          <PillButton
+            active={urlSafe}
+            ariaPressed={urlSafe}
             onClick={() => setUrlSafe((prev) => !prev)}
-            className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
-              urlSafe ? "border-primary bg-accent" : "hover:bg-accent/50"
-            }`}
           >
             URL-safe
-          </button>
+          </PillButton>
         </CardContent>
       </Card>
 

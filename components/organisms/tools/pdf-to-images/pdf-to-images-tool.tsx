@@ -20,8 +20,8 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { ImageDropzone } from "@/components/molecules/image-dropzone";
 import { PdfFileList } from "@/components/molecules/pdf-file-list";
-import { PillButton } from "@/components/atoms/pill-button";
 import { DownloadButton } from "@/components/atoms/download-button";
+import { OptionGroup } from "@/components/molecules/option-group";
 
 const RESOLUTIONS = [
   { value: 800, label: "Screen", note: "800px" },
@@ -139,27 +139,16 @@ export function PdfToImagesTool() {
                   </p>
                 </div>
 
-                <div className="space-y-2">
-                  <Label className="text-xs">Resolution</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {RESOLUTIONS.map((entry) => (
-                      <PillButton
-                        key={entry.value}
-                        active={maxDim === entry.value}
-                        ariaPressed={maxDim === entry.value}
-                        onClick={() => setMaxDim(entry.value)}
-                      >
-                        {entry.label}
-                      </PillButton>
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground text-xs">
-                    Longest edge{" "}
-                    {RESOLUTIONS.find((entry) => entry.value === maxDim)?.note}.
-                    Each page is drawn properly, not screenshotted, so text
-                    stays crisp.
-                  </p>
-                </div>
+                <OptionGroup
+                  label="Resolution"
+                  choices={RESOLUTIONS}
+                  value={maxDim}
+                  onChange={setMaxDim}
+                  columns={3}
+                  hint={`Longest edge ${
+                    RESOLUTIONS.find((entry) => entry.value === maxDim)?.note
+                  }. Each page is drawn properly, not screenshotted, so text stays crisp.`}
+                />
 
                 {isRendering && pages.length > 1 && (
                   <div className="space-y-1.5">

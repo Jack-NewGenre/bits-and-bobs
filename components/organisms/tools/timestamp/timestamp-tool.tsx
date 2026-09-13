@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/atoms/copy-button";
+import { cn } from "@/lib/utils";
 
 type Mode = "timestamp" | "date";
 
@@ -66,9 +67,12 @@ export function TimestampTool() {
                 role="tab"
                 aria-selected={mode === value}
                 onClick={() => setMode(value)}
-                className={`rounded-lg border px-3 py-2 text-sm font-medium transition-colors ${
-                  mode === value ? "border-primary bg-accent" : "hover:bg-accent/50"
-                }`}
+                className={cn(
+                  "rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+                  mode === value
+                    ? "border-primary bg-accent"
+                    : "hover:bg-accent/50",
+                )}
               >
                 {value === "timestamp" ? "From Unix timestamp" : "From date string"}
               </button>

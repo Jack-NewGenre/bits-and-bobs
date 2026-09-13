@@ -19,6 +19,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { CopyButton } from "@/components/atoms/copy-button";
+import { PillButton } from "@/components/atoms/pill-button";
+import { cn } from "@/lib/utils";
 
 const TOGGLES: { key: keyof PasswordOptions; label: string }[] = [
   { key: "uppercase", label: "A-Z" },
@@ -89,7 +91,7 @@ export function PasswordTool() {
 
           <div className="space-y-1.5">
             <div className="bg-muted h-1.5 overflow-hidden rounded-full">
-              <div className={`h-full ${style.bar} ${style.width} transition-all`} />
+              <div className={cn("h-full transition-all", style.bar, style.width)} />
             </div>
             <div className="text-muted-foreground flex justify-between text-xs">
               <span>{style.label}</span>
@@ -120,19 +122,14 @@ export function PasswordTool() {
             <Label>Include</Label>
             <div className="flex flex-wrap gap-2">
               {TOGGLES.map(({ key, label }) => (
-                <button
+                <PillButton
                   key={key}
-                  type="button"
-                  aria-pressed={Boolean(options[key])}
+                  active={Boolean(options[key])}
+                  ariaPressed={Boolean(options[key])}
                   onClick={() => toggle(key)}
-                  className={`rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
-                    options[key]
-                      ? "border-primary bg-accent"
-                      : "hover:bg-accent/50"
-                  }`}
                 >
                   {label}
-                </button>
+                </PillButton>
               ))}
             </div>
           </div>

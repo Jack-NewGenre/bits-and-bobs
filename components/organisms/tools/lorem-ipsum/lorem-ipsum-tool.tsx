@@ -21,6 +21,7 @@ import { PillButton } from "@/components/atoms/pill-button";
 import { SliderRow } from "@/components/atoms/slider-row";
 import { TextAreaField } from "@/components/atoms/text-area-field";
 import { TextPane } from "@/components/molecules/text-pane";
+import { OptionGroup } from "@/components/molecules/option-group";
 
 const UNITS: { value: LoremUnit; label: string }[] = [
   { value: "paragraphs", label: "Paragraphs" },
@@ -47,21 +48,13 @@ export function LoremIpsumTool() {
     <div className="space-y-6">
       <Card>
         <CardContent className="space-y-5">
-          <div className="space-y-2">
-            <Label className="text-xs">Generate</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {UNITS.map(({ value, label }) => (
-                <PillButton
-                  key={value}
-                  active={settings.unit === value}
-                  ariaPressed={settings.unit === value}
-                  onClick={() => set("unit", value)}
-                >
-                  {label}
-                </PillButton>
-              ))}
-            </div>
-          </div>
+          <OptionGroup
+            label="Generate"
+            choices={UNITS}
+            value={settings.unit}
+            onChange={(unit) => set("unit", unit)}
+            columns={3}
+          />
 
           <SliderRow
             label="How many"

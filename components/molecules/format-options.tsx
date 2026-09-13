@@ -7,9 +7,9 @@ import {
   type OutputFormat,
 } from "@/lib/image/image-output";
 import { Label } from "@/components/ui/label";
-import { PillButton } from "@/components/atoms/pill-button";
 import { SliderRow } from "@/components/atoms/slider-row";
 import { cn } from "@/lib/utils";
+import { OptionGroup } from "@/components/molecules/option-group";
 
 interface FormatOptionsProps {
   format: OutputFormat;
@@ -42,21 +42,13 @@ export function FormatOptions({
 }: FormatOptionsProps) {
   return (
     <div className={cn("space-y-3", className)}>
-      <div className="space-y-2">
-        <Label className="text-xs">Format</Label>
-        <div className="grid grid-cols-4 gap-2">
-          {OUTPUT_FORMATS.map(({ value, label }) => (
-            <PillButton
-              key={value}
-              active={format === value}
-              ariaPressed={format === value}
-              onClick={() => onFormatChange(value)}
-            >
-              {label}
-            </PillButton>
-          ))}
-        </div>
-      </div>
+      <OptionGroup
+        label="Format"
+        choices={OUTPUT_FORMATS}
+        value={format}
+        onChange={(next) => onFormatChange(next)}
+        columns={4}
+      />
 
       {isLossy(format, sourceType) && (
         <SliderRow

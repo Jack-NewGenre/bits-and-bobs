@@ -27,6 +27,7 @@ import { PillButton } from "@/components/atoms/pill-button";
 import { QueueList } from "@/components/molecules/queue-list";
 import { SliderRow } from "@/components/atoms/slider-row";
 import { DownloadButton } from "@/components/atoms/download-button";
+import { OptionGroup } from "@/components/molecules/option-group";
 
 const STATUS_LABEL = {
   queued: "Queued",
@@ -141,27 +142,21 @@ export function ImagesToPdfTool() {
 
           <Card>
             <CardContent className="space-y-5">
-              <div className="space-y-2">
-                <Label className="text-xs">Page size</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(Object.keys(PAGE_SIZES) as PageSizeId[]).map((id) => (
-                    <PillButton
-                      key={id}
-                      active={settings.pageSize === id}
-                      ariaPressed={settings.pageSize === id}
-                      onClick={() => set("pageSize", id)}
-                    >
-                      {PAGE_SIZES[id].label}
-                    </PillButton>
-                  ))}
-                </div>
-                {settings.pageSize === "fit" && (
-                  <p className="text-muted-foreground text-xs">
-                    Each page takes the shape of its own image, so nothing is
-                    letterboxed.
-                  </p>
-                )}
-              </div>
+              <OptionGroup
+                label="Page size"
+                choices={(Object.keys(PAGE_SIZES) as PageSizeId[]).map((id) => ({
+                  value: id,
+                  label: PAGE_SIZES[id].label,
+                }))}
+                value={settings.pageSize}
+                onChange={(id) => set("pageSize", id)}
+                columns={3}
+                hint={
+                  settings.pageSize === "fit"
+                    ? "Each page takes the shape of its own image, so nothing is letterboxed."
+                    : undefined
+                }
+              />
 
               {settings.pageSize !== "fit" && (
                 <div className="space-y-2">

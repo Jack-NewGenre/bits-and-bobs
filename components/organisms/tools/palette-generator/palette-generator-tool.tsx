@@ -10,11 +10,10 @@ import {
 } from "@/lib/colour/colour-format";
 import { buildHarmony, HARMONIES, type Harmony } from "@/lib/colour/colour-harmony";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { ColourInput } from "@/components/molecules/colour-input";
 import { ColourSwatch } from "@/components/atoms/colour-swatch";
 import { CopyButton } from "@/components/atoms/copy-button";
-import { PillButton } from "@/components/atoms/pill-button";
+import { OptionGroup } from "@/components/molecules/option-group";
 
 const INITIAL: Rgb = { r: 59, g: 130, b: 246, a: 1 };
 
@@ -31,24 +30,20 @@ export function PaletteGeneratorTool() {
         <CardContent className="space-y-5">
           <ColourInput label="Base colour" value={colour} onChange={setColour} />
 
-          <div className="space-y-2">
-            <Label className="text-xs">Harmony</Label>
-            <div className="grid grid-cols-2 gap-2">
-              {HARMONIES.map((entry) => (
-                <PillButton
-                  key={entry.id}
-                  active={harmony.id === entry.id}
-                  ariaPressed={harmony.id === entry.id}
-                  onClick={() => setHarmony(entry)}
-                >
-                  {entry.label}
-                </PillButton>
-              ))}
-            </div>
-            <p className="text-muted-foreground text-xs">
-              {harmony.description}
-            </p>
-          </div>
+          <OptionGroup
+            label="Harmony"
+            choices={HARMONIES.map((entry) => ({
+              value: entry.id,
+              label: entry.label,
+            }))}
+            value={harmony.id}
+            onChange={(id) => {
+              const next = HARMONIES.find((entry) => entry.id === id);
+              if (next) setHarmony(next);
+            }}
+            columns={2}
+            hint={harmony.description}
+          />
         </CardContent>
       </Card>
 

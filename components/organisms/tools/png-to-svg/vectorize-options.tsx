@@ -8,9 +8,8 @@ import {
   type VectorizeMode,
   type VectorizeSettings,
 } from "@/lib/image/vectorize";
-import { Label } from "@/components/ui/label";
-import { PillButton } from "@/components/atoms/pill-button";
 import { SliderRow } from "@/components/atoms/slider-row";
+import { OptionGroup } from "@/components/molecules/option-group";
 
 const MODES: { id: VectorizeMode; label: string }[] = [
   { id: "color", label: "Colour" },
@@ -46,36 +45,27 @@ export function VectorizeOptions({ settings, onChange }: VectorizeOptionsProps) 
 
   return (
     <div className="space-y-5">
-      <div className="space-y-2">
-        <Label className="text-xs">Preset</Label>
-        <div className="grid grid-cols-4 gap-2">
-          {VECTORIZE_PRESETS.map((preset) => (
-            <PillButton
-              key={preset.id}
-              active={activePreset === preset.id}
-              onClick={() => onChange(preset.settings)}
-            >
-              {preset.label}
-            </PillButton>
-          ))}
-        </div>
-      </div>
+      <OptionGroup
+        label="Preset"
+        choices={VECTORIZE_PRESETS.map((preset) => ({
+          value: preset.id,
+          label: preset.label,
+        }))}
+        value={activePreset ?? ""}
+        onChange={(id) => {
+          const preset = VECTORIZE_PRESETS.find((entry) => entry.id === id);
+          if (preset) onChange(preset.settings);
+        }}
+        columns={4}
+      />
 
-      <div className="space-y-2">
-        <Label className="text-xs">Mode</Label>
-        <div className="grid grid-cols-3 gap-2">
-          {MODES.map((mode) => (
-            <PillButton
-              key={mode.id}
-              active={settings.mode === mode.id}
-              ariaPressed={settings.mode === mode.id}
-              onClick={() => setField("mode", mode.id)}
-            >
-              {mode.label}
-            </PillButton>
-          ))}
-        </div>
-      </div>
+      <OptionGroup
+        label="Mode"
+        choices={MODES.map((mode) => ({ value: mode.id, label: mode.label }))}
+        value={settings.mode}
+        onChange={(mode) => setField("mode", mode)}
+        columns={3}
+      />
 
       <div className="space-y-4">
         <SliderRow
