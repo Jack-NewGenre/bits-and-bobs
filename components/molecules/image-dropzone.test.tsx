@@ -9,7 +9,7 @@ import {
   MAX_PDF_BYTES,
   partitionFiles,
   PDF_TYPES,
-} from "@/components/shared/image-dropzone";
+} from "@/components/molecules/image-dropzone";
 
 /** Minimal stand-in for the clipboard's DataTransferItemList. */
 function clipboardItems(

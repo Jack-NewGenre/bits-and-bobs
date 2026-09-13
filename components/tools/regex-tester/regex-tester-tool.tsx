@@ -14,11 +14,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/atoms/copy-button";
-import {
-  TextAreaField,
-  TextPane,
-  TwoPane,
-} from "@/components/shared/text-tool-layout";
+import { TextAreaField } from "@/components/atoms/text-area-field";
+import { TextPane } from "@/components/molecules/text-pane";
+import { TwoPane } from "@/components/atoms/two-pane";
 
 const SAMPLE_TEXT = `Ada Lovelace <ada@example.com>
 Alan Turing <alan@example.org>

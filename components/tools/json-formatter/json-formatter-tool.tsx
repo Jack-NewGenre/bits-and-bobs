@@ -14,11 +14,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/atoms/copy-button";
 import { PillButton } from "@/components/atoms/pill-button";
-import {
-  TextAreaField,
-  TextPane,
-  TwoPane,
-} from "@/components/shared/text-tool-layout";
+import { TextAreaField } from "@/components/atoms/text-area-field";
+import { TextPane } from "@/components/molecules/text-pane";
+import { TwoPane } from "@/components/atoms/two-pane";
 
 const SAMPLE = '{"name":"Ada","tags":["maths","engines"],"active":true}';
 

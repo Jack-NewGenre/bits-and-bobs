@@ -4,7 +4,7 @@ import {
   DEFAULT_TRANSFORM_SETTINGS,
   type TransformSettings,
 } from "@/lib/image/transform";
-import { FormatOptions } from "@/components/shared/format-options";
+import { FormatOptions } from "@/components/molecules/format-options";
 import { TransformTool } from "@/components/shared/transform-tool";
 
 const DEFAULTS: TransformSettings = {

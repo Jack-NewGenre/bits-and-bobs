@@ -8,11 +8,9 @@ import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/atoms/copy-button";
-import {
-  TextAreaField,
-  TextPane,
-  TwoPane,
-} from "@/components/shared/text-tool-layout";
+import { TextAreaField } from "@/components/atoms/text-area-field";
+import { TextPane } from "@/components/molecules/text-pane";
+import { TwoPane } from "@/components/atoms/two-pane";
 
 export function JwtDecoderTool() {
   const [token, setToken] = useState("");

@@ -11,14 +11,14 @@ import { downloadBlob, downloadZip } from "@/lib/download";
 import {
   MAX_PDF_BYTES,
   PDF_TYPES,
-} from "@/components/shared/image-dropzone";
+} from "@/components/molecules/image-dropzone";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { ImageDropzone } from "@/components/shared/image-dropzone";
-import { PdfFileList } from "@/components/shared/pdf-file-list";
+import { ImageDropzone } from "@/components/molecules/image-dropzone";
+import { PdfFileList } from "@/components/molecules/pdf-file-list";
 import { PillButton } from "@/components/atoms/pill-button";
 
 const RESOLUTIONS = [

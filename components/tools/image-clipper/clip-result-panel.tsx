@@ -20,7 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FileSummary } from "@/components/shared/file-summary";
+import { FileSummary } from "@/components/molecules/file-summary";
 import { ResultError } from "@/components/atoms/result-error";
 import { ClipOptions } from "@/components/tools/image-clipper/clip-options";
 import { CropPreview } from "@/components/tools/image-clipper/crop-preview";

@@ -13,7 +13,7 @@ import { gradeContrast } from "@/lib/colour/colour-contrast";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ColourInput } from "@/components/shared/colour-input";
+import { ColourInput } from "@/components/molecules/colour-input";
 
 const INITIAL_TEXT: Rgb = { r: 71, g: 85, b: 105, a: 1 };
 const INITIAL_BACKGROUND: Rgb = { r: 255, g: 255, b: 255, a: 1 };

@@ -23,9 +23,9 @@ import { downloadBlob } from "@/lib/download";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ImageDropzone } from "@/components/shared/image-dropzone";
+import { ImageDropzone } from "@/components/molecules/image-dropzone";
 import { PillButton } from "@/components/atoms/pill-button";
-import { QueueList } from "@/components/shared/queue-list";
+import { QueueList } from "@/components/molecules/queue-list";
 import { SliderRow } from "@/components/atoms/slider-row";
 
 const STATUS_LABEL = {

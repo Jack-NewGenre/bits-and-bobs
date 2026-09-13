@@ -7,7 +7,7 @@ import { computeBox, type FitMode, type TransformSettings } from "@/lib/image/tr
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FormatOptions } from "@/components/shared/format-options";
+import { FormatOptions } from "@/components/molecules/format-options";
 import { PillButton } from "@/components/atoms/pill-button";
 import { SliderRow } from "@/components/atoms/slider-row";
 

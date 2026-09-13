@@ -11,7 +11,7 @@ import {
 import { buildHarmony, HARMONIES, type Harmony } from "@/lib/colour/colour-harmony";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ColourInput } from "@/components/shared/colour-input";
+import { ColourInput } from "@/components/molecules/colour-input";
 import { ColourSwatch } from "@/components/atoms/colour-swatch";
 import { CopyButton } from "@/components/atoms/copy-button";
 import { PillButton } from "@/components/atoms/pill-button";

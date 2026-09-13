@@ -20,7 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BeforeAfterSlider } from "@/components/shared/before-after-slider";
+import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
 import { ResultError } from "@/components/atoms/result-error";
 import { BackgroundOptions } from "@/components/tools/background-removal/background-options";
 

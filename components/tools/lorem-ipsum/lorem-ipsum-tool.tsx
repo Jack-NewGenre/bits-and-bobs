@@ -19,7 +19,8 @@ import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/atoms/copy-button";
 import { PillButton } from "@/components/atoms/pill-button";
 import { SliderRow } from "@/components/atoms/slider-row";
-import { TextAreaField, TextPane } from "@/components/shared/text-tool-layout";
+import { TextAreaField } from "@/components/atoms/text-area-field";
+import { TextPane } from "@/components/molecules/text-pane";
 
 const UNITS: { value: LoremUnit; label: string }[] = [
   { value: "paragraphs", label: "Paragraphs" },

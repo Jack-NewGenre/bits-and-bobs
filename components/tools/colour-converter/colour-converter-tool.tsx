@@ -13,7 +13,7 @@ import {
 } from "@/lib/colour/colour-format";
 import { bestTextOn, contrastRatio } from "@/lib/colour/colour-contrast";
 import { Card, CardContent } from "@/components/ui/card";
-import { ColourInput } from "@/components/shared/colour-input";
+import { ColourInput } from "@/components/molecules/colour-input";
 import { CopyButton } from "@/components/atoms/copy-button";
 
 const INITIAL: Rgb = { r: 59, g: 130, b: 246, a: 1 };

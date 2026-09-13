@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { render, screen } from "@testing-library/react";
 
-import { FileSummary } from "@/components/shared/file-summary";
+import { FileSummary } from "@/components/molecules/file-summary";
 
 describe("FileSummary", () => {
   it("reads as one line of plain facts", () => {

@@ -18,7 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/atoms/copy-button";
 import { PillButton } from "@/components/atoms/pill-button";
-import { TextAreaField, TextPane } from "@/components/shared/text-tool-layout";
+import { TextAreaField } from "@/components/atoms/text-area-field";
+import { TextPane } from "@/components/molecules/text-pane";
 
 interface Source {
   kind: "text" | "file";

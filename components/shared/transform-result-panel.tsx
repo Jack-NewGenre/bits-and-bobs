@@ -20,8 +20,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BeforeAfterSlider } from "@/components/shared/before-after-slider";
-import { FileSummary } from "@/components/shared/file-summary";
+import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
+import { FileSummary } from "@/components/molecules/file-summary";
 import { ResultError } from "@/components/atoms/result-error";
 import { resolveFormat } from "@/lib/image/image-output";
 

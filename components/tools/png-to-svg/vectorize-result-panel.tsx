@@ -23,7 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BeforeAfterSlider } from "@/components/shared/before-after-slider";
+import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
 import { CopyButton } from "@/components/atoms/copy-button";
 import { ResultError } from "@/components/atoms/result-error";
 import { ZoomControl } from "@/components/atoms/zoom-control";

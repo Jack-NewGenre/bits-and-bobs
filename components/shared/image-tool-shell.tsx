@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button";
 import {
   ImageDropzone,
   type RejectedFile,
-} from "@/components/shared/image-dropzone";
-import { QueueList, type QueueListItem } from "@/components/shared/queue-list";
+} from "@/components/molecules/image-dropzone";
+import { QueueList, type QueueListItem } from "@/components/molecules/queue-list";
 
 function toListItem(
   item: ImageQueueItem<QueueOutput>,

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
-import { ColourInput } from "@/components/shared/colour-input";
+import { ColourInput } from "@/components/molecules/colour-input";
 
 const BLUE = { r: 59, g: 130, b: 246, a: 1 };
 

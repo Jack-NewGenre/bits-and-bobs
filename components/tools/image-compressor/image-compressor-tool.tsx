@@ -7,7 +7,7 @@ import {
 import { MAX_COLOURS } from "@/lib/image/quantise";
 import { resolveFormat } from "@/lib/image/image-output";
 import { Label } from "@/components/ui/label";
-import { FormatOptions } from "@/components/shared/format-options";
+import { FormatOptions } from "@/components/molecules/format-options";
 import { SliderRow } from "@/components/atoms/slider-row";
 import { TransformTool } from "@/components/shared/transform-tool";
 

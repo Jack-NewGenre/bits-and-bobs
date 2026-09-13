@@ -10,11 +10,11 @@ import { downloadBlob } from "@/lib/download";
 import {
   MAX_PDF_BYTES,
   PDF_TYPES,
-} from "@/components/shared/image-dropzone";
+} from "@/components/molecules/image-dropzone";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ImageDropzone } from "@/components/shared/image-dropzone";
-import { PdfFileList } from "@/components/shared/pdf-file-list";
+import { ImageDropzone } from "@/components/molecules/image-dropzone";
+import { PdfFileList } from "@/components/molecules/pdf-file-list";
 
 export function PdfMergeTool() {
   const { files, usable, totalPages, add, remove, clear, move, handleReject } =
