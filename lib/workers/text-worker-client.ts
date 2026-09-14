@@ -13,7 +13,7 @@ import {
   runRegex,
   type RegexResult,
   type ReplaceResult,
-} from "@/lib/regex";
+} from "@/lib/text/regex";
 import type { TextWorkerResponse } from "@/lib/workers/text-worker";
 
 /** Built by `bun run build:worker`; see `image-worker-client` for why. */

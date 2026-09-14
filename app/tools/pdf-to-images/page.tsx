@@ -1,5 +1,5 @@
-import { createToolPage } from "@/components/tool-page";
-import { PdfToImagesTool } from "@/components/tools/pdf-to-images/pdf-to-images-tool";
+import { createToolPage } from "@/components/organisms/tool-page";
+import { PdfToImagesTool } from "@/components/organisms/tools/pdf-to-images/pdf-to-images-tool";
 
 const { metadata, Page } = createToolPage("pdf-to-images", <PdfToImagesTool />);
 

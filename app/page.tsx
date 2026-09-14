@@ -1,7 +1,7 @@
 import { ShieldCheck, Sparkles, Zap } from "lucide-react";
 
 import { TOOL_CATEGORIES, getToolsByCategory } from "@/lib/tools";
-import { ToolCard } from "@/components/tool-card";
+import { ToolCard } from "@/components/molecules/tool-card";
 
 const HIGHLIGHTS = [
   {

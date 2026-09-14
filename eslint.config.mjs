@@ -25,8 +25,9 @@ const eslintConfig = defineConfig([
     // the browser. next/image cannot optimise or even fetch them, so a plain
     // <img> is intentional.
     files: [
-      "components/shared/**/*.tsx",
-      "components/tools/image-clipper/crop-preview.tsx",
+      "components/atoms/**/*.tsx",
+      "components/molecules/**/*.tsx",
+      "components/organisms/**/*.tsx",
     ],
     rules: {
       "@next/next/no-img-element": "off",

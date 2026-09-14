@@ -1,13 +1,17 @@
 /** Message contract shared by the image worker and its client. */
 
-import type { EnhanceResult, EnhanceSettings } from "@/lib/enhance";
-import type { TransformResult, TransformSettings } from "@/lib/transform";
-import type { VectorizeResult, VectorizeSettings } from "@/lib/vectorize";
+import type {
+  BackgroundSettings,
+} from "@/lib/image/composite";
+import type { EnhanceResult, EnhanceSettings } from "@/lib/image/enhance";
+import type { TransformResult, TransformSettings } from "@/lib/image/transform";
+import type { VectorizeResult, VectorizeSettings } from "@/lib/image/vectorize";
 
 export interface JobResultByKind {
   enhance: EnhanceResult;
   vectorize: VectorizeResult;
   transform: TransformResult;
+  composite: { blob: Blob };
 }
 
 export type JobKind = keyof JobResultByKind;
@@ -16,6 +20,7 @@ export interface JobSettingsByKind {
   enhance: EnhanceSettings;
   vectorize: VectorizeSettings;
   transform: TransformSettings;
+  composite: BackgroundSettings;
 }
 
 /** Distributed over `JobKind` so `kind` narrows `settings` at the call site. */

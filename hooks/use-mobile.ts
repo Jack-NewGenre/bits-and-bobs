@@ -1,19 +1,35 @@
-import * as React from "react"
+"use client";
 
-const MOBILE_BREAKPOINT = 768
+import { useSyncExternalStore } from "react";
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+const MOBILE_BREAKPOINT = 768;
+const QUERY = `(max-width: ${MOBILE_BREAKPOINT - 1}px)`;
 
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+let query: MediaQueryList | undefined;
 
-  return !!isMobile
+/** Created once, lazily, so nothing touches `window` during server rendering. */
+function mediaQuery(): MediaQueryList {
+  return (query ??= window.matchMedia(QUERY));
+}
+
+function subscribe(onChange: () => void): () => void {
+  const mql = mediaQuery();
+  mql.addEventListener("change", onChange);
+  return () => mql.removeEventListener("change", onChange);
+}
+
+/**
+ * Whether the viewport is narrow enough to count as mobile.
+ *
+ * `useSyncExternalStore` rather than state filled in by an effect: the sidebar
+ * puts this in a context wrapping the whole page, so a value that starts wrong
+ * and corrects itself after mount re-renders the entire app once on every
+ * visit. Reading `matches` also avoids the layout read `innerWidth` forces.
+ */
+export function useIsMobile(): boolean {
+  return useSyncExternalStore(
+    subscribe,
+    () => mediaQuery().matches,
+    () => false,
+  );
 }

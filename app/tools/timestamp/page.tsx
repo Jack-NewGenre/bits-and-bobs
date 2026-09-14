@@ -1,5 +1,5 @@
-import { createToolPage } from "@/components/tool-page";
-import { TimestampTool } from "@/components/tools/timestamp/timestamp-tool";
+import { createToolPage } from "@/components/organisms/tool-page";
+import { TimestampTool } from "@/components/organisms/tools/timestamp/timestamp-tool";
 
 const { metadata, Page } = createToolPage("timestamp", <TimestampTool />);
 

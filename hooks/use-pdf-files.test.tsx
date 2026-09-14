@@ -5,7 +5,7 @@ import { baseName, toPdfName, usePdfFiles } from "@/hooks/use-pdf-files";
 
 const readPdf = vi.fn();
 
-vi.mock("@/lib/pdf", () => ({
+vi.mock("@/lib/pdf/pdf", () => ({
   readPdf: (file: Blob) => readPdf(file),
 }));
 

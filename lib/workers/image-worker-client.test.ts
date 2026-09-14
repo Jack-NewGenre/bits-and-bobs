@@ -1,18 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DEFAULT_ENHANCE_SETTINGS } from "@/lib/enhance-presets";
+import { DEFAULT_ENHANCE_SETTINGS } from "@/lib/image/enhance-presets";
 import type { WorkerResponse } from "@/lib/workers/protocol";
 
 const enhanceImage = vi.fn();
 const vectorizeImage = vi.fn();
 
-vi.mock("@/lib/enhance", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/lib/enhance")>()),
+vi.mock("@/lib/image/enhance", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/image/enhance")>()),
   enhanceImage: (...args: unknown[]) => enhanceImage(...args),
 }));
 
-vi.mock("@/lib/vectorize", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/lib/vectorize")>()),
+vi.mock("@/lib/image/vectorize", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/image/vectorize")>()),
   vectorizeImage: (...args: unknown[]) => vectorizeImage(...args),
 }));
 
@@ -175,7 +175,7 @@ describe("enhanceInWorker", () => {
 
   it("runs a transform job on the worker too", async () => {
     const { transformInWorker } = await importClient();
-    const { DEFAULT_TRANSFORM_SETTINGS } = await import("@/lib/transform");
+    const { DEFAULT_TRANSFORM_SETTINGS } = await import("@/lib/image/transform");
     const transformResult = {
       blob: new Blob(["out"]),
       sourceWidth: 4,
@@ -200,31 +200,34 @@ describe("enhanceInWorker", () => {
     await expect(pending).resolves.toBe(transformResult);
   });
 
-  it("reuses one worker across jobs and tools", async () => {
+  it("reuses an idle worker across jobs and tools", async () => {
     const { enhanceInWorker, vectorizeInWorker } = await importClient();
     const first = enhanceInWorker(source, DEFAULT_ENHANCE_SETTINGS);
     await flush();
-    workers[0].emit({ type: "ready", supported: true });
+    const worker = workers[0];
+    worker.emit({ type: "ready", supported: true });
     await flush();
 
-    const { DEFAULT_VECTORIZE_SETTINGS } = await import("@/lib/vectorize");
+    // Finish the first job, so the worker is free when the second arrives.
+    worker.emit({ type: "result", id: worker.posted[0].id, result });
+    await expect(first).resolves.toBe(result);
+
+    const { DEFAULT_VECTORIZE_SETTINGS } = await import("@/lib/image/vectorize");
     const second = vectorizeInWorker(source, DEFAULT_VECTORIZE_SETTINGS);
     await flush();
 
+    // No second worker: the module is compiled and loaded once, not per job.
     expect(workers).toHaveLength(1);
-    const worker = workers[0];
     expect(worker.posted.map((message) => message.kind)).toEqual([
       "enhance",
       "vectorize",
     ]);
 
-    worker.emit({ type: "result", id: worker.posted[0].id, result });
     worker.emit({
       type: "result",
       id: worker.posted[1].id,
       result: { svg: "<svg/>", blob: new Blob(), rawBytes: 5 },
     });
-    await expect(first).resolves.toBe(result);
     await expect(second).resolves.toMatchObject({ svg: "<svg/>" });
   });
 });

@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 import { ScrollText } from "lucide-react";
 
 import { parseChangelog } from "@/lib/changelog";
-import { ToolPageShell } from "@/components/tool-page-shell";
-import { ReleaseEntry } from "@/components/changelog/release-entry";
+import { ToolPageShell } from "@/components/organisms/tool-page-shell";
+import { ReleaseEntry } from "@/components/organisms/release-entry";
 
 const TITLE = "Changelog";
 const DESCRIPTION = "What's new in Toolbox. Every release, newest first.";

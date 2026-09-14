@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import type { QueueOutput } from "@/hooks/use-image-queue";
+import { isAbortError } from "@/lib/utils";
 
 export interface LiveResult<TResult extends QueueOutput> {
   /** The latest processed output, if any. */
@@ -64,10 +65,6 @@ export interface UseLiveResultOptions<TSource, TSettings, TResult extends QueueO
 
 const DEFAULT_DEBOUNCE_MS = 200;
 
-function isAbortError(error: unknown): boolean {
-  return error instanceof Error && error.name === "AbortError";
-}
-
 function toMessage(error: unknown): string {
   return error instanceof Error && error.message !== ""
     ? error.message
@@ -98,8 +95,17 @@ export function useLiveResult<TSource, TSettings, TResult extends QueueOutput>({
 
   useEffect(() => {
     if (skip) {
-      // Defer the reset to avoid a synchronous cascading render.
-      queueMicrotask(() => setLive({ isProcessing: false, isPreview: false }));
+      // Defer the reset to avoid a synchronous cascading render, and only
+      // write when there is something to clear: skipping is the common case,
+      // so an unconditional write would re-render on every settings change
+      // that the seed already answers.
+      queueMicrotask(() =>
+        setLive((prev) =>
+          prev.isProcessing || prev.isPreview || prev.result || prev.error
+            ? { isProcessing: false, isPreview: false }
+            : prev,
+        ),
+      );
       return;
     }
 

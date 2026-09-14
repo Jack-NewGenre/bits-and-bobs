@@ -1,5 +1,5 @@
-import { createToolPage } from "@/components/tool-page";
-import { ImageResizerTool } from "@/components/tools/image-resizer/image-resizer-tool";
+import { createToolPage } from "@/components/organisms/tool-page";
+import { ImageResizerTool } from "@/components/organisms/tools/image-resizer/image-resizer-tool";
 
 const { metadata, Page } = createToolPage(
   "image-resizer",
