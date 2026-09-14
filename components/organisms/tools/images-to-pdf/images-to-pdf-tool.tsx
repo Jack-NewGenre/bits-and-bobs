@@ -53,6 +53,11 @@ const prepare = (file: File) =>
         format: "image/png",
       }).then(({ blob }) => ({ blob }));
 
+const PAGE_SIZE_CHOICES = (Object.keys(PAGE_SIZES) as PageSizeId[]).map((id) => ({
+  value: id,
+  label: PAGE_SIZES[id].label,
+}));
+
 export function ImagesToPdfTool() {
   const { items, addFiles, removeItem, moveItem, clear } =
     useImageQueue(prepare);
@@ -132,10 +137,7 @@ export function ImagesToPdfTool() {
             <CardContent className="space-y-5">
               <OptionGroup
                 label="Page size"
-                choices={(Object.keys(PAGE_SIZES) as PageSizeId[]).map((id) => ({
-                  value: id,
-                  label: PAGE_SIZES[id].label,
-                }))}
+                choices={PAGE_SIZE_CHOICES}
                 value={settings.pageSize}
                 onChange={(id) => set("pageSize", id)}
                 columns={3}

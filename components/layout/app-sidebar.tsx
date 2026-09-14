@@ -1,10 +1,7 @@
-"use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Wrench } from "lucide-react";
 
-import { TOOL_CATEGORIES, getToolsByCategory, isAvailable } from "@/lib/tools";
+import { TOOL_CATEGORIES, getToolsByCategory } from "@/lib/tools";
 import {
   Sidebar,
   SidebarContent,
@@ -12,14 +9,18 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { SidebarToolLink } from "@/components/layout/sidebar-tool-link";
 
+/**
+ * A server component on purpose. The catalogue is 27 entries, each carrying an
+ * icon component and a page blurb the sidebar never shows; rendering it here
+ * keeps all of that out of the JavaScript every page has to download. Only
+ * `SidebarToolLink` crosses into the browser.
+ */
 export function AppSidebar() {
-  const pathname = usePathname();
-
   return (
     <Sidebar>
       <SidebarHeader>
@@ -47,37 +48,14 @@ export function AppSidebar() {
           <SidebarGroup key={category.id}>
             <SidebarGroupLabel>{category.name}</SidebarGroupLabel>
             <SidebarMenu>
-              {getToolsByCategory(category.id).map((tool) => {
-                if (!isAvailable(tool)) {
-                  return (
-                    <SidebarMenuItem key={tool.slug}>
-                      <SidebarMenuButton
-                        disabled
-                        tooltip={`${tool.name} (coming soon)`}
-                      >
-                        <tool.icon />
-                        <span>{tool.name}</span>
-                      </SidebarMenuButton>
-                      <SidebarMenuBadge>Soon</SidebarMenuBadge>
-                    </SidebarMenuItem>
-                  );
-                }
-
-                return (
-                  <SidebarMenuItem key={tool.slug}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === tool.href}
-                      tooltip={tool.name}
-                    >
-                      <Link href={tool.href}>
-                        <tool.icon />
-                        <span>{tool.name}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+              {getToolsByCategory(category.id).map((tool) => (
+                <SidebarToolLink
+                  key={tool.slug}
+                  name={tool.name}
+                  href={tool.href}
+                  icon={<tool.icon />}
+                />
+              ))}
             </SidebarMenu>
           </SidebarGroup>
         ))}

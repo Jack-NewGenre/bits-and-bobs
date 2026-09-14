@@ -40,11 +40,15 @@ export function ColourInput({
   // Follow changes made elsewhere (the picker, a swatch, a swap button)
   // without fighting the user while they are typing. Adjusting during render
   // rather than in an effect avoids a second pass with stale text on screen.
-  if (formatHex(value) !== formatHex(seen)) {
+  // Parsed once: the picker fires continuously while it is dragged, and this
+  // ran the parser three separate times over the same text on every render.
+  const parsed = parseColour(text);
+  const valueHex = formatHex(value);
+
+  if (valueHex !== formatHex(seen)) {
     setSeen(value);
-    const parsed = parseColour(text);
-    if (!parsed || formatHex(parsed) !== formatHex(value)) {
-      setText(formatHex(value));
+    if (!parsed || formatHex(parsed) !== valueHex) {
+      setText(valueHex);
     }
   }
 
@@ -54,7 +58,7 @@ export function ColourInput({
     if (parsed) onChange(parsed);
   };
 
-  const isValid = parseColour(text) !== undefined;
+  const isValid = parsed !== undefined;
   // The native picker cannot show alpha, so it is fed the opaque hex.
   const swatchHex = formatHex({ ...value, a: 1 });
 

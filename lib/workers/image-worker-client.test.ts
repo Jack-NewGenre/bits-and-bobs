@@ -200,31 +200,34 @@ describe("enhanceInWorker", () => {
     await expect(pending).resolves.toBe(transformResult);
   });
 
-  it("reuses one worker across jobs and tools", async () => {
+  it("reuses an idle worker across jobs and tools", async () => {
     const { enhanceInWorker, vectorizeInWorker } = await importClient();
     const first = enhanceInWorker(source, DEFAULT_ENHANCE_SETTINGS);
     await flush();
-    workers[0].emit({ type: "ready", supported: true });
+    const worker = workers[0];
+    worker.emit({ type: "ready", supported: true });
     await flush();
+
+    // Finish the first job, so the worker is free when the second arrives.
+    worker.emit({ type: "result", id: worker.posted[0].id, result });
+    await expect(first).resolves.toBe(result);
 
     const { DEFAULT_VECTORIZE_SETTINGS } = await import("@/lib/image/vectorize");
     const second = vectorizeInWorker(source, DEFAULT_VECTORIZE_SETTINGS);
     await flush();
 
+    // No second worker: the module is compiled and loaded once, not per job.
     expect(workers).toHaveLength(1);
-    const worker = workers[0];
     expect(worker.posted.map((message) => message.kind)).toEqual([
       "enhance",
       "vectorize",
     ]);
 
-    worker.emit({ type: "result", id: worker.posted[0].id, result });
     worker.emit({
       type: "result",
       id: worker.posted[1].id,
       result: { svg: "<svg/>", blob: new Blob(), rawBytes: 5 },
     });
-    await expect(first).resolves.toBe(result);
     await expect(second).resolves.toMatchObject({ svg: "<svg/>" });
   });
 });

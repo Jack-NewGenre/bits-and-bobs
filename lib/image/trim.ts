@@ -62,14 +62,33 @@ export function findContentBounds(
   let right = -1;
   let bottom = -1;
 
+  // Each row is read from both ends inwards. A cutout is mostly empty margin,
+  // so the first opaque pixel from the left and the first from the right
+  // settle the row between them, and the interior never has to be looked at.
   for (let y = 0; y < height; y++) {
+    const row = y * width * 4;
+
+    let rowLeft = -1;
     for (let x = 0; x < width; x++) {
-      if (data[(y * width + x) * 4 + 3] <= cutoff) continue;
-      if (x < left) left = x;
-      if (x > right) right = x;
-      if (y < top) top = y;
-      if (y > bottom) bottom = y;
+      if (data[row + x * 4 + 3] > cutoff) {
+        rowLeft = x;
+        break;
+      }
     }
+    if (rowLeft === -1) continue;
+
+    let rowRight = rowLeft;
+    for (let x = width - 1; x > rowLeft; x--) {
+      if (data[row + x * 4 + 3] > cutoff) {
+        rowRight = x;
+        break;
+      }
+    }
+
+    if (rowLeft < left) left = rowLeft;
+    if (rowRight > right) right = rowRight;
+    if (y < top) top = y;
+    bottom = y;
   }
 
   if (right < 0) return undefined;

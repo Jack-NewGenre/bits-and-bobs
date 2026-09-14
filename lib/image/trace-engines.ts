@@ -15,6 +15,20 @@ import {
   type VectorizeSettings,
 } from "@/lib/image/vectorize";
 
+/**
+ * Potrace's wasm module only needs starting once. The live preview re-traces on
+ * every settings change, so awaiting a fresh init each time would repeat the
+ * setup on every pass.
+ */
+let potracePromise: Promise<typeof import("esm-potrace-wasm")> | undefined;
+
+async function loadPotrace() {
+  return (potracePromise ??= import("esm-potrace-wasm").then(async (module) => {
+    await module.init();
+    return module;
+  }));
+}
+
 /** Palette tracing for colour and greyscale modes. */
 export async function traceImageTracer(
   imageData: ImageData,
@@ -38,8 +52,7 @@ export async function tracePotrace(
   settings: VectorizeSettings,
   scale: number,
 ): Promise<string> {
-  const { potrace, init } = await import("esm-potrace-wasm");
-  await init();
+  const { potrace } = await loadPotrace();
 
   const paths = await potrace(imageData, {
     pathonly: true,

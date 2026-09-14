@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 
 import { useLiveResult } from "@/hooks/use-live-result";
 import type { ImageQueueItem } from "@/hooks/use-image-queue";
@@ -62,6 +63,12 @@ export function VectorizeResultPanel({
   const result = vectorized.result;
   // A preview trace is coarser than the real one: never copied or downloaded.
   const finalResult = vectorized.isPreview ? undefined : result;
+  // Walking a multi-megabyte SVG on every render of the panel, including every
+  // frame of a slider drag, for a number that only changes with the trace.
+  const pathCount = useMemo(
+    () => (finalResult ? countSvgPaths(finalResult.svg) : 0),
+    [finalResult],
+  );
   const isBusy = vectorized.isProcessing || vectorized.isPreview;
 
   const handleDownload = () => {
@@ -107,7 +114,7 @@ export function VectorizeResultPanel({
           <p className="text-muted-foreground text-xs">
             {finalResult ? (
               <>
-                Output: SVG · {countSvgPaths(finalResult.svg)} paths ·{" "}
+                Output: SVG · {pathCount} paths ·{" "}
                 {formatBytes(finalResult.blob.size)} ·{" "}
                 {percentSmaller(finalResult.rawBytes, finalResult.blob.size, {
                   clampToZero: true,

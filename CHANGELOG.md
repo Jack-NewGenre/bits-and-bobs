@@ -2,6 +2,21 @@
 
 All notable changes to this project. Newest first.
 
+## 1.1.0 - 2026-09-14
+
+### Changed
+- **Image Converter, Image Compressor, Resize & Crop, Image Enhancer, PNG to SVG**: a batch now runs on several workers at once instead of queueing through one.
+- **Background Remover**: the background is composited off the main thread, so the feather slider stays smooth on a large photo.
+- **Background Remover, Colour Blindness Simulator**: downloading reuses the image already on screen rather than processing it a second time.
+- **JSON Formatter, Regex Tester, Lorem Ipsum**: the output waits for a pause in typing instead of rebuilding on every keystroke.
+- **Tailwind Shades**: the scale is only rebuilt when the colour changes, so dragging the picker no longer stutters.
+- **Timestamp Converter**: the clock stops ticking once a fixed timestamp is typed in.
+
+### Fixed
+- **PNG to SVG**: photos taken in portrait on a phone were traced stretched, because the rotation stored alongside the image was ignored.
+- **UUID Generator**: switching uppercase or hyphens just after changing the count silently reverted the switch.
+- **UUID Generator**: the copied tick stayed on a row for good instead of clearing after a moment.
+
 ## 1.0.0 - 2026-09-13
 
 First release. Every tool runs entirely in the browser and nothing is uploaded.

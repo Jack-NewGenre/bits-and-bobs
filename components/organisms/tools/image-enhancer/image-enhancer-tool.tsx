@@ -7,7 +7,10 @@ import {
   type EnhanceSettings,
 } from "@/lib/image/enhance";
 import { DEFAULT_ENHANCE_SETTINGS } from "@/lib/image/enhance-presets";
-import { enhanceInWorker } from "@/lib/workers/image-worker-client";
+import {
+  enhanceInWorker,
+  workerConcurrency,
+} from "@/lib/workers/image-worker-client";
 import { ImageToolShell } from "@/components/organisms/image-tool-shell";
 import { EnhanceResultPanel } from "@/components/organisms/tools/image-enhancer/enhance-result-panel";
 
@@ -26,13 +29,16 @@ const enhanceWithDefaults = (
 export function ImageEnhancerTool() {
   const queue = useImageToolQueue<EnhanceSettings, EnhanceResult>({
     processor: enhanceWithDefaults,
+    // Worker-backed, so a batch can spread across the pool.
+    concurrency: workerConcurrency,
     defaultSettings: DEFAULT_ENHANCE_SETTINGS,
     processingLabel: "Enhancing…",
     downloadAll: {
       actionLabel: "Enhancing",
       zipFilename: "enhanced-images.zip",
-      buildEntry: async (item, currentSettings) => {
-        const { blob } = await enhanceInWorker(item.file, currentSettings);
+      buildEntry: async (item, currentSettings, cached) => {
+        const blob =
+          cached ?? (await enhanceInWorker(item.file, currentSettings)).blob;
         return { name: enhancedFileName(item.name, blob), blob };
       },
     },

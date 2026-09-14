@@ -162,7 +162,10 @@ export async function removeImageBackground(
     maskTensor.mul(255).to("uint8"),
   ).resize(image.width, image.height);
 
-  const cutout = image.clone().putAlpha(mask);
+  // `putAlpha` writes into the image and hands it back, and nothing reads the
+  // original afterwards, so cloning it first would copy the whole photo for
+  // the sake of a copy that is thrown away.
+  const cutout = image.putAlpha(mask);
   const blob = (await cutout.toBlob("image/png")) as Blob;
 
   throwIfAborted(signal);

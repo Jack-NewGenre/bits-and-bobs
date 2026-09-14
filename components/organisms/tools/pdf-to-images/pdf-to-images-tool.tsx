@@ -9,6 +9,7 @@ import { renderPages } from "@/lib/pdf/pdf";
 import { formatPageRanges, parsePageRanges } from "@/lib/pdf/pdf-pages";
 import { downloadBlob } from "@/lib/download";
 import { downloadZip } from "@/lib/zip";
+import { isAbortError } from "@/lib/utils";
 import {
   MAX_PDF_BYTES,
   PDF_TYPES,
@@ -82,7 +83,7 @@ export function PdfToImagesTool() {
       }
       toast.success(`Rendered ${entries.length} pages`);
     } catch (error) {
-      if ((error as Error)?.name === "AbortError") toast("Rendering stopped");
+      if (isAbortError(error)) toast("Rendering stopped");
       else toast.error("Could not render those pages");
     } finally {
       setIsRendering(false);

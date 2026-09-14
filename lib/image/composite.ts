@@ -1,12 +1,18 @@
 /**
- * Canvas compositing helpers for the background remover.
+ * Canvas compositing for the background remover.
  *
  * Takes a transparent cutout and renders it onto a chosen background
- * (transparent, a solid colour, or an uploaded image), returning a PNG blob.
+ * (transparent, a solid colour, or an uploaded image), optionally softening
+ * its edge and cropping away the empty margin, and returns a PNG blob.
+ *
+ * Feather, trim and background are deliberately one pass rather than three
+ * chained helpers. Handing a blob from one stage to the next would mean
+ * encoding a PNG and immediately decoding it again at every join, which on a
+ * large photo costs more than all the pixel work put together.
  */
 
-import { canvasToBlob, createCanvas2D, loadImage } from "@/lib/image/canvas";
-import { trimImage } from "@/lib/image/trim";
+import { canvasToBlob, createCanvas2D } from "@/lib/image/canvas";
+import { findContentBounds, type TrimBounds } from "@/lib/image/trim";
 import { clamp } from "@/lib/utils";
 
 export type BackgroundMode = "transparent" | "color" | "image";
@@ -39,140 +45,148 @@ export function featherRadius(feather: number, longestEdge: number): number {
 }
 
 /**
- * Soften a cutout's edge by blurring only its alpha channel, leaving the
- * colours crisp. A segmentation mask ends abruptly at the subject's outline,
- * which reads as a cut-out-with-scissors fringe once a new background sits
- * behind it; a feathered alpha lets the edge fade instead.
+ * The background image, decoded once. The slider re-composites continuously
+ * while it is dragged, and the picture behind the subject does not change
+ * between ticks, so decoding it every time is pure repetition.
  */
-export async function featherCutout(
-  cutout: Blob,
-  feather: number,
-): Promise<Blob> {
-  const bitmap = await createImageBitmap(cutout);
-  const { width, height } = bitmap;
-  const radius = featherRadius(feather, Math.max(width, height));
-  if (radius <= 0) {
-    bitmap.close();
-    return cutout;
-  }
+let cachedBackground: { url: string; image: ImageBitmap } | undefined;
 
-  const sharp = createCanvas2D(width, height);
-  sharp.ctx.drawImage(bitmap, 0, 0);
+/**
+ * Fetched and decoded rather than loaded through an `Image` element, because
+ * this runs in the worker as well, where there is no DOM. An object URL is
+ * readable from a worker on the same origin.
+ */
+async function backgroundFor(
+  settings: BackgroundSettings,
+): Promise<ImageBitmap | undefined> {
+  const { imageUrl } = settings;
+  if (settings.mode !== "image" || !imageUrl) return undefined;
+  if (cachedBackground?.url === imageUrl) return cachedBackground.image;
+
+  const response = await fetch(imageUrl);
+  const image = await createImageBitmap(await response.blob());
+  cachedBackground?.image.close();
+  cachedBackground = { url: imageUrl, image };
+  return image;
+}
+
+/** Draw a source so it covers the target box, preserving aspect ratio. */
+function drawCover(
+  ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+  source: CanvasImageSource & { width: number; height: number },
+  width: number,
+  height: number,
+): void {
+  const scale = Math.max(width / source.width, height / source.height);
+  const drawWidth = source.width * scale;
+  const drawHeight = source.height * scale;
+  ctx.drawImage(
+    source,
+    (width - drawWidth) / 2,
+    (height - drawHeight) / 2,
+    drawWidth,
+    drawHeight,
+  );
+}
+
+/**
+ * Blur only the alpha channel, leaving the colours crisp. A segmentation mask
+ * ends abruptly at the subject's outline, which reads as a cut-out-with-
+ * scissors fringe once a new background sits behind it; a feathered alpha lets
+ * the edge fade instead. Returns the pixels it wrote, so a following trim can
+ * read the bounds without going back to the canvas for them.
+ */
+function featherInPlace(
+  layer: ReturnType<typeof createCanvas2D>,
+  source: ImageBitmap,
+  radius: number,
+): ImageData {
+  const { width, height } = source;
 
   const soft = createCanvas2D(width, height);
   soft.ctx.filter = `blur(${Math.round(radius * 100) / 100}px)`;
-  soft.ctx.drawImage(bitmap, 0, 0);
-  bitmap.close();
+  soft.ctx.drawImage(source, 0, 0);
 
-  const sharpImage = sharp.ctx.getImageData(0, 0, width, height);
+  const sharpImage = layer.ctx.getImageData(0, 0, width, height);
   const softImage = soft.ctx.getImageData(0, 0, width, height);
   // Keep every colour channel, take only the softened alpha.
   for (let i = 3; i < sharpImage.data.length; i += 4) {
     sharpImage.data[i] = softImage.data[i];
   }
-  sharp.ctx.putImageData(sharpImage, 0, 0);
-
-  return canvasToBlob(sharp.canvas, "image/png");
-}
-
-export interface CompositeOptions {
-  mode: BackgroundMode;
-  /** CSS colour, used when mode === "color". */
-  color?: string;
-  /** Background bitmap, used when mode === "image". */
-  background?: ImageBitmap | HTMLImageElement | HTMLCanvasElement;
-}
-
-async function blobToBitmap(blob: Blob): Promise<ImageBitmap> {
-  return createImageBitmap(blob);
-}
-
-function canvasToPngBlob(canvas: HTMLCanvasElement): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (blob) resolve(blob);
-      else reject(new Error("Failed to export canvas to PNG"));
-    }, "image/png");
-  });
+  layer.ctx.putImageData(sharpImage, 0, 0);
+  return sharpImage;
 }
 
 /**
- * Composite the cutout over the requested background and return a PNG blob.
- * Transparent mode needs no drawing at all, so the cutout is handed straight
- * back rather than paying for a redundant decode/re-encode round trip.
- */
-export async function compositeCutout(
-  cutout: Blob,
-  options: CompositeOptions,
-): Promise<Blob> {
-  if (options.mode === "transparent") return cutout;
-
-  const foreground = await blobToBitmap(cutout);
-  const { width, height } = foreground;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Canvas 2D context unavailable");
-
-  if (options.mode === "color" && options.color) {
-    ctx.fillStyle = options.color;
-    ctx.fillRect(0, 0, width, height);
-  } else if (options.mode === "image" && options.background) {
-    drawCover(ctx, options.background, width, height);
-  }
-
-  ctx.drawImage(foreground, 0, 0, width, height);
-  foreground.close();
-
-  return canvasToPngBlob(canvas);
-}
-
-/** Draw a source so it covers the target box, preserving aspect ratio. */
-function drawCover(
-  ctx: CanvasRenderingContext2D,
-  source: ImageBitmap | HTMLImageElement | HTMLCanvasElement,
-  width: number,
-  height: number,
-): void {
-  const sourceWidth = "width" in source ? source.width : width;
-  const sourceHeight = "height" in source ? source.height : height;
-  const scale = Math.max(width / sourceWidth, height / sourceHeight);
-  const drawWidth = sourceWidth * scale;
-  const drawHeight = sourceHeight * scale;
-  const offsetX = (width - drawWidth) / 2;
-  const offsetY = (height - drawHeight) / 2;
-  ctx.drawImage(source, offsetX, offsetY, drawWidth, drawHeight);
-}
-
-/**
- * Composite a cutout onto the background described by `settings`, loading the
- * user's background image first when one is in play. Shared by the live
- * preview and the "download all" flow so a zip always matches what is on
- * screen.
+ * Composite a cutout onto the background described by `settings`. Shared by
+ * the live preview and the "download all" flow so a zip always matches what
+ * is on screen.
  */
 export async function compositeWithSettings(
   cutout: Blob,
   settings: BackgroundSettings,
 ): Promise<{ blob: Blob }> {
-  const feathered = await featherCutout(cutout, settings.feather);
-  // Trim after feathering, so the softened edge is inside the crop rather
-  // than sliced off by it.
-  const cropped = settings.trim
-    ? (await trimImage(feathered)).blob
-    : feathered;
+  // An untouched transparent cutout is already exactly the wanted output, so
+  // it never reaches a canvas at all.
+  const wantsBackground = settings.mode !== "transparent";
+  if (!wantsBackground && !settings.trim && settings.feather <= 0) {
+    return { blob: cutout };
+  }
 
-  const background =
-    settings.mode === "image" && settings.imageUrl
-      ? await loadImage(settings.imageUrl)
-      : undefined;
+  const bitmap = await createImageBitmap(cutout);
+  const { width, height } = bitmap;
+  const radius = featherRadius(settings.feather, Math.max(width, height));
 
-  const blob = await compositeCutout(cropped, {
-    mode: settings.mode,
-    color: settings.color,
-    background,
-  });
-  return { blob };
+  // The foreground is the bitmap itself unless feathering has rewritten it,
+  // in which case it is the canvas holding the softened alpha.
+  let foreground: CanvasImageSource = bitmap;
+  let pixels: ImageData | undefined;
+
+  if (radius > 0 || settings.trim) {
+    const layer = createCanvas2D(width, height);
+    layer.ctx.drawImage(bitmap, 0, 0);
+    pixels =
+      radius > 0
+        ? featherInPlace(layer, bitmap, radius)
+        : layer.ctx.getImageData(0, 0, width, height);
+    foreground = layer.canvas;
+  }
+
+  let bounds: TrimBounds | undefined;
+  if (settings.trim && pixels) {
+    bounds = findContentBounds(pixels.data, width, height);
+  }
+  const crop: TrimBounds = bounds ?? {
+    left: 0,
+    top: 0,
+    right: width,
+    bottom: height,
+    width,
+    height,
+  };
+
+  const background = await backgroundFor(settings);
+  const out = createCanvas2D(crop.width, crop.height);
+
+  if (settings.mode === "color") {
+    out.ctx.fillStyle = settings.color;
+    out.ctx.fillRect(0, 0, crop.width, crop.height);
+  } else if (background) {
+    drawCover(out.ctx, background, crop.width, crop.height);
+  }
+
+  out.ctx.drawImage(
+    foreground,
+    crop.left,
+    crop.top,
+    crop.width,
+    crop.height,
+    0,
+    0,
+    crop.width,
+    crop.height,
+  );
+  bitmap.close();
+
+  return { blob: await canvasToBlob(out.canvas, "image/png") };
 }

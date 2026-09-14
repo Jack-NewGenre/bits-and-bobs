@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { type Rgb } from "@/lib/colour/colour";
 import { buildShades, toHexList, toThemeBlock } from "@/lib/colour/colour-harmony";
@@ -21,9 +21,13 @@ export function TailwindShadesTool() {
   const [name, setName] = useState("brand");
   const [syntax, setSyntax] = useState<Syntax>("css");
 
-  const shades = buildShades(colour);
-  const output =
-    syntax === "css" ? toThemeBlock(name, shades) : toHexList(name, shades);
+  // Eleven gamut-mapping searches per build, and the native colour picker fires
+  // continuously while it is dragged, so this must not run on every render.
+  const shades = useMemo(() => buildShades(colour), [colour]);
+  const output = useMemo(
+    () => (syntax === "css" ? toThemeBlock(name, shades) : toHexList(name, shades)),
+    [syntax, name, shades],
+  );
 
   return (
     <div className="space-y-6">

@@ -32,8 +32,9 @@ export function ColourBlindnessTool() {
     downloadAll: {
       actionLabel: "Simulating",
       zipFilename: "colour-blindness.zip",
-      buildEntry: async (item, currentSettings) => {
-        const { blob } = await simulateImage(item.file, currentSettings.vision);
+      buildEntry: async (item, currentSettings, cached) => {
+        const blob =
+          cached ?? (await simulateImage(item.file, currentSettings.vision)).blob;
         return { name: simulatedName(item.name, currentSettings.vision), blob };
       },
     },

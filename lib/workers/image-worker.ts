@@ -7,9 +7,11 @@
  * `lib/canvas` already abstracts.
  */
 
+import { compositeWithSettings } from "@/lib/image/composite";
 import { enhanceImage } from "@/lib/image/enhance";
 import { transformImage } from "@/lib/image/transform";
 import { vectorizeImage } from "@/lib/image/vectorize";
+import { isAbortError } from "@/lib/utils";
 import type {
   JobRequest,
   WorkerRequest,
@@ -59,11 +61,13 @@ async function runJob(request: JobRequest): Promise<void> {
               onProgress,
               signal,
             })
-          : await vectorizeImage(request.source, request.settings, {
-              onProgress,
-              signal,
-              maxTraceDim: request.maxDim,
-            });
+          : request.kind === "composite"
+            ? await compositeWithSettings(request.source, request.settings)
+            : await vectorizeImage(request.source, request.settings, {
+                onProgress,
+                signal,
+                maxTraceDim: request.maxDim,
+              });
 
     post({ type: "result", id: request.id, result });
   } catch (error) {
@@ -71,7 +75,7 @@ async function runJob(request: JobRequest): Promise<void> {
       type: "error",
       id: request.id,
       message: error instanceof Error ? error.message : "Processing failed",
-      aborted: error instanceof Error && error.name === "AbortError",
+      aborted: isAbortError(error),
     });
   } finally {
     controllers.delete(request.id);

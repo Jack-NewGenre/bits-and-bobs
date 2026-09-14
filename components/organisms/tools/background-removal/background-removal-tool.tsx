@@ -8,10 +8,10 @@ import {
   type CutoutResult,
 } from "@/lib/image/background-removal";
 import {
-  compositeWithSettings,
   DEFAULT_BACKGROUND_SETTINGS,
   type BackgroundSettings,
 } from "@/lib/image/composite";
+import { compositeInWorker } from "@/lib/workers/image-worker-client";
 import { toPngName } from "@/lib/download";
 import { ImageToolShell } from "@/components/organisms/image-tool-shell";
 import { ResultPanel } from "@/components/organisms/tools/background-removal/result-panel";
@@ -42,11 +42,10 @@ export function BackgroundRemovalTool() {
       zipFilename: "backgrounds-removed.zip",
       // Re-composite so the zip honours the chosen background, rather than
       // silently shipping the raw transparent cutouts.
-      buildEntry: async (item, currentSettings) => {
-        const { blob } = await compositeWithSettings(
-          item.result.blob,
-          currentSettings,
-        );
+      buildEntry: async (item, currentSettings, cached) => {
+        const blob =
+          cached ??
+          (await compositeInWorker(item.result.blob, currentSettings)).blob;
         return { name: toPngName(item.name), blob };
       },
     },

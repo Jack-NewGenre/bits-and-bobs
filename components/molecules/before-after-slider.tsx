@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -36,6 +36,13 @@ export function BeforeAfterSlider({
 }: BeforeAfterSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState(50);
+  // The container cannot move or resize mid-drag, so its box is measured once
+  // on pointer down. Measuring inside the move handler would force a reflow on
+  // every event, because the previous event just changed the layout.
+  const rectRef = useRef<DOMRect>(null);
+  const frameRef = useRef(0);
+
+  useEffect(() => () => cancelAnimationFrame(frameRef.current), []);
 
   // At high zoom, smoothing hides the very detail the user zoomed in to judge.
   const imgStyle: React.CSSProperties | undefined =
@@ -46,20 +53,26 @@ export function BeforeAfterSlider({
   const clampPosition = (value: number) => Math.min(100, Math.max(0, value));
 
   const updateFromClientX = useCallback((clientX: number) => {
-    const container = containerRef.current;
-    if (!container) return;
-    const rect = container.getBoundingClientRect();
+    const rect = rectRef.current;
+    if (!rect || rect.width === 0) return;
     setPosition(clampPosition(((clientX - rect.left) / rect.width) * 100));
   }, []);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
+    rectRef.current = event.currentTarget.getBoundingClientRect();
     updateFromClientX(event.clientX);
   };
 
+  // Pointers fire far faster than the screen refreshes, so the moves are
+  // coalesced into one state write per frame. Everything in between would be
+  // painted over before it was ever seen.
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.buttons !== 1) return;
-    updateFromClientX(event.clientX);
+    rectRef.current ??= event.currentTarget.getBoundingClientRect();
+    const { clientX } = event;
+    cancelAnimationFrame(frameRef.current);
+    frameRef.current = requestAnimationFrame(() => updateFromClientX(clientX));
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

@@ -45,3 +45,19 @@ export function percentSmaller(
   const percent = Math.round((1 - after / before) * 100);
   return clampToZero ? Math.max(0, percent) : percent;
 }
+
+/**
+ * Whether a thrown value is an abort rather than a real failure.
+ *
+ * Aborts arrive as a `DOMException`, which inherits from `Error` in a browser
+ * but not in every environment the tests run in, so the name is read off the
+ * value directly rather than through an `instanceof` that can quietly fail.
+ */
+export function isAbortError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    (error as { name?: unknown }).name === "AbortError"
+  );
+}

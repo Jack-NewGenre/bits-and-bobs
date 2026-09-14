@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 
 import {
@@ -18,9 +18,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CopyButton } from "@/components/atoms/copy-button";
 import { PillButton } from "@/components/atoms/pill-button";
+import { UuidList } from "@/components/organisms/tools/uuid/uuid-list";
 
 /** Stable, so the seed runs exactly once. */
 const seedUuids = () => generateUuids(DEFAULT_UUID_OPTIONS);
+
+/** Long enough to skip the digits typed on the way to the real number. */
+const COUNT_SETTLE_MS = 250;
 
 const TOGGLES: { key: keyof UuidOptions; label: string }[] = [
   { key: "uppercase", label: "Uppercase" },
@@ -33,16 +37,36 @@ export function UuidTool() {
   // these without the two disagreeing at hydration.
   const [uuids, setUuids] = useClientSeed(seedUuids, []);
 
+  // The settled count below reads the options back out of this rather than
+  // out of the render it was scheduled in, so a format toggled while that
+  // timer is pending is not overwritten by the values it captured.
+  const optionsRef = useRef(options);
+
   // Apply an options change and regenerate from the new options in one go.
   const apply = (next: UuidOptions) => {
+    optionsRef.current = next;
     setOptions(next);
     setUuids(generateUuids(next));
   };
 
   const regenerate = () => setUuids(generateUuids(options));
 
-  const setCount = (count: number) =>
-    apply({ ...options, count: clamp(count, MIN_COUNT, MAX_COUNT) });
+  // Typing "1000" passes through 1, 10 and 100 on the way, and each of those
+  // would generate and render a whole list that is about to be replaced. The
+  // box shows what was typed straight away; the list waits for a pause.
+  const [countText, setCountText] = useState(String(DEFAULT_UUID_OPTIONS.count));
+  const countTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  useEffect(() => () => clearTimeout(countTimer.current), []);
+
+  const setCount = (raw: string) => {
+    setCountText(raw);
+    clearTimeout(countTimer.current);
+    countTimer.current = setTimeout(() => {
+      const count = clamp(Math.round(Number(raw)) || MIN_COUNT, MIN_COUNT, MAX_COUNT);
+      apply({ ...optionsRef.current, count });
+    }, COUNT_SETTLE_MS);
+  };
 
   const toggle = (key: keyof UuidOptions) =>
     apply({ ...options, [key]: !options[key] });
@@ -58,8 +82,8 @@ export function UuidTool() {
               type="number"
               min={MIN_COUNT}
               max={MAX_COUNT}
-              value={options.count}
-              onChange={(event) => setCount(Number(event.target.value))}
+              value={countText}
+              onChange={(event) => setCount(event.target.value)}
             />
           </div>
 
@@ -98,17 +122,7 @@ export function UuidTool() {
               disabled={uuids.length === 0}
             />
           </div>
-          <div className="divide-border max-h-[460px] divide-y overflow-auto rounded-lg border">
-            {uuids.map((uuid, index) => (
-              <div
-                key={`${uuid}-${index}`}
-                className="hover:bg-accent/40 flex items-center justify-between gap-2 px-3 py-2"
-              >
-                <code className="font-mono text-sm break-all">{uuid}</code>
-                <CopyButton value={uuid} iconOnly variant="ghost" />
-              </div>
-            ))}
-          </div>
+          <UuidList uuids={uuids} />
         </CardContent>
       </Card>
     </div>

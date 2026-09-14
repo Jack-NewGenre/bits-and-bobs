@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { FLAGS, toSegments } from "@/lib/text/regex";
+import { useDebounced } from "@/hooks/use-debounced";
 import { useRegexRun } from "@/hooks/use-regex-run";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,16 +28,24 @@ export function RegexTesterTool() {
   const [replacement, setReplacement] = useState("");
 
   const flagString = flags.join("");
+  // Each run ships the whole text to the worker under a deadline, so the typed
+  // fields wait for a pause. Flags are clicks, not keystrokes, so they apply at
+  // once. The highlighter reads the same settled text the matches came from, so
+  // the offsets can never point into a document the worker has not seen.
+  const settledPattern = useDebounced(pattern);
+  const settledInput = useDebounced(input);
+  const settledReplacement = useDebounced(replacement);
+
   const { result, replaced, timedOut } = useRegexRun(
-    pattern,
+    settledPattern,
     flagString,
-    input,
-    replacement,
+    settledInput,
+    settledReplacement,
   );
 
   const segments = useMemo(
-    () => toSegments(input, timedOut ? [] : result.matches),
-    [input, result.matches, timedOut],
+    () => toSegments(settledInput, timedOut ? [] : result.matches),
+    [settledInput, result.matches, timedOut],
   );
 
   const toggleFlag = (flag: string) =>

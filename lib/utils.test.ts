@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { clamp, formatBytes, percentSmaller, shallowEqual } from "@/lib/utils";
+import {
+  clamp,
+  formatBytes,
+  isAbortError,
+  percentSmaller,
+  shallowEqual,
+} from "@/lib/utils";
 
 describe("clamp", () => {
   it("constrains to the inclusive range", () => {
@@ -56,5 +62,24 @@ describe("percentSmaller clamped", () => {
   it("floors a size increase at zero when asked", () => {
     expect(percentSmaller(1000, 1500, { clampToZero: true })).toBe(0);
     expect(percentSmaller(1000, 250, { clampToZero: true })).toBe(75);
+  });
+});
+
+describe("isAbortError", () => {
+  it("recognises the DOMException an abort actually throws", () => {
+    expect(isAbortError(new DOMException("Aborted", "AbortError"))).toBe(true);
+  });
+
+  it("recognises a plain error carrying the same name", () => {
+    const error = new Error("Aborted");
+    error.name = "AbortError";
+    expect(isAbortError(error)).toBe(true);
+  });
+
+  it("does not mistake a real failure for an abort", () => {
+    expect(isAbortError(new Error("Out of memory"))).toBe(false);
+    expect(isAbortError("AbortError")).toBe(false);
+    expect(isAbortError(null)).toBe(false);
+    expect(isAbortError(undefined)).toBe(false);
   });
 });

@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { measureImage } from "@/lib/image/dimensions";
+import { isAbortError } from "@/lib/utils";
+
 export type ImageQueueStatus = "queued" | "processing" | "done" | "error";
 
 /** Every tool's processor resolves to at least a downloadable blob. */
@@ -47,28 +50,16 @@ export type QueueProcessor<TResult extends QueueOutput> = (
   signal: AbortSignal,
 ) => Promise<TResult>;
 
-function isAbortError(error: unknown): boolean {
-  return error instanceof Error && error.name === "AbortError";
-}
-
-/**
- * Decode just far enough to read the image's natural size. Every tool wants
- * to report what it was given, and some need it to decide what they can
- * offer, so it is measured once here rather than in each pipeline.
- */
-async function measure(
-  file: File,
-): Promise<{ sourceWidth: number; sourceHeight: number } | undefined> {
-  try {
-    const bitmap = await createImageBitmap(file);
-    const size = { sourceWidth: bitmap.width, sourceHeight: bitmap.height };
-    bitmap.close();
-    return size;
-  } catch {
-    // A file the browser cannot decode will fail again, and more usefully,
-    // in the processor, no need to report it twice.
-    return undefined;
-  }
+export interface ImageQueueOptions {
+  /**
+   * How many items may process at once, read when files are added.
+   *
+   * A function rather than a number because the answer depends on the machine,
+   * which is not known during server rendering. One by default: a processor
+   * that works on the main thread gains nothing from being asked for several
+   * heavy passes at once, and would hold several images in memory to do it.
+   */
+  concurrency?: () => number;
 }
 
 /**
@@ -79,11 +70,18 @@ async function measure(
  */
 export function useImageQueue<TResult extends QueueOutput>(
   process: QueueProcessor<TResult>,
+  { concurrency }: ImageQueueOptions = {},
 ) {
   const [items, setItems] = useState<ImageQueueItem<TResult>[]>([]);
   const itemsRef = useRef<ImageQueueItem<TResult>[]>([]);
   const controllersRef = useRef(new Map<string, AbortController>());
   const idRef = useRef(0);
+  /** Items waiting for a free lane, and how many lanes are working. */
+  const waitingRef = useRef<ImageQueueItem<TResult>[]>([]);
+  const lanesRef = useRef(0);
+  const processItemRef = useRef<(item: ImageQueueItem<TResult>) => Promise<void>>(
+    async () => {},
+  );
 
   useEffect(() => {
     itemsRef.current = items;
@@ -146,6 +144,28 @@ export function useImageQueue<TResult extends QueueOutput>(
     [process, updateItem],
   );
 
+  useEffect(() => {
+    processItemRef.current = processItem;
+  }, [processItem]);
+
+  /**
+   * One lane of work: takes the next waiting item, processes it, repeats. As
+   * many lanes run as `concurrency` allows, so a batch spreads across the
+   * worker pool instead of trickling through one at a time.
+   */
+  const runLane = useCallback(async () => {
+    lanesRef.current += 1;
+    try {
+      for (;;) {
+        const next = waitingRef.current.shift();
+        if (!next) return;
+        await processItemRef.current(next);
+      }
+    } finally {
+      lanesRef.current -= 1;
+    }
+  }, []);
+
   const addFiles = useCallback(
     (files: File[]) => {
       const newItems: ImageQueueItem<TResult>[] = files.map((file) => {
@@ -164,19 +184,27 @@ export function useImageQueue<TResult extends QueueOutput>(
 
       setItems((prev) => [...prev, ...newItems]);
 
+      // Every tool wants to report the size of what it was given, and some
+      // need it to decide what they can offer. `measureImage` reads it out of
+      // the file header, so dropping twenty photos no longer decodes twenty
+      // images just to ask how big they are, on top of the decode each
+      // pipeline is about to do anyway.
       newItems.forEach((item) => {
-        void measure(item.file).then((size) => {
+        void measureImage(item.file).then((size) => {
           if (size) updateItem(item.id, size);
         });
       });
 
-      // Process sequentially to avoid running several heavy passes at once.
-      void newItems.reduce(
-        (chain, item) => chain.then(() => processItem(item)),
-        Promise.resolve(),
-      );
+      waitingRef.current.push(...newItems);
+      // Opening a lane runs it up to its first await synchronously, so the
+      // count is already correct on the next turn of the loop and a second
+      // batch dropped mid-run cannot push past the limit.
+      const limit = Math.max(1, concurrency?.() ?? 1);
+      while (lanesRef.current < limit && waitingRef.current.length > 0) {
+        void runLane();
+      }
     },
-    [processItem, updateItem],
+    [concurrency, runLane, updateItem],
   );
 
   const retryItem = useCallback(
@@ -198,6 +226,9 @@ export function useImageQueue<TResult extends QueueOutput>(
 
   const removeItem = useCallback(
     (id: string) => {
+      // Drop it from the waiting list too, so a lane does not pick up
+      // something the user has already taken off the queue.
+      waitingRef.current = waitingRef.current.filter((item) => item.id !== id);
       setItems((prev) => {
         const target = prev.find((item) => item.id === id);
         if (target) releaseItem(target);
@@ -221,6 +252,7 @@ export function useImageQueue<TResult extends QueueOutput>(
   }, []);
 
   const clear = useCallback(() => {
+    waitingRef.current = [];
     itemsRef.current.forEach(releaseItem);
     setItems([]);
   }, [releaseItem]);

@@ -1,12 +1,17 @@
 "use client";
 
+import { useCallback } from "react";
+
 import { useImageToolQueue } from "@/hooks/use-image-tool-queue";
 import {
   transformImage,
   type TransformResult,
   type TransformSettings,
 } from "@/lib/image/transform";
-import { transformInWorker } from "@/lib/workers/image-worker-client";
+import {
+  transformInWorker,
+  workerConcurrency,
+} from "@/lib/workers/image-worker-client";
 import { ImageToolShell } from "@/components/organisms/image-tool-shell";
 import { TransformResultPanel } from "@/components/organisms/transform-result-panel";
 import { transformedName } from "@/lib/image/transform-result";
@@ -43,23 +48,31 @@ export function TransformTool({
   showSaving,
   renderOptions,
 }: TransformToolProps) {
-  // Stable processor: the queue's first pass uses the tool's defaults; the
-  // result panel re-runs live as the user changes them.
-  const processor = (
-    file: File,
-    onProgress: (progress: { fraction: number }) => void,
-    signal: AbortSignal,
-  ) => transformInWorker(file, defaultSettings, { onProgress, signal });
+  // The processor must keep its identity between renders: it is what the queue
+  // hangs `addFiles` off, which the dropzone hangs its window paste listener
+  // off. A fresh function each render would tear that listener down and rebuild
+  // it on every progress tick. `defaultSettings` is a per-tool module constant,
+  // so this is stable in practice.
+  const processor = useCallback(
+    (
+      file: File,
+      onProgress: (progress: { fraction: number }) => void,
+      signal: AbortSignal,
+    ) => transformInWorker(file, defaultSettings, { onProgress, signal }),
+    [defaultSettings],
+  );
 
   const queue = useImageToolQueue<TransformSettings, TransformResult>({
     processor,
+    // Worker-backed, so a batch can spread across the pool.
+    concurrency: workerConcurrency,
     defaultSettings,
     processingLabel: `${verb}…`,
     downloadAll: {
       actionLabel: verb,
       zipFilename,
-      buildEntry: async (item, current) => {
-        const { blob } = await transformImage(item.file, current);
+      buildEntry: async (item, current, cached) => {
+        const blob = cached ?? (await transformImage(item.file, current)).blob;
         return { name: transformedName(item.name, blob, suffix), blob };
       },
     },

@@ -25,11 +25,14 @@ const {
     squeeze: vi.fn(() => maskTensor),
   };
 
-  const clonedImage = {
-    putAlpha: vi.fn(() => clonedImage),
+  // Mirrors RawImage: `putAlpha` writes into the image and returns it, so
+  // there is nothing to clone.
+  const sourceImage = {
+    width: 8,
+    height: 8,
+    putAlpha: vi.fn(() => sourceImage),
     toBlob: vi.fn(async () => blob),
   };
-  const sourceImage = { width: 8, height: 8, clone: vi.fn(() => clonedImage) };
 
   return {
     envMock: { allowLocalModels: true, logLevel: 30 },

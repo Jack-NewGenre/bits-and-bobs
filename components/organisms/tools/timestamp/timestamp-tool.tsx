@@ -39,11 +39,17 @@ export function TimestampTool() {
   // it would make the two disagree at hydration.
   const [now, setNow] = useClientSeed(readClock, 0);
   const mounted = useHydrated();
+  const usingNow = input.trim() === "";
 
+  // Tick only while the live clock is what is on screen. Once the user has
+  // typed a fixed timestamp, every row but the relative one is frozen anyway,
+  // and re-rendering six rows a second to keep that one honest to the second is
+  // work nobody can see.
   useEffect(() => {
+    if (!usingNow) return;
     const id = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(id);
-  }, [setNow]);
+  }, [setNow, usingNow]);
 
   const parsed = useMemo(() => {
     // Only show the live "current time" after mount so SSR renders no output
@@ -52,8 +58,10 @@ export function TimestampTool() {
     return mode === "timestamp" ? parseTimestamp(input) : parseDate(input);
   }, [input, mode, now, mounted]);
 
-  const parts = parsed ? describeTimestamp(parsed.ms, now) : null;
-  const usingNow = input.trim() === "";
+  const parts = useMemo(
+    () => (parsed ? describeTimestamp(parsed.ms, now) : null),
+    [parsed, now],
+  );
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">

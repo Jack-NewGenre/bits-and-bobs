@@ -73,29 +73,37 @@ function parsePath(raw: string): ParsedPath | undefined {
  * Returns the SVG unchanged if it contains no `<path>` elements.
  */
 export function optimizeSvg(svg: string): string {
-  const matches = [...svg.matchAll(PATH_PATTERN)];
-  if (matches.length === 0) return svg;
+  // A run's geometry is collected as pieces and joined once at the end.
+  // Appending to a string instead would recopy the whole accumulated `d` on
+  // every merge, and a colour trace can produce thousands of merges into a
+  // path already megabytes long.
+  const merged: { style: string; pieces: string[] }[] = [];
+  let start = -1;
+  let end = -1;
 
-  const merged: ParsedPath[] = [];
-  for (const [, attributes] of matches) {
-    const path = parsePath(attributes);
+  // The matches are consumed as they come rather than collected first: the only
+  // things needed beyond each path is where the first and last one sit.
+  for (const match of svg.matchAll(PATH_PATTERN)) {
+    if (start === -1) start = match.index;
+    end = match.index + match[0].length;
+
+    const path = parsePath(match[1]);
     if (!path) continue;
 
     const previous = merged.at(-1);
     if (previous && previous.style === path.style) {
-      previous.d = `${previous.d} ${path.d}`;
+      previous.pieces.push(path.d);
       continue;
     }
-    merged.push(path);
+    merged.push({ style: path.style, pieces: [path.d] });
   }
 
+  if (start === -1) return svg;
+
   const body = merged
-    .map((path) => `<path ${path.style} d="${path.d}"/>`)
+    .map((path) => `<path ${path.style} d="${path.pieces.join(" ")}"/>`)
     .join("");
 
   // Splice the rebuilt paths back between the original opening/closing tags.
-  const start = svg.indexOf(matches[0][0]);
-  const lastMatch = matches[matches.length - 1];
-  const end = svg.indexOf(lastMatch[0]) + lastMatch[0].length;
   return svg.slice(0, start) + body + svg.slice(end);
 }

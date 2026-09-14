@@ -30,8 +30,8 @@ export function ImageClipperTool() {
     downloadAll: {
       actionLabel: "Clipping",
       zipFilename: "clipped-images.zip",
-      buildEntry: async (item, currentSettings) => {
-        const { blob } = await trimImage(item.file, currentSettings);
+      buildEntry: async (item, currentSettings, cached) => {
+        const blob = cached ?? (await trimImage(item.file, currentSettings)).blob;
         return { name: toPngName(item.name), blob };
       },
     },

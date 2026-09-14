@@ -17,6 +17,11 @@ import { OptionGroup } from "@/components/molecules/option-group";
 
 const INITIAL: Rgb = { r: 59, g: 130, b: 246, a: 1 };
 
+const HARMONY_CHOICES = HARMONIES.map((entry) => ({
+  value: entry.id,
+  label: entry.label,
+}));
+
 export function PaletteGeneratorTool() {
   const [colour, setColour] = useState<Rgb>(INITIAL);
   const [harmony, setHarmony] = useState<Harmony>(HARMONIES[0]);
@@ -32,10 +37,7 @@ export function PaletteGeneratorTool() {
 
           <OptionGroup
             label="Harmony"
-            choices={HARMONIES.map((entry) => ({
-              value: entry.id,
-              label: entry.label,
-            }))}
+            choices={HARMONY_CHOICES}
             value={harmony.id}
             onChange={(id) => {
               const next = HARMONIES.find((entry) => entry.id === id);

@@ -33,6 +33,13 @@ interface VectorizeOptionsProps {
   onChange: (settings: VectorizeSettings) => void;
 }
 
+const PRESET_CHOICES = VECTORIZE_PRESETS.map((preset) => ({
+  value: preset.id,
+  label: preset.label,
+}));
+
+const MODE_CHOICES = MODES.map((mode) => ({ value: mode.id, label: mode.label }));
+
 export function VectorizeOptions({ settings, onChange }: VectorizeOptionsProps) {
   const setField = <K extends keyof VectorizeSettings>(
     key: K,
@@ -47,10 +54,7 @@ export function VectorizeOptions({ settings, onChange }: VectorizeOptionsProps) 
     <div className="space-y-5">
       <OptionGroup
         label="Preset"
-        choices={VECTORIZE_PRESETS.map((preset) => ({
-          value: preset.id,
-          label: preset.label,
-        }))}
+        choices={PRESET_CHOICES}
         value={activePreset ?? ""}
         onChange={(id) => {
           const preset = VECTORIZE_PRESETS.find((entry) => entry.id === id);
@@ -61,7 +65,7 @@ export function VectorizeOptions({ settings, onChange }: VectorizeOptionsProps) 
 
       <OptionGroup
         label="Mode"
-        choices={MODES.map((mode) => ({ value: mode.id, label: mode.label }))}
+        choices={MODE_CHOICES}
         value={settings.mode}
         onChange={(mode) => setField("mode", mode)}
         columns={3}

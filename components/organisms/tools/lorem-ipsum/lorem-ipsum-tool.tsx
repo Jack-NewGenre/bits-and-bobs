@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { RefreshCw } from "lucide-react";
 
 import { useClientSeed } from "@/hooks/use-client-seed";
+import { useDebounced } from "@/hooks/use-debounced";
 import {
   countLorem,
   DEFAULT_LOREM_SETTINGS,
@@ -38,7 +39,11 @@ export function LoremIpsumTool() {
   // one the browser draws, and hydration would fail.
   const [seed, setSeed] = useClientSeed(drawSeed, 1);
 
-  const text = useMemo(() => generateLorem(settings, seed), [settings, seed]);
+  // The sliders fire on every step they pass through, and each step rebuilds
+  // and re-measures the whole document. The readout beside the slider still
+  // tracks the live value; only the text waits for the drag to settle.
+  const settled = useDebounced(settings);
+  const text = useMemo(() => generateLorem(settled, seed), [settled, seed]);
   const stats = useMemo(() => countLorem(text), [text]);
 
   const set = <K extends keyof LoremSettings>(key: K, value: LoremSettings[K]) =>

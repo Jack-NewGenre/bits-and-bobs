@@ -118,7 +118,9 @@ export async function aiUpscale(
 
   const { canvas, ctx } = createCanvas2D(output.width, output.height);
   const image = ctx.createImageData(output.width, output.height);
-  image.data.set(rawImageToRgba(output));
+  // Written straight into the canvas buffer rather than into a second one that
+  // is then copied across: at upscaled sizes that copy is the whole image.
+  rawImageToRgba(output, image.data);
   ctx.putImageData(image, 0, 0);
 
   return canvasToBlob(canvas, "image/png");
@@ -129,17 +131,28 @@ export async function aiUpscale(
  * so an opaque alpha channel is woven back in; a single channel is spread
  * across red, green and blue.
  */
-export function rawImageToRgba(image: RawImage): Uint8ClampedArray {
+export function rawImageToRgba(
+  image: RawImage,
+  into?: Uint8ClampedArray,
+): Uint8ClampedArray {
   const { data, width, height, channels } = image;
-  const pixels = new Uint8ClampedArray(width * height * 4);
+  const count = width * height;
+  const pixels = into ?? new Uint8ClampedArray(count * 4);
 
-  for (let pixel = 0; pixel < width * height; pixel++) {
+  // Which source channel feeds green and blue, and whether there is a real
+  // alpha, is fixed for the whole image, so it is decided out here rather than
+  // re-tested on every pixel.
+  const greenAt = channels > 1 ? 1 : 0;
+  const blueAt = channels > 2 ? 2 : 0;
+  const hasAlpha = channels === 4;
+
+  for (let pixel = 0; pixel < count; pixel++) {
     const from = pixel * channels;
     const to = pixel * 4;
     pixels[to] = data[from];
-    pixels[to + 1] = data[from + (channels > 1 ? 1 : 0)];
-    pixels[to + 2] = data[from + (channels > 2 ? 2 : 0)];
-    pixels[to + 3] = channels === 4 ? data[from + 3] : 255;
+    pixels[to + 1] = data[from + greenAt];
+    pixels[to + 2] = data[from + blueAt];
+    pixels[to + 3] = hasAlpha ? data[from + 3] : 255;
   }
 
   return pixels;

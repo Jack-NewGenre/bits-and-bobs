@@ -7,7 +7,10 @@ import {
   type VectorizeResult,
   type VectorizeSettings,
 } from "@/lib/image/vectorize";
-import { vectorizeInWorker } from "@/lib/workers/image-worker-client";
+import {
+  vectorizeInWorker,
+  workerConcurrency,
+} from "@/lib/workers/image-worker-client";
 import { ImageToolShell } from "@/components/organisms/image-tool-shell";
 import { VectorizeResultPanel } from "@/components/organisms/tools/png-to-svg/vectorize-result-panel";
 
@@ -26,13 +29,16 @@ const traceWithDefaults = (
 export function PngToSvgTool() {
   const queue = useImageToolQueue<VectorizeSettings, VectorizeResult>({
     processor: traceWithDefaults,
+    // Worker-backed, so a batch can spread across the pool.
+    concurrency: workerConcurrency,
     defaultSettings: DEFAULT_VECTORIZE_SETTINGS,
     processingLabel: "Tracing…",
     downloadAll: {
       actionLabel: "Tracing",
       zipFilename: "vectorized-images.zip",
-      buildEntry: async (item, currentSettings) => {
-        const { blob } = await vectorizeInWorker(item.file, currentSettings);
+      buildEntry: async (item, currentSettings, cached) => {
+        const blob =
+          cached ?? (await vectorizeInWorker(item.file, currentSettings)).blob;
         return { name: svgFileName(item.name), blob };
       },
     },

@@ -32,20 +32,29 @@ interface Box {
   pixels: number[][];
 }
 
-function spread(box: Box, channel: number): number {
-  let low = 255;
-  let high = 0;
-  for (const pixel of box.pixels) {
-    if (pixel[channel] < low) low = pixel[channel];
-    if (pixel[channel] > high) high = pixel[channel];
-  }
-  return high - low;
-}
-
 /** The channel this box varies along most, the one worth cutting. */
 function widestChannel(box: Box): number {
-  const spreads = [spread(box, 0), spread(box, 1), spread(box, 2)];
-  return spreads.indexOf(Math.max(...spreads));
+  // All three spreads come out of a single walk: the box is the whole image on
+  // the first split, so three separate passes over it is three times the work
+  // for the same answer.
+  let lowR = 255, highR = 0;
+  let lowG = 255, highG = 0;
+  let lowB = 255, highB = 0;
+
+  for (const pixel of box.pixels) {
+    if (pixel[0] < lowR) lowR = pixel[0];
+    if (pixel[0] > highR) highR = pixel[0];
+    if (pixel[1] < lowG) lowG = pixel[1];
+    if (pixel[1] > highG) highG = pixel[1];
+    if (pixel[2] < lowB) lowB = pixel[2];
+    if (pixel[2] > highB) highB = pixel[2];
+  }
+
+  const spreadR = highR - lowR;
+  const spreadG = highG - lowG;
+  const spreadB = highB - lowB;
+  if (spreadR >= spreadG && spreadR >= spreadB) return 0;
+  return spreadG >= spreadB ? 1 : 2;
 }
 
 function averageOf(box: Box): Rgb {
@@ -146,14 +155,17 @@ export function nearestIndexIn(
   let best = 0;
   let bestDistance = Infinity;
 
-  palette.forEach((entry, index) => {
+  // An indexed loop rather than `forEach`: this is called once per distinct
+  // colour in an image, so a callback per call is a callback per colour.
+  for (let index = 0; index < palette.length; index++) {
+    const entry = palette[index];
     const distance =
       (entry.r - r) ** 2 + (entry.g - g) ** 2 + (entry.b - b) ** 2;
     if (distance < bestDistance) {
       bestDistance = distance;
       best = index;
     }
-  });
+  }
 
   return best;
 }
@@ -172,21 +184,41 @@ export function applyPalette(
   palette: Rgb[],
 ): Uint8ClampedArray {
   if (palette.length === 0) return data;
-  const cache = new Map<number, Rgb>();
+
+  // One slot per possible RGB colour, holding the palette index plus one so
+  // that zero can mean "not worked out yet" and the array needs no filling.
+  // A Map would hash on every one of the image's pixels and could grow to
+  // sixteen million entries; this is a fixed 16 MB of lazily-paged memory and
+  // a plain array read. The palette is capped at MAX_COLOURS, so an index
+  // always fits in a byte; anything longer skips the cache rather than
+  // silently wrapping round.
+  const cache = palette.length < 255 ? new Uint8Array(1 << 24) : undefined;
+  // Flattened so the inner loop reads numbers rather than chasing objects.
+  const flat = new Uint8Array(palette.length * 3);
+  for (let index = 0; index < palette.length; index++) {
+    flat[index * 3] = palette[index].r;
+    flat[index * 3 + 1] = palette[index].g;
+    flat[index * 3 + 2] = palette[index].b;
+  }
 
   for (let index = 0; index < data.length; index += 4) {
     if (data[index + 3] < ALPHA_FLOOR) continue;
 
-    const key = (data[index] << 16) | (data[index + 1] << 8) | data[index + 2];
-    let match = cache.get(key);
-    if (!match) {
-      match = nearestIn(palette, data[index], data[index + 1], data[index + 2]);
-      cache.set(key, match);
+    const red = data[index];
+    const green = data[index + 1];
+    const blue = data[index + 2];
+    const key = (red << 16) | (green << 8) | blue;
+
+    let slot = cache?.[key] ?? 0;
+    if (slot === 0) {
+      slot = nearestIndexIn(palette, red, green, blue) + 1;
+      if (cache) cache[key] = slot;
     }
 
-    data[index] = match.r;
-    data[index + 1] = match.g;
-    data[index + 2] = match.b;
+    const at = (slot - 1) * 3;
+    data[index] = flat[at];
+    data[index + 1] = flat[at + 1];
+    data[index + 2] = flat[at + 2];
   }
 
   return data;

@@ -4,10 +4,10 @@ import { useLiveResult } from "@/hooks/use-live-result";
 import type { DoneQueueItem } from "@/hooks/use-image-queue";
 import type { CutoutResult } from "@/lib/image/background-removal";
 import {
-  compositeWithSettings,
   DEFAULT_BACKGROUND_SETTINGS,
   type BackgroundSettings,
 } from "@/lib/image/composite";
+import { compositeInWorker } from "@/lib/workers/image-worker-client";
 import { downloadBlob, toPngName } from "@/lib/download";
 import { formatBytes } from "@/lib/utils";
 import { BeforeAfterSlider } from "@/components/molecules/before-after-slider";
@@ -16,8 +16,11 @@ import { DownloadButton } from "@/components/atoms/download-button";
 import { ResultPanelShell } from "@/components/organisms/result-panel-shell";
 import { BackgroundOptions } from "@/components/organisms/tools/background-removal/background-options";
 
-const composite = (cutout: Blob, settings: BackgroundSettings) =>
-  compositeWithSettings(cutout, settings);
+const composite = (
+  cutout: Blob,
+  settings: BackgroundSettings,
+  { signal }: { signal: AbortSignal },
+) => compositeInWorker(cutout, settings, { signal });
 
 interface ResultPanelProps {
   item: DoneQueueItem<CutoutResult>;
@@ -44,7 +47,6 @@ export function ResultPanel({
         settings.feather === 0 &&
         !settings.trim,
     },
-    debounceMs: 0,
   });
   const previewUrl = composited.url ?? item.resultUrl;
   const result = composited.result;

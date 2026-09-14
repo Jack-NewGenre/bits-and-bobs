@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Check } from "lucide-react";
 
 import { useCopy } from "@/hooks/use-copy";
@@ -26,7 +27,7 @@ interface ColourSwatchProps {
  * black or white actually reads against the swatch, so a label never
  * disappears into a light yellow or a dark navy.
  */
-export function ColourSwatch({
+function ColourSwatchImpl({
   colour,
   caption,
   copyValue,
@@ -61,3 +62,11 @@ export function ColourSwatch({
     </button>
   );
 }
+
+/**
+ * Memoised: a scale renders eleven of these, and the tool above re-renders
+ * continuously while the native colour picker is dragged. Each swatch does two
+ * hex conversions and a contrast calculation, none of which change unless its
+ * own colour does.
+ */
+export const ColourSwatch = memo(ColourSwatchImpl);

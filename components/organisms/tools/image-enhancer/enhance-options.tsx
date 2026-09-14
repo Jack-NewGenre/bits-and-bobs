@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import {
   type EnhanceEngine,
   type EnhanceScale,
@@ -14,6 +16,11 @@ import { OptionGroup } from "@/components/molecules/option-group";
 const SCALE_CHOICES = ([1, 2, 4] as EnhanceScale[]).map((scale) => ({
   value: scale,
   label: `${scale}×`,
+}));
+
+const PRESET_CHOICES = ENHANCE_PRESETS.map((preset) => ({
+  value: preset.id,
+  label: preset.label,
 }));
 
 const ENGINES: { value: EnhanceEngine; label: string }[] = [
@@ -57,6 +64,17 @@ export function EnhanceOptions({
     value: EnhanceSettings[K],
   ) => onChange({ ...settings, [key]: value });
 
+  // Only the disabled flag varies, so this is rebuilt when it changes rather
+  // than on every render of a panel that re-renders as the sliders move.
+  const engineChoices = useMemo(
+    () =>
+      ENGINES.map((engine) => ({
+        ...engine,
+        disabled: engine.value === "ai" && !aiAvailable,
+      })),
+    [aiAvailable],
+  );
+
   const activePreset = ENHANCE_PRESETS.find((preset) =>
     settingsEqual(preset.settings, settings),
   )?.id;
@@ -65,10 +83,7 @@ export function EnhanceOptions({
     <div className="space-y-5">
       <OptionGroup
         label="Preset"
-        choices={ENHANCE_PRESETS.map((preset) => ({
-          value: preset.id,
-          label: preset.label,
-        }))}
+        choices={PRESET_CHOICES}
         value={activePreset ?? ""}
         onChange={(id) => {
           const preset = ENHANCE_PRESETS.find((entry) => entry.id === id);
@@ -79,10 +94,7 @@ export function EnhanceOptions({
 
       <OptionGroup
         label="Upscaler"
-        choices={ENGINES.map((engine) => ({
-          ...engine,
-          disabled: engine.value === "ai" && !aiAvailable,
-        }))}
+        choices={engineChoices}
         value={settings.engine}
         onChange={(engine) => setField("engine", engine)}
         columns={2}

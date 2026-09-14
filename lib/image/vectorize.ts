@@ -17,6 +17,7 @@
 import type { TraceOptions, TracePaletteColor } from "imagetracerjs";
 
 import { createCanvas2D, nextTick, throwIfAborted } from "@/lib/image/canvas";
+import { readImageHeader } from "@/lib/image/dimensions";
 import { withSuffix } from "@/lib/download";
 import { optimizeSvg } from "@/lib/image/svg-optimize";
 import { clamp } from "@/lib/utils";
@@ -169,9 +170,19 @@ export function buildTraceOptions(
   return base;
 }
 
-/** Count the `<path>` elements in an SVG string. */
+/**
+ * Count the `<path>` elements in an SVG string. A traced photo runs to
+ * megabytes with thousands of paths, so this walks the string rather than
+ * collecting every match into an array only to read its length.
+ */
 export function countSvgPaths(svg: string): number {
-  return svg.match(/<path/g)?.length ?? 0;
+  let count = 0;
+  let at = svg.indexOf("<path");
+  while (at !== -1) {
+    count += 1;
+    at = svg.indexOf("<path", at + 5);
+  }
+  return count;
 }
 
 /** Filename for a traced result. */
@@ -226,14 +237,46 @@ export async function vectorizeImage(
   throwIfAborted(signal);
   onProgress?.({ stage: "preparing", fraction: 0 });
 
-  const bitmap = await createImageBitmap(source);
+  const cap = Math.min(MAX_TRACE_DIM, maxTraceDim ?? MAX_TRACE_DIM);
+
+  // Tracing works on a scaled-down copy, and the live preview shrinks it
+  // further still. Reading the size from the header first lets the decoder
+  // produce the small copy directly, instead of unpacking every pixel of a
+  // 6000px photo only to throw almost all of them away on the next line.
+  const header = await readImageHeader(source);
+
+  // A header says how big the image is, never which way up it is: a JPEG
+  // carrying an EXIF rotation decodes with its width and height the other way
+  // round to the frame the header describes. Which edge is longest can swap,
+  // but their lengths cannot, so the decode is hinted with one edge only.
+  // That leaves the decoder to keep the real aspect ratio whichever way the
+  // image comes out, and pinning both to a transposed guess would squash it
+  // before we ever saw it.
+  const edges = header
+    ? {
+        shortest: Math.min(header.sourceWidth, header.sourceHeight),
+        longest: Math.max(header.sourceWidth, header.sourceHeight),
+      }
+    : undefined;
+
+  const bitmap =
+    edges && edges.longest > cap
+      ? await createImageBitmap(source, {
+          resizeWidth: Math.min(cap, edges.shortest),
+          resizeQuality: "high",
+        })
+      : await createImageBitmap(source);
   throwIfAborted(signal);
 
-  const { width, height, scale } = computeTraceSize(
-    bitmap.width,
-    bitmap.height,
-    Math.min(MAX_TRACE_DIM, maxTraceDim ?? MAX_TRACE_DIM),
-  );
+  // Trust the decoded bitmap over the header, so a header that lied cannot
+  // put the canvas and the image out of step.
+  const { width, height } = computeTraceSize(bitmap.width, bitmap.height, cap);
+
+  // Traced coordinates are scaled back up to the size the user gave us, so
+  // this is measured against the source rather than the decoded copy, which
+  // the hint above may already have shrunk.
+  const sourceLongest = edges?.longest ?? Math.max(bitmap.width, bitmap.height);
+  const scale = round4(sourceLongest / Math.max(width, height));
 
   const { ctx } = createCanvas2D(width, height);
   ctx.imageSmoothingEnabled = true;

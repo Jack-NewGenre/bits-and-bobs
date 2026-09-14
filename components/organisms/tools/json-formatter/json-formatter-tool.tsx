@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { TriangleAlert } from "lucide-react";
 
+import { useDebounced } from "@/hooks/use-debounced";
 import {
   DEFAULT_JSON_OPTIONS,
   INDENT_OPTIONS,
@@ -34,7 +35,10 @@ export function JsonFormatterTool() {
   const [input, setInput] = useState("");
   const [options, setOptions] = useState<JsonOptions>(DEFAULT_JSON_OPTIONS);
 
-  const result = useMemo(() => processJson(input, options), [input, options]);
+  // Formatting walks the whole document several times, so it waits for a pause
+  // in typing rather than re-running on every keystroke of a large paste.
+  const settled = useDebounced(input);
+  const result = useMemo(() => processJson(settled, options), [settled, options]);
   const set = <K extends keyof JsonOptions>(key: K, value: JsonOptions[K]) =>
     setOptions((prev) => ({ ...prev, [key]: value }));
 

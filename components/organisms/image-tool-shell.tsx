@@ -30,7 +30,10 @@ function toListItem(
   };
 }
 
-interface ImageToolShellProps<TSettings, TResult extends QueueOutput> {
+interface ImageToolShellProps<
+  TSettings extends object,
+  TResult extends QueueOutput,
+> {
   /** The whole queue from useImageToolQueue: the shell wires itself up. */
   queue: ImageToolQueue<TSettings, TResult>;
   dropzoneHint: string;
@@ -47,7 +50,10 @@ interface ImageToolShellProps<TSettings, TResult extends QueueOutput> {
  * a "download all" action, and a results pane for the selected item. Each
  * tool supplies its own dropzone copy, status labels, and result panel.
  */
-export function ImageToolShell<TSettings, TResult extends QueueOutput>({
+export function ImageToolShell<
+  TSettings extends object,
+  TResult extends QueueOutput,
+>({
   queue,
   dropzoneHint,
   emptyStateLabel,

@@ -1,5 +1,3 @@
-"use client";
-
 import { extensionForType } from "@/lib/download";
 import { cn, formatBytes } from "@/lib/utils";
 

@@ -190,6 +190,11 @@ export async function enhanceImage(
   ctx.filter = "none";
   bitmap.close?.();
 
+  // The denoise pass leaves its pixels in hand. A following sharpen needs the
+  // very same pixels as its base, so it borrows them rather than reading the
+  // whole canvas back out again.
+  let working: ImageData | undefined;
+
   const denoise = clamp(settings.denoise, 0, 100) / 100;
   if (denoise > 0) {
     onProgress?.({ stage: "denoising", fraction: 0.35 });
@@ -198,8 +203,13 @@ export async function enhanceImage(
     throwIfAborted(signal);
 
     const image = ctx.getImageData(0, 0, width, height);
-    image.data.set(medianDenoise(image.data, width, height, denoise));
+    // The filter reads every pixel's neighbours, so it cannot write over its
+    // own input. It reads from the copy and writes into the canvas buffer
+    // directly, rather than allocating a third buffer to copy back.
+    const original = new Uint8ClampedArray(image.data);
+    medianDenoise(original, width, height, denoise, image.data);
     ctx.putImageData(image, 0, 0);
+    working = image;
   }
 
   onProgress?.({ stage: "enhancing", fraction: 0.6 });
@@ -217,7 +227,7 @@ export async function enhanceImage(
     blur.ctx.filter = `blur(${sharpenRadius(scale)}px)`;
     blur.ctx.drawImage(canvas, 0, 0);
 
-    const baseImage = ctx.getImageData(0, 0, width, height);
+    const baseImage = working ?? ctx.getImageData(0, 0, width, height);
     const blurImage = blur.ctx.getImageData(0, 0, width, height);
     unsharpMask(baseImage.data, blurImage.data, amount * SHARPEN_GAIN);
     ctx.putImageData(baseImage, 0, 0);
