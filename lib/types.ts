@@ -2,12 +2,7 @@ import type { LucideIcon } from "lucide-react";
 
 export type ToolStatus = "available" | "soon";
 
-export type ToolCategoryId =
-  | "image"
-  | "colour"
-  | "dev"
-  | "pdf"
-  | "generators";
+export type ToolCategoryId = "image" | "colour" | "dev" | "pdf" | "generators";
 
 export interface ToolCategory {
   id: ToolCategoryId;
@@ -36,6 +31,16 @@ export interface AvailableTool extends ToolBase {
    * here rather than on the page so all copy for a tool lives in one place.
    */
   blurb: string;
+  /**
+   * Take over the whole window, without the site header and sidebar. For a
+   * workspace like the image editor that needs every pixel.
+   */
+  fullScreen?: boolean;
+  /**
+   * MIME types the tool opens. Lets the home page offer this tool when a file
+   * is dropped or pasted onto the search.
+   */
+  accepts?: string[];
 }
 
 /** A tool on the roadmap. No page, so no route and no page copy. */

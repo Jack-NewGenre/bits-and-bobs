@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
+import { handOffFiles } from "@/lib/file-handoff";
 import { ImageDropzone } from "@/components/molecules/image-dropzone";
 
 /** Minimal stand-in for the clipboard's DataTransferItemList. */
@@ -45,9 +46,7 @@ describe("ImageDropzone paste", () => {
       cancelable: true,
     }) as Event & { clipboardData: { items: DataTransferItemList } };
     event.clipboardData = {
-      items: clipboardItems([
-        { kind: "file", type, file: makeFile("", type) },
-      ]),
+      items: clipboardItems([{ kind: "file", type, file: makeFile("", type) }]),
     };
     window.dispatchEvent(event);
     return event;
@@ -78,5 +77,13 @@ describe("ImageDropzone paste", () => {
 
     pasteImage();
     expect(onFiles).not.toHaveBeenCalled();
+  });
+
+  it("takes files handed over from the home page search on mount", () => {
+    const onFiles = vi.fn();
+    handOffFiles([makeFile("photo.png", "image/png")]);
+    render(<ImageDropzone onFiles={onFiles} />);
+    expect(onFiles).toHaveBeenCalledOnce();
+    expect(onFiles.mock.calls[0][0][0].name).toBe("photo.png");
   });
 });

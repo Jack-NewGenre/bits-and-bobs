@@ -1,10 +1,31 @@
 /** Colour tools. */
 
-import { Contrast, Eye, Palette, Pipette, SwatchBook } from "lucide-react";
+import {
+  Blend,
+  BookOpen,
+  Contrast,
+  Crosshair,
+  Eye,
+  Palette,
+  Pipette,
+  SwatchBook,
+} from "lucide-react";
 
+import { ACCEPTED_TYPES } from "@/lib/image/file-intake";
 import type { Tool } from "@/lib/types";
 
 export const COLOUR_TOOLS: Tool[] = [
+  {
+    slug: "colour-atlas",
+    name: "Colour Atlas",
+    description: "Everything about one colour on one page.",
+    blurb:
+      "Every notation, tints and shades, harmonies, contrast and colour blindness previews for one colour. Everything runs on your device.",
+    category: "colour",
+    icon: BookOpen,
+    status: "available",
+    href: "/tools/colour-atlas",
+  },
   {
     slug: "colour-converter",
     name: "Colour Converter",
@@ -62,5 +83,29 @@ export const COLOUR_TOOLS: Tool[] = [
     icon: Eye,
     status: "available",
     href: "/tools/colour-blindness",
+    accepts: ACCEPTED_TYPES,
+  },
+  {
+    slug: "gradient-generator",
+    name: "Gradient Generator",
+    description: "Build linear, radial and conic gradients, blended in OKLab.",
+    blurb:
+      "Build a linear, radial or conic gradient, copy the CSS or export a PNG. Everything runs on your device.",
+    category: "colour",
+    icon: Blend,
+    status: "available",
+    href: "/tools/gradient-generator",
+  },
+  {
+    slug: "pixel-picker",
+    name: "Pixel Picker",
+    description: "Sample colours from any image with a magnifying loupe.",
+    blurb:
+      "Sample exact colours from an image with a zoom loupe and averaging. Nothing is uploaded. It runs on your device.",
+    category: "colour",
+    icon: Crosshair,
+    status: "available",
+    href: "/tools/pixel-picker",
+    accepts: ACCEPTED_TYPES,
   },
 ];

@@ -4,6 +4,8 @@
  */
 
 export const ACCEPTED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+/** For tools that also trace or rasterise vector artwork. */
+export const IMAGE_AND_SVG_TYPES = [...ACCEPTED_TYPES, "image/svg+xml"];
 export const PDF_TYPES = ["application/pdf"];
 export const MAX_FILE_BYTES = 25 * 1024 * 1024; // 25MB
 /**
@@ -16,6 +18,13 @@ export const MAX_PDF_BYTES = 200 * 1024 * 1024; // 200MB
 export interface RejectedFile {
   name: string;
   reason: string;
+}
+
+/** One line explaining what was turned away, for a toast. */
+export function rejectionMessage(rejected: RejectedFile[]): string {
+  return rejected.length === 1
+    ? `${rejected[0].name}: ${rejected[0].reason}`
+    : `${rejected.length} files skipped (unsupported type or too large)`;
 }
 
 export interface PartitionedFiles {

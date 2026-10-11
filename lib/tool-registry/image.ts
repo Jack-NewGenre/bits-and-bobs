@@ -1,19 +1,38 @@
 /** Image tools. */
 
 import {
+  AppWindow,
   Crop,
   FileImage,
+  Layers,
   Palette,
   Scaling,
   Scissors,
+  Shapes,
   Shrink,
   Spline,
+  Sticker,
   WandSparkles,
 } from "lucide-react";
 
+import { ACCEPTED_TYPES, IMAGE_AND_SVG_TYPES } from "@/lib/image/file-intake";
 import type { Tool } from "@/lib/types";
 
 export const IMAGE_TOOLS: Tool[] = [
+  {
+    slug: "image-editor",
+    name: "Photo Studio",
+    description:
+      "Edit images with layers, brushes, text, shapes and adjustments. Private, free, no uploads.",
+    blurb:
+      "Photo Studio is a layered image editor in your browser: paint, add text and shapes, adjust colours, blend layers and export. Nothing is uploaded. It is completely private and free.",
+    category: "image",
+    icon: Layers,
+    status: "available",
+    href: "/tools/image-editor",
+    accepts: ACCEPTED_TYPES,
+    fullScreen: true,
+  },
   {
     slug: "background-removal",
     name: "Background Remover",
@@ -25,6 +44,7 @@ export const IMAGE_TOOLS: Tool[] = [
     icon: Scissors,
     status: "available",
     href: "/tools/background-removal",
+    accepts: ACCEPTED_TYPES,
   },
   {
     slug: "image-enhancer",
@@ -37,6 +57,7 @@ export const IMAGE_TOOLS: Tool[] = [
     icon: WandSparkles,
     status: "available",
     href: "/tools/image-enhancer",
+    accepts: ACCEPTED_TYPES,
   },
   {
     slug: "png-to-svg",
@@ -49,6 +70,33 @@ export const IMAGE_TOOLS: Tool[] = [
     icon: Spline,
     status: "available",
     href: "/tools/png-to-svg",
+    accepts: ACCEPTED_TYPES,
+  },
+  {
+    slug: "clip-art-cutter",
+    name: "Clip Art Cutter",
+    description:
+      "Lasso the parts of an image you want and save each as a separate image.",
+    blurb:
+      "Upload an image and lasso round the parts you want, or let every piece be found for you. Download each one as its own PNG. Nothing is uploaded. It is completely private and free.",
+    category: "image",
+    icon: Shapes,
+    status: "available",
+    href: "/tools/clip-art-cutter",
+    accepts: IMAGE_AND_SVG_TYPES,
+  },
+  {
+    slug: "sticker-maker",
+    name: "Sticker Maker",
+    description:
+      "Turn any picture into a die-cut sticker with a border and a soft shadow.",
+    blurb:
+      "Upload an image and its background is removed, then a border is drawn round its outline with a soft shadow beneath. Choose the border's thickness and colour and download a transparent PNG. Nothing is uploaded. It is completely private and free.",
+    category: "image",
+    icon: Sticker,
+    status: "available",
+    href: "/tools/sticker-maker",
+    accepts: ACCEPTED_TYPES,
   },
   {
     slug: "image-clipper",
@@ -61,6 +109,7 @@ export const IMAGE_TOOLS: Tool[] = [
     icon: Crop,
     status: "available",
     href: "/tools/image-clipper",
+    accepts: ACCEPTED_TYPES,
   },
   {
     slug: "image-compressor",
@@ -73,6 +122,7 @@ export const IMAGE_TOOLS: Tool[] = [
     icon: Shrink,
     status: "available",
     href: "/tools/image-compressor",
+    accepts: ACCEPTED_TYPES,
   },
   {
     slug: "image-converter",
@@ -84,6 +134,7 @@ export const IMAGE_TOOLS: Tool[] = [
     icon: FileImage,
     status: "available",
     href: "/tools/image-converter",
+    accepts: ACCEPTED_TYPES,
   },
   {
     slug: "image-resizer",
@@ -95,6 +146,7 @@ export const IMAGE_TOOLS: Tool[] = [
     icon: Scaling,
     status: "available",
     href: "/tools/image-resizer",
+    accepts: ACCEPTED_TYPES,
   },
   {
     slug: "palette-extractor",
@@ -106,5 +158,19 @@ export const IMAGE_TOOLS: Tool[] = [
     icon: Palette,
     status: "available",
     href: "/tools/palette-extractor",
+    accepts: ACCEPTED_TYPES,
+  },
+  {
+    slug: "favicon-generator",
+    name: "Favicon Generator",
+    description:
+      "Turn one image into every favicon size, with an ICO and the HTML.",
+    blurb:
+      "Drop in a PNG, JPG, WebP or SVG, pick the square to use, how round its corners are and a background colour, and get favicon.ico, the Apple touch icon, the Android and PWA sizes, and the link tags to paste. Nothing is uploaded.",
+    category: "image",
+    icon: AppWindow,
+    status: "available",
+    href: "/tools/favicon-generator",
+    accepts: IMAGE_AND_SVG_TYPES,
   },
 ];

@@ -11,16 +11,18 @@ import {
   type QueueOutput,
   type QueueProcessor,
 } from "@/hooks/use-image-queue";
-import type { RejectedFile } from "@/lib/image/file-intake";
+import { rejectionMessage, type RejectedFile } from "@/lib/image/file-intake";
 import { shallowEqual } from "@/lib/utils";
 import { downloadZip } from "@/lib/zip";
 
-const BASE_STATUS_LABEL: Record<Exclude<ImageQueueStatus, "processing">, string> =
-  {
-    queued: "Queued",
-    done: "Done",
-    error: "Failed",
-  };
+const BASE_STATUS_LABEL: Record<
+  Exclude<ImageQueueStatus, "processing">,
+  string
+> = {
+  queued: "Queued",
+  done: "Done",
+  error: "Failed",
+};
 
 export interface DownloadAllOptions<
   TSettings extends object,
@@ -66,9 +68,7 @@ export interface UseImageToolQueueOptions<
 export type ImageToolQueue<
   TSettings extends object,
   TResult extends QueueOutput,
-> = ReturnType<
-  typeof useImageToolQueue<TSettings, TResult>
->;
+> = ReturnType<typeof useImageToolQueue<TSettings, TResult>>;
 
 export function useImageToolQueue<
   TSettings extends object,
@@ -80,8 +80,10 @@ export function useImageToolQueue<
   downloadAll,
   concurrency,
 }: UseImageToolQueueOptions<TSettings, TResult>) {
-  const { items, addFiles, removeItem, retryItem, clear } =
-    useImageQueue(processor, { concurrency });
+  const { items, addFiles, removeItem, retryItem, clear } = useImageQueue(
+    processor,
+    { concurrency },
+  );
   // The user's explicit choice; falls back to the first finished item.
   const [pinnedId, setPinnedId] = useState<string>();
   const [settings, setSettings] = useState<TSettings>(defaultSettings);
@@ -106,11 +108,7 @@ export function useImageToolQueue<
     doneItems.find((item) => item.id === pinnedId) ?? doneItems[0];
 
   const handleReject = (rejected: RejectedFile[]) => {
-    toast.error(
-      rejected.length === 1
-        ? `${rejected[0].name}: ${rejected[0].reason}`
-        : `${rejected.length} files skipped (unsupported type or too large)`,
-    );
+    toast.error(rejectionMessage(rejected));
   };
 
   const handleDownloadAll = async () => {

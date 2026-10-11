@@ -4,11 +4,12 @@ import type { Metadata } from "next";
 import { ScrollText } from "lucide-react";
 
 import { parseChangelog } from "@/lib/changelog";
+import { SITE_NAME } from "@/lib/site";
 import { ToolPageShell } from "@/components/organisms/tool-page-shell";
 import { ReleaseEntry } from "@/components/organisms/release-entry";
 
 const TITLE = "Changelog";
-const DESCRIPTION = "What's new in Toolbox. Every release, newest first.";
+const DESCRIPTION = `What's new in ${SITE_NAME}. Every release, newest first.`;
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -22,10 +23,7 @@ export const metadata: Metadata = {
  * is static and the file stays the only place a release is written down.
  */
 async function getReleases() {
-  const file = await readFile(
-    path.join(process.cwd(), "CHANGELOG.md"),
-    "utf8",
-  );
+  const file = await readFile(path.join(process.cwd(), "CHANGELOG.md"), "utf8");
 
   return parseChangelog(file);
 }

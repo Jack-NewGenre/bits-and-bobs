@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SITE_NAME } from "@/lib/site";
+import { CommandMenuButton } from "@/components/atoms/command-menu-button";
 import { ThemeToggle } from "@/components/atoms/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -14,6 +15,7 @@ export function SiteHeader() {
         {SITE_NAME}
       </Link>
       <div className="ml-auto flex items-center gap-2">
+        <CommandMenuButton />
         <Link
           href="/changelog"
           className="text-muted-foreground hover:text-foreground text-sm transition-colors"

@@ -46,4 +46,5 @@ next-env.d.ts
 # Browser automation scratch space (screenshots, fixtures)
 /.agent-browser
 /public/text-worker.js
+/public/inpaint-worker.js
 /public/pdf.worker.min.mjs

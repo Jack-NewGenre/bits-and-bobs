@@ -23,17 +23,19 @@ import { clamp } from "@/lib/utils";
 import { withSuffix } from "@/lib/download";
 
 export type VisionType =
-  | "normal"
-  | "protanopia"
-  | "deuteranopia"
-  | "tritanopia"
-  | "achromatopsia";
+  "normal" | "protanopia" | "deuteranopia" | "tritanopia" | "achromatopsia";
 
 /** Row-major 3x3, applied to linear RGB. */
 export type ColourMatrix = readonly [
-  number, number, number,
-  number, number, number,
-  number, number, number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
+  number,
 ];
 
 export interface VisionMode {

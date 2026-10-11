@@ -6,6 +6,7 @@ import {
   MAX_PDF_BYTES,
   partitionFiles,
   PDF_TYPES,
+  rejectionMessage,
 } from "@/lib/image/file-intake";
 
 /** Minimal stand-in for the clipboard's DataTransferItemList. */
@@ -134,5 +135,23 @@ describe("filesFromClipboard", () => {
 
   it("copes with an empty clipboard", () => {
     expect(filesFromClipboard(undefined)).toEqual([]);
+  });
+});
+
+describe("rejectionMessage", () => {
+  it("names a single rejected file and its reason", () => {
+    expect(
+      rejectionMessage([{ name: "a.gif", reason: "Unsupported type" }]),
+    ).toBe("a.gif: Unsupported type");
+  });
+
+  it("counts several rejected files", () => {
+    const rejected = [
+      { name: "a.gif", reason: "Unsupported type" },
+      { name: "b.png", reason: "Too large" },
+    ];
+    expect(rejectionMessage(rejected)).toBe(
+      "2 files skipped (unsupported type or too large)",
+    );
   });
 });

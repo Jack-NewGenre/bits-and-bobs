@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { isAvailable } from "@/lib/tools";
 import type { Tool } from "@/lib/types";
@@ -12,12 +13,25 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-interface ToolCardProps {
+const iconVariants = cva(
+  "flex size-10 items-center justify-center rounded-lg transition-colors",
+  {
+    variants: {
+      variant: {
+        default: "bg-muted text-foreground",
+        featured: "bg-primary text-primary-foreground",
+      },
+    },
+    defaultVariants: { variant: "default" },
+  },
+);
+
+interface ToolCardProps extends VariantProps<typeof iconVariants> {
   tool: Tool;
   className?: string;
 }
 
-export function ToolCard({ tool, className }: ToolCardProps) {
+export function ToolCard({ tool, variant, className }: ToolCardProps) {
   const available = isAvailable(tool);
 
   const content = (
@@ -29,7 +43,7 @@ export function ToolCard({ tool, className }: ToolCardProps) {
     >
       <CardHeader>
         <div className="mb-3 flex items-center justify-between">
-          <div className="bg-muted text-foreground flex size-10 items-center justify-center rounded-lg">
+          <div className={iconVariants({ variant })}>
             <tool.icon className="size-5" />
           </div>
           {available ? (
@@ -44,7 +58,7 @@ export function ToolCard({ tool, className }: ToolCardProps) {
     </Card>
   );
 
-  if (!isAvailable(tool)) {
+  if (!available) {
     return content;
   }
 
@@ -54,3 +68,5 @@ export function ToolCard({ tool, className }: ToolCardProps) {
     </Link>
   );
 }
+
+export type { ToolCardProps };

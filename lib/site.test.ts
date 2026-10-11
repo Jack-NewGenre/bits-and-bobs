@@ -46,9 +46,9 @@ describe("sitemap", () => {
 });
 
 describe("robots", () => {
-  it("allows crawling and points at the sitemap", () => {
+  it("blocks every crawler but still points at the sitemap", () => {
     const result = robots();
-    expect(result.rules).toEqual({ userAgent: "*", allow: "/" });
+    expect(result.rules).toEqual({ userAgent: "*", disallow: "/" });
     expect(result.sitemap).toBe(absoluteUrl("/sitemap.xml"));
   });
 });

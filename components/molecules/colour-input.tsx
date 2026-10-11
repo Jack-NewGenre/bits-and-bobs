@@ -1,14 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
-import {
-  type Rgb,
-} from "@/lib/colour/colour";
-import {
-  formatHex,
-  parseColour,
-} from "@/lib/colour/colour-format";
+import { type Rgb } from "@/lib/colour/colour";
+import { formatHex, parseColour } from "@/lib/colour/colour-format";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -34,6 +29,7 @@ export function ColourInput({
   onChange,
   className,
 }: ColourInputProps) {
+  const id = useId();
   const [text, setText] = useState(() => formatHex(value));
   const [seen, setSeen] = useState(value);
 
@@ -64,7 +60,7 @@ export function ColourInput({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <Label className="text-xs" htmlFor={`colour-${label}`}>
+      <Label className="text-xs" htmlFor={id}>
         {label}
       </Label>
       <div className="flex items-center gap-2">
@@ -76,7 +72,7 @@ export function ColourInput({
           className="size-9 shrink-0 cursor-pointer rounded-md border bg-transparent p-0"
         />
         <Input
-          id={`colour-${label}`}
+          id={id}
           value={text}
           spellCheck={false}
           autoComplete="off"

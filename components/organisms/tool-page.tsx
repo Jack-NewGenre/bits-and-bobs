@@ -23,6 +23,16 @@ export function createToolPage(slug: string, tool: ReactNode) {
   };
 
   function Page() {
+    // A full-screen tool brings its own chrome; the heading stays for screen
+    // readers and the document outline.
+    if (entry.fullScreen) {
+      return (
+        <>
+          <h1 className="sr-only">{entry.name}</h1>
+          {tool}
+        </>
+      );
+    }
     return (
       <ToolPageShell
         icon={entry.icon}

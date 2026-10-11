@@ -1,9 +1,31 @@
-<h1 align="center">Toolbox</h1>
-<p align="center">free, private, everyday tools that never leave your device</p>
+<p align="center">
+  <img src="public/logo.png" alt="Bits & Bobs mascot: a little orange builder in a hard hat, holding a hammer" width="128" height="128">
+</p>
+
+<h1 align="center">Bits &amp; Bobs</h1>
+
+<p align="center">
+  <strong>Free, private, everyday tools that never leave your device.</strong><br>
+  A handy little box of 33 image, colour, PDF and developer tools, all built for the browser.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/tools-33-f59e0b" alt="33 tools">
+  <img src="https://img.shields.io/badge/uploads-none-f59e0b" alt="No uploads">
+  <img src="https://img.shields.io/badge/accounts-none-f59e0b" alt="No accounts">
+  <img src="https://img.shields.io/badge/runs-in_your_browser-f59e0b" alt="Runs in your browser">
+</p>
+
+<p align="center">
+  <a href="#included-tools">Tools</a> ·
+  <a href="#installation">Installation</a> ·
+  <a href="#the-tool-registry">Adding a tool</a> ·
+  <a href="CHANGELOG.md">Changelog</a>
+</p>
 
 # Overview
 
-Toolbox is a collection of 27 small image, colour, PDF and developer tools that
+Bits & Bobs is a collection of 33 small image, colour, PDF and developer tools that
 run entirely in your browser. Files are read, worked on and written back on your
 own machine. Nothing is uploaded, nothing is stored, and there is no account to
 make.
@@ -22,7 +44,7 @@ New tools are added regularly. Every release is recorded in
 
 Most online tools ask for an upload, an email address, or a subscription to
 remove a watermark, and the thing you uploaded is now on somebody else's server.
-Toolbox is the answer to that: no logins, no paywalls, no upsells, no telemetry,
+Bits & Bobs is the answer to that: no logins, no paywalls, no upsells, no telemetry,
 no queue. Open a page, drop a file, get it back. Once loaded, most of it works
 with the network off.
 
@@ -55,22 +77,29 @@ dev, build and test scripts all run `build:worker` first.
 
 # Included Tools
 
-## Image (8)
+## Image (12)
 
 - **Background Remover**: remove image backgrounds locally with AI.
+- **Photo Studio**: edit images with layers, masks, brushes, selections, fill and gradients, crop, text, shapes and adjustments, with autosave and project files.
 - **Image Enhancer**: upscale, sharpen and denoise low-quality images.
 - **PNG to SVG**: trace PNG, JPG or WebP into scalable SVG vectors.
+- **Clip Art Cutter**: lasso the parts of an image you want, or let a sheet's pieces be found, and save each as its own PNG.
+- **Sticker Maker**: turn any picture into a die-cut sticker with a border and a shadow.
 - **Image Clipper**: trim the transparent margin off a PNG.
 - **Image Compressor**: shrink PNG, JPG and WebP without visible loss.
 - **Image Converter**: convert between PNG, JPG and WebP.
 - **Resize & Crop**: resize, crop and scale to exact dimensions.
 - **Palette Extractor**: pull a colour palette out of any image.
+- **Favicon Generator**: every favicon size, an ICO and the HTML from one image.
 
-## Colour (5)
+## Colour (8)
 
-- **Colour Converter**: convert between HEX, RGB, HSL and OKLCH.
+- **Colour Atlas**: every notation, shade, harmony and contrast grade for one colour.
+- **Colour Converter**: convert between HEX, RGB, HSL, OKLCH and Display P3.
 - **Contrast Checker**: check WCAG AA and AAA contrast between two colours.
-- **Palette Generator**: build complementary, analogous and triadic palettes.
+- **Palette Generator**: build palettes from ten harmonies, with locks and shuffle.
+- **Gradient Generator**: linear, radial and conic gradients, blended in OKLab.
+- **Pixel Picker**: sample colours from any image with a zoom loupe.
 - **Tailwind Shades**: generate a full 50–950 Tailwind scale from one colour.
 - **Colour Blindness Simulator**: see an image as colour vision deficiency does.
 

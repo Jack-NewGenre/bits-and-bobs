@@ -8,7 +8,9 @@ import { PaletteGeneratorTool } from "@/components/organisms/tools/palette-gener
 const swatches = () =>
   screen
     .getAllByRole("button")
-    .filter((button) => button.getAttribute("aria-label")?.startsWith("Copy #"));
+    .filter((button) =>
+      button.getAttribute("aria-label")?.startsWith("Copy #"),
+    );
 
 describe("PaletteGeneratorTool", () => {
   it("offers every harmony", () => {
@@ -46,7 +48,9 @@ describe("PaletteGeneratorTool", () => {
     expect(screen.getByText(/maximum contrast/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Monochromatic" }));
-    expect(screen.getByText(/quiet and unmistakably one family/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/quiet and unmistakably one family/i),
+    ).toBeInTheDocument();
   });
 
   it("rebuilds the palette from a new base colour", async () => {
@@ -60,5 +64,35 @@ describe("PaletteGeneratorTool", () => {
 
     expect(swatches()[0].getAttribute("aria-label")).not.toBe(before);
     expect(swatches()[0]).toHaveAttribute("aria-label", "Copy #ff0000");
+  });
+
+  it("shuffles to a new palette but keeps a locked colour", async () => {
+    const user = userEvent.setup();
+    render(<PaletteGeneratorTool />);
+
+    const [base, complement] = swatches().map((swatch) =>
+      swatch.getAttribute("aria-label"),
+    );
+    await user.click(screen.getByRole("button", { name: "Lock colour 2" }));
+    await user.click(screen.getByRole("button", { name: "Shuffle" }));
+
+    const after = swatches().map((swatch) => swatch.getAttribute("aria-label"));
+    expect(after[0]).not.toBe(base);
+    expect(after[1]).toBe(complement);
+    expect(
+      screen.getByRole("button", { name: "Unlock colour 2" }),
+    ).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("drops the locks when the harmony changes", async () => {
+    const user = userEvent.setup();
+    render(<PaletteGeneratorTool />);
+
+    await user.click(screen.getByRole("button", { name: "Lock colour 2" }));
+    await user.click(screen.getByRole("button", { name: "Triadic" }));
+
+    expect(
+      screen.queryByRole("button", { name: /^Unlock/ }),
+    ).not.toBeInTheDocument();
   });
 });

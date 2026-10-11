@@ -1,7 +1,13 @@
 /** PDF tools. */
 
-import { FileText, FileType2, Combine, SplitSquareHorizontal } from "lucide-react";
+import {
+  FileText,
+  FileType2,
+  Combine,
+  SplitSquareHorizontal,
+} from "lucide-react";
 
+import { ACCEPTED_TYPES, PDF_TYPES } from "@/lib/image/file-intake";
 import type { Tool } from "@/lib/types";
 
 export const PDF_TOOLS: Tool[] = [
@@ -15,6 +21,7 @@ export const PDF_TOOLS: Tool[] = [
       "Join several PDFs into one, in whatever order you choose. Nothing is uploaded. It runs on your device.",
     status: "available",
     href: "/tools/pdf-merge",
+    accepts: PDF_TYPES,
   },
   {
     slug: "pdf-split",
@@ -26,6 +33,7 @@ export const PDF_TOOLS: Tool[] = [
       "Pull out the pages you want, drop the ones you do not, or split a document into one file per page.",
     status: "available",
     href: "/tools/pdf-split",
+    accepts: PDF_TYPES,
   },
   {
     slug: "images-to-pdf",
@@ -37,6 +45,7 @@ export const PDF_TOOLS: Tool[] = [
       "Turn a set of images into a single PDF, one image per page. Nothing is uploaded.",
     status: "available",
     href: "/tools/images-to-pdf",
+    accepts: ACCEPTED_TYPES,
   },
   {
     slug: "pdf-to-images",
@@ -48,5 +57,6 @@ export const PDF_TOOLS: Tool[] = [
       "Render each page of a PDF as a PNG, at the resolution you need. Nothing is uploaded.",
     status: "available",
     href: "/tools/pdf-to-images",
+    accepts: PDF_TYPES,
   },
 ];

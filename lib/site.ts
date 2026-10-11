@@ -1,6 +1,6 @@
 /** Single source of truth for the site's identity and canonical origin. */
 
-export const SITE_NAME = "Toolbox";
+export const SITE_NAME = "Bits & Bobs";
 
 export const SITE_DESCRIPTION =
   "A clean, private collection of everyday tools that run entirely in your browser. No uploads, no accounts, no cost.";
