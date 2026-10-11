@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { readPdf, type PdfInfo } from "@/lib/pdf/pdf";
-import type { RejectedFile } from "@/lib/image/file-intake";
+import { rejectionMessage, type RejectedFile } from "@/lib/image/file-intake";
 
 export interface PdfFile {
   id: string;
@@ -67,7 +67,9 @@ export function usePdfFiles({ single = false }: UsePdfFilesOptions = {}) {
           .catch((failure: unknown) =>
             update(entry.id, {
               error:
-                failure instanceof Error ? failure.message : "Could not read it.",
+                failure instanceof Error
+                  ? failure.message
+                  : "Could not read it.",
             }),
           );
       });
@@ -95,11 +97,7 @@ export function usePdfFiles({ single = false }: UsePdfFilesOptions = {}) {
   }, []);
 
   const handleReject = useCallback((rejected: RejectedFile[]) => {
-    toast.error(
-      rejected.length === 1
-        ? `${rejected[0].name}: ${rejected[0].reason}`
-        : `${rejected.length} files skipped`,
-    );
+    toast.error(rejectionMessage(rejected));
   }, []);
 
   // Only files that were read successfully can be worked with.

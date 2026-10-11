@@ -6,12 +6,16 @@ import {
   oklchToRgbInGamut,
   hslToRgb,
   linearToSrgb,
+  oklabToRgb,
   oklchToRgb,
+  rgbToDisplayP3,
   rgbToHsl,
+  rgbToOklab,
   rgbToOklch,
   srgbToLinear,
 } from "@/lib/colour/colour";
 import {
+  formatDisplayP3,
   formatHex,
   formatHsl,
   formatOklch,
@@ -168,5 +172,48 @@ describe("OKLCH", () => {
     const drift = (h: number) => Math.abs((((h - 150) % 360) + 360) % 360);
     expect(drift(mapped.h)).toBeLessThan(drift(clamped.h));
     expect(drift(mapped.h)).toBeLessThan(2);
+  });
+});
+
+describe("OKLab", () => {
+  it("round-trips sRGB colours", () => {
+    for (const colour of [RED, WHITE, BLACK, { r: 59, g: 130, b: 246, a: 1 }]) {
+      expect(oklabToRgb(rgbToOklab(colour))).toEqual(colour);
+    }
+  });
+
+  it("puts white at full lightness with no chroma", () => {
+    const [l, a, b] = rgbToOklab(WHITE);
+    expect(l).toBeCloseTo(1, 3);
+    expect(Math.hypot(a, b)).toBeLessThan(1e-3);
+  });
+
+  it("carries the alpha it is given", () => {
+    expect(oklabToRgb(rgbToOklab(RED), 0.5).a).toBe(0.5);
+  });
+});
+
+describe("Display P3", () => {
+  it("keeps black and white at the ends of the range", () => {
+    rgbToDisplayP3(WHITE).forEach((channel) =>
+      expect(channel).toBeCloseTo(1, 3),
+    );
+    rgbToDisplayP3(BLACK).forEach((channel) =>
+      expect(channel).toBeCloseTo(0, 3),
+    );
+  });
+
+  it("places sRGB red inside the wider P3 gamut", () => {
+    const [r, g, b] = rgbToDisplayP3(RED);
+    expect(r).toBeCloseTo(0.9175, 3);
+    expect(g).toBeCloseTo(0.2003, 3);
+    expect(b).toBeCloseTo(0.1386, 3);
+  });
+
+  it("writes CSS colour() syntax, with alpha when it is not opaque", () => {
+    expect(formatDisplayP3(WHITE)).toBe("color(display-p3 1 1 1)");
+    expect(formatDisplayP3({ ...BLACK, a: 0.5 })).toBe(
+      "color(display-p3 0 0 0 / 0.5)",
+    );
   });
 });

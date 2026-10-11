@@ -5,6 +5,7 @@ import {
   buildHarmony,
   buildShades,
   HARMONIES,
+  randomBaseColour,
   SHADE_STEPS,
 } from "@/lib/colour/colour-harmony";
 
@@ -47,6 +48,24 @@ describe("buildHarmony", () => {
 
     const lightnesses = colours.map((colour) => rgbToOklch(colour).l);
     expect(lightnesses).toEqual([...lightnesses].sort((a, b) => a - b));
+  });
+});
+
+describe("randomBaseColour", () => {
+  it("stays within a usable lightness and chroma", () => {
+    for (const pin of [0, 0.5, 0.999]) {
+      const { l, c } = rgbToOklch(randomBaseColour(() => pin));
+      expect(l).toBeGreaterThan(0.45);
+      expect(l).toBeLessThan(0.85);
+      expect(c).toBeGreaterThan(0.05);
+    }
+  });
+
+  it("follows the random source it is given", () => {
+    expect(randomBaseColour(() => 0.3)).toEqual(randomBaseColour(() => 0.3));
+    expect(randomBaseColour(() => 0.3)).not.toEqual(
+      randomBaseColour(() => 0.7),
+    );
   });
 });
 

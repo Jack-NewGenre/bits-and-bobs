@@ -1,6 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Wrench } from "lucide-react";
 
+import { SITE_NAME } from "@/lib/site";
 import { TOOL_CATEGORIES, getToolsByCategory } from "@/lib/tools";
 import {
   Sidebar,
@@ -28,11 +29,15 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton asChild size="lg">
               <Link href="/">
-                <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <Wrench className="size-4" />
-                </div>
+                <Image
+                  src="/logo.png"
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="size-8 shrink-0"
+                />
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">Toolbox</span>
+                  <span className="font-semibold">{SITE_NAME}</span>
                   <span className="text-muted-foreground text-xs">
                     Free local tools
                   </span>

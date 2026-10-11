@@ -2,6 +2,31 @@
 
 All notable changes to this project. Newest first.
 
+## Unreleased
+
+### Added
+- **Mascot**: Bob, the little builder from the icon, now sits at the top of the home page. His eyes follow your pointer, and every poke gets a different reaction (a hammer swing, a bounce, a spin or a wobble) and a word or two.
+- **Command menu**: press ⌘K (Ctrl+K on Windows and Linux) anywhere, or the search button in the header, to jump straight to any tool, the home page or the changelog, roll a random tool, or switch theme. Type a few letters and press Enter.
+
+### Changed
+- **Home page search**: ⌘K now opens the command menu rather than focusing the search box.
+
+## 1.2.0 - 2026-10-10
+
+### Added
+- **Photo Studio**: a full-screen image editor with layers, layer and clipping masks, brushes, an eyedropper with a magnifier, fill, gradients, a clone stamp with a source crosshair and aligned or per-layer sampling, dodge and burn with shadow, midtone and highlight ranges, marquee, lasso and magic wand selections, crop, smart guides, text, shapes and adjustments including Curves and per-colour Hue/Saturation. Keyboard shortcuts follow Photoshop's. Work autosaves in your browser and saves as a project file. Private, free, no uploads.
+- **Colour Atlas**: one page for one colour, with every notation, its tints and shades, harmonies, contrast on white and black, and how it looks with each kind of colour blindness.
+- **Gradient Generator**: linear, radial and conic gradients with up to eight stops, blended in OKLab so the middle never turns grey. Copy the CSS or export a PNG.
+- **Pixel Picker**: drop in an image and sample exact colours with a zoom loupe, averaging over a few pixels if you like. Works with the keyboard too.
+- **Clip Art Cutter**: drop in a clip art or sticker sheet and lasso round the parts you want with the mouse, or draw boxes. Every piece on a transparent or plain background is also found for you. Move or delete any cut, and download each piece as a PNG or all of them as a zip, with the background made transparent if you like.
+- **Sticker Maker**: drop in any picture and get a die-cut sticker back. The background is removed on your device (artwork that is already transparent is used as it is), then a border follows the outline with a soft shadow beneath. Keep the background instead to frame the whole picture, choose the border's thickness and colour, and download each sticker as a PNG or all of them as a zip.
+- **Favicon Generator**: turn one PNG, JPG, WebP or SVG into favicon.ico, the Apple touch icon and the Android and PWA sizes, with the link tags to paste. Drag a square to choose which part of the image to use, round the corners anywhere from square to a circle, and fill the background with white, black or any colour.
+
+### Changed
+- **New name**: Toolbox is now Bits & Bobs.
+- **Palette Generator**: four more harmonies (rectangle, double split, compound and golden), a shuffle button, and locks to keep the colours you like.
+- **Colour Converter**: now shows Display P3 alongside HEX, RGB, HSL and OKLCH.
+
 ## 1.1.0 - 2026-09-14
 
 ### Changed

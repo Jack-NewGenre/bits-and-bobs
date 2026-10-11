@@ -8,7 +8,7 @@ describe("ColourConverterTool", () => {
   it("shows the colour in every supported format", () => {
     render(<ColourConverterTool />);
 
-    for (const label of ["HEX", "RGB", "HSL", "OKLCH"]) {
+    for (const label of ["HEX", "RGB", "HSL", "OKLCH", "Display P3"]) {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
     expect(screen.getByText("rgb(59 130 246)")).toBeInTheDocument();
@@ -47,7 +47,7 @@ describe("ColourConverterTool", () => {
 
   it("gives each format its own copy button", () => {
     render(<ColourConverterTool />);
-    for (const label of ["HEX", "RGB", "HSL", "OKLCH"]) {
+    for (const label of ["HEX", "RGB", "HSL", "OKLCH", "Display P3"]) {
       expect(
         screen.getByRole("button", { name: `Copy ${label}` }),
       ).toBeInTheDocument();

@@ -114,7 +114,15 @@ export function linearToSrgb(channel: number): number {
     : 1.055 * channel ** (1 / 2.4) - 0.055;
 }
 
-export function rgbToOklch({ r, g, b, a }: Rgb): Oklch {
+/**
+ * OKLab as `[lightness, green-red, blue-yellow]`. OKLCH is the same space in
+ * polar form; blending is done here instead, because a straight line through
+ * OKLab never swings the hue the long way round. A tuple rather than an
+ * object, because a gradient blends millions of these per export.
+ */
+export type OklabTriple = [number, number, number];
+
+export function rgbToOklab({ r, g, b }: Rgb): OklabTriple {
   const red = srgbToLinear(r / 255);
   const green = srgbToLinear(g / 255);
   const blue = srgbToLinear(b / 255);
@@ -129,9 +137,50 @@ export function rgbToOklch({ r, g, b, a }: Rgb): Oklch {
     0.0883024619 * red + 0.2817188376 * green + 0.6299787005 * blue,
   );
 
-  const lightness = 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
-  const green_red = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
-  const blue_yellow = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+  return [
+    0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+    1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+    0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+  ];
+}
+
+/** Unclamped sRGB channels (0–1 when in gamut, outside it when not). */
+function oklabToChannels([l, green_red, blue_yellow]: OklabTriple): [
+  number,
+  number,
+  number,
+] {
+  const long = (l + 0.3963377774 * green_red + 0.2158037573 * blue_yellow) ** 3;
+  const medium =
+    (l - 0.1055613458 * green_red - 0.0638541728 * blue_yellow) ** 3;
+  const short = (l - 0.0894841775 * green_red - 1.291485548 * blue_yellow) ** 3;
+
+  return [
+    linearToSrgb(
+      4.0767416621 * long - 3.3077115913 * medium + 0.2309699292 * short,
+    ),
+    linearToSrgb(
+      -1.2684380046 * long + 2.6097574011 * medium - 0.3413193965 * short,
+    ),
+    linearToSrgb(
+      -0.0041960863 * long - 0.7034186147 * medium + 1.707614701 * short,
+    ),
+  ];
+}
+
+/** Clamp unclamped 0–1 channels into an 8-bit colour. */
+function toRgb([red, green, blue]: [number, number, number], a: number): Rgb {
+  const channel = (value: number) => clamp(Math.round(value * 255), 0, 255);
+  return { r: channel(red), g: channel(green), b: channel(blue), a };
+}
+
+/** OKLab back to sRGB, clamping anything just outside the gamut. */
+export function oklabToRgb(lab: OklabTriple, a = 1): Rgb {
+  return toRgb(oklabToChannels(lab), a);
+}
+
+export function rgbToOklch(colour: Rgb): Oklch {
+  const [lightness, green_red, blue_yellow] = rgbToOklab(colour);
 
   const chroma = Math.hypot(green_red, blue_yellow);
   const hue =
@@ -139,24 +188,12 @@ export function rgbToOklch({ r, g, b, a }: Rgb): Oklch {
       ? 0
       : ((Math.atan2(blue_yellow, green_red) * 180) / Math.PI + 360) % 360;
 
-  return { l: lightness, c: chroma, h: hue, a };
+  return { l: lightness, c: chroma, h: hue, a: colour.a };
 }
 
-/** Unclamped sRGB channels (0–1 when in gamut, outside it when not). */
 function oklchToChannels({ l, c, h }: Oklch): [number, number, number] {
   const radians = (h * Math.PI) / 180;
-  const green_red = c * Math.cos(radians);
-  const blue_yellow = c * Math.sin(radians);
-
-  const long = (l + 0.3963377774 * green_red + 0.2158037573 * blue_yellow) ** 3;
-  const medium = (l - 0.1055613458 * green_red - 0.0638541728 * blue_yellow) ** 3;
-  const short = (l - 0.0894841775 * green_red - 1.291485548 * blue_yellow) ** 3;
-
-  return [
-    linearToSrgb(4.0767416621 * long - 3.3077115913 * medium + 0.2309699292 * short),
-    linearToSrgb(-1.2684380046 * long + 2.6097574011 * medium - 0.3413193965 * short),
-    linearToSrgb(-0.0041960863 * long - 0.7034186147 * medium + 1.707614701 * short),
-  ];
+  return oklabToChannels([l, c * Math.cos(radians), c * Math.sin(radians)]);
 }
 
 /** Whether an OKLCH colour can be shown on an sRGB screen at all. */
@@ -188,18 +225,27 @@ export function gamutMapOklch(colour: Oklch): Oklch {
 }
 
 export function oklchToRgb(colour: Oklch): Rgb {
-  const [red, green, blue] = oklchToChannels(colour);
-  const channel = (value: number) => clamp(Math.round(value * 255), 0, 255);
-
-  return {
-    r: channel(red),
-    g: channel(green),
-    b: channel(blue),
-    a: colour.a,
-  };
+  return toRgb(oklchToChannels(colour), colour.a);
 }
 
 /** Convert to sRGB, reducing chroma first if the colour will not fit. */
 export function oklchToRgbInGamut(colour: Oklch): Rgb {
   return oklchToRgb(gamutMapOklch(colour));
+}
+
+/**
+ * The same colour in Display P3, the wider gamut most phones and Macs now
+ * show, as 0–1 channels. P3 shares sRGB's transfer curve, so only the linear
+ * light is remapped. Every sRGB colour fits inside P3, so nothing is clamped.
+ */
+export function rgbToDisplayP3({ r, g, b }: Rgb): [number, number, number] {
+  const red = srgbToLinear(r / 255);
+  const green = srgbToLinear(g / 255);
+  const blue = srgbToLinear(b / 255);
+
+  return [
+    linearToSrgb(0.8224621 * red + 0.177538 * green),
+    linearToSrgb(0.0331941 * red + 0.9668058 * green),
+    linearToSrgb(0.0170827 * red + 0.0723974 * green + 0.9105199 * blue),
+  ];
 }

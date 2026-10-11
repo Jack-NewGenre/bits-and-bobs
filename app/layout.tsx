@@ -3,13 +3,19 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { AVAILABLE_TOOLS } from "@/lib/tools";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import { SiteChrome } from "@/components/layout/site-chrome";
 import { SiteHeader } from "@/components/layout/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { CommandMenu } from "@/components/organisms/command-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
+
+const FULL_SCREEN_PATHS = AVAILABLE_TOOLS.filter((tool) => tool.fullScreen).map(
+  (tool) => tool.href,
+);
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -77,15 +83,14 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider delayDuration={300}>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset>
-                <SiteHeader />
-                <main id="main" className="flex flex-1 flex-col">
-                  {children}
-                </main>
-              </SidebarInset>
-            </SidebarProvider>
+            <SiteChrome
+              fullScreenPaths={FULL_SCREEN_PATHS}
+              sidebar={<AppSidebar />}
+              header={<SiteHeader />}
+            >
+              {children}
+            </SiteChrome>
+            <CommandMenu />
           </TooltipProvider>
           <Toaster richColors position="bottom-right" />
         </ThemeProvider>

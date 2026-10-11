@@ -11,6 +11,7 @@ import {
   partitionFiles,
   type RejectedFile,
 } from "@/lib/image/file-intake";
+import { useHandedOffFiles } from "@/hooks/use-handed-off-files";
 
 interface ImageDropzoneProps {
   onFiles: (files: File[]) => void;
@@ -50,6 +51,7 @@ export function ImageDropzone({
     },
     [onFiles, onReject, accept, maxBytes],
   );
+  useHandedOffFiles(handleFiles, disabled);
 
   // Paste anywhere on the page: a screenshot goes straight in, with no detour
   // through saving it to disk first.

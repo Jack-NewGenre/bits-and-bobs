@@ -10,6 +10,7 @@ import {
   hslToRgb,
   oklchToRgb,
   rgbToHsl,
+  rgbToDisplayP3,
   rgbToOklch,
   type Rgb,
 } from "@/lib/colour/colour";
@@ -99,7 +100,8 @@ function fromHex(body: string): Rgb | undefined {
 
   if (digits.length !== 6 && digits.length !== 8) return undefined;
 
-  const value = (start: number) => Number.parseInt(digits.slice(start, start + 2), 16);
+  const value = (start: number) =>
+    Number.parseInt(digits.slice(start, start + 2), 16);
   return {
     r: value(0),
     g: value(2),
@@ -131,3 +133,27 @@ export function formatOklch(colour: Rgb): string {
   const body = `${round(l * 100, 2)}% ${round(c, 4)} ${round(h, 2)}`;
   return a >= 1 ? `oklch(${body})` : `oklch(${body} / ${round(a, 3)})`;
 }
+
+/** Display P3 as CSS writes it, for screens wider than sRGB. */
+export function formatDisplayP3(colour: Rgb): string {
+  const body = rgbToDisplayP3(colour)
+    .map((channel) => round(channel, 4))
+    .join(" ");
+  return colour.a >= 1
+    ? `color(display-p3 ${body})`
+    : `color(display-p3 ${body} / ${round(colour.a, 3)})`;
+}
+
+export interface ColourFormat {
+  label: string;
+  format: (colour: Rgb) => string;
+}
+
+/** Every notation a colour can be copied as, in the order the tools list them. */
+export const COLOUR_FORMATS: ColourFormat[] = [
+  { label: "HEX", format: formatHex },
+  { label: "RGB", format: formatRgb },
+  { label: "HSL", format: formatHsl },
+  { label: "OKLCH", format: formatOklch },
+  { label: "Display P3", format: formatDisplayP3 },
+];

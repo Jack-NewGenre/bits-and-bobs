@@ -17,6 +17,10 @@ export type HarmonyId =
   | "triadic"
   | "tetradic"
   | "split"
+  | "rectangle"
+  | "double-split"
+  | "compound"
+  | "golden"
   | "monochromatic";
 
 export interface Harmony {
@@ -59,10 +63,39 @@ export const HARMONIES: Harmony[] = [
     description: "A softened complementary: contrast without the clash.",
   },
   {
+    id: "rectangle",
+    label: "Rectangle",
+    offsets: [0, 60, 180, 240],
+    description:
+      "Two close pairs facing each other: richer than complementary, calmer than tetradic.",
+  },
+  {
+    id: "double-split",
+    label: "Double split",
+    offsets: [0, -30, 30, 150, 210],
+    description:
+      "A small analogous group set against both neighbours of its complement.",
+  },
+  {
+    id: "compound",
+    label: "Compound",
+    offsets: [0, 30, 165, 195],
+    description:
+      "A colour and its neighbour, each with an accent from across the wheel.",
+  },
+  {
+    id: "golden",
+    label: "Golden",
+    offsets: [0, 137.5, 275, 52.5, 190],
+    description:
+      "Steps of the golden angle: hues that never quite repeat, as in a sunflower head.",
+  },
+  {
     id: "monochromatic",
     label: "Monochromatic",
     offsets: [0],
-    description: "One hue at several lightnesses: quiet and unmistakably one family.",
+    description:
+      "One hue at several lightnesses: quiet and unmistakably one family.",
   },
 ];
 
@@ -82,6 +115,20 @@ export function buildHarmony(base: Rgb, harmony: Harmony): Rgb[] {
   return harmony.offsets.map((offset) =>
     oklchToRgbInGamut({ l, c, h: (((h + offset) % 360) + 360) % 360, a }),
   );
+}
+
+/**
+ * A random colour that is pleasant to build a palette on: never muddy, never
+ * washed out, never so dark its neighbours turn black. `random` is injectable
+ * so tests can pin it.
+ */
+export function randomBaseColour(random: () => number = Math.random): Rgb {
+  return oklchToRgbInGamut({
+    l: 0.5 + random() * 0.3,
+    c: 0.08 + random() * 0.12,
+    h: random() * 360,
+    a: 1,
+  });
 }
 
 export const SHADE_STEPS = [
@@ -151,7 +198,8 @@ export function toThemeBlock(name: string, shades: Shade[]) {
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "") || "brand";
   const lines = shades.map(
-    (shade) => `  --color-${safeName}-${shade.step}: ${formatOklch(shade.colour)};`,
+    (shade) =>
+      `  --color-${safeName}-${shade.step}: ${formatOklch(shade.colour)};`,
   );
   return `@theme {\n${lines.join("\n")}\n}`;
 }

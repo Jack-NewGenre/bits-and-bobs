@@ -37,3 +37,18 @@ describe("createToolPage", () => {
     expect(() => createToolPage("nope", null)).toThrow(/No tool is registered/);
   });
 });
+
+describe("createToolPage for a full-screen tool", () => {
+  it("renders the tool without the page shell, keeping a hidden heading", () => {
+    const { Page } = createToolPage("image-editor", <p>editor body</p>);
+    render(<Page />);
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Photo Studio" }),
+    ).toHaveClass("sr-only");
+    expect(screen.getByText("editor body")).toBeInTheDocument();
+    expect(
+      screen.queryByText(getAvailableTool("image-editor").blurb),
+    ).not.toBeInTheDocument();
+  });
+});
