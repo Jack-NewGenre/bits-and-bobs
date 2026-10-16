@@ -5,6 +5,9 @@ export const SITE_NAME = "Bits & Bobs";
 export const SITE_DESCRIPTION =
   "A clean, private collection of everyday tools that run entirely in your browser. No uploads, no accounts, no cost.";
 
+/** The cutting-mat themes, each a class on <html>. "system" picks light or dark. */
+export const THEMES = ["light", "dark", "green", "blue"] as const;
+
 /**
  * The canonical origin, used for `metadataBase`, the sitemap and robots.txt.
  *

@@ -1,0 +1,232 @@
+/*
+ * Four cutting-mat themes. The page is the mat, ruled with a grid, and cards,
+ * dialogs and menus are sheets of paper laid on it. Each theme sets the mat's
+ * tokens plus a small --paper-* set, which the paper rule below swaps in.
+ */
+
+/* `.light` lets a swatch show the light mat while the page is on another. */
+:root,
+.light {
+  --background: #f4f2ea;
+  --foreground: #1b1d1a;
+  --card: #fbfaf6;
+  --card-foreground: #1b1d1a;
+  --popover: #fbfaf6;
+  --popover-foreground: #1b1d1a;
+  --primary: #1b1d1a;
+  --primary-foreground: #f4f2ea;
+  --secondary: #ebe8df;
+  --secondary-foreground: #1b1d1a;
+  --muted: #ebe8df;
+  --muted-foreground: #5f625b;
+  --accent: #ebe8df;
+  --accent-foreground: #1b1d1a;
+  --destructive: #c9361f;
+  --border: #d9d5c8;
+  --input: #d9d5c8;
+  --ring: #d9502f;
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+
+  --mat-minor: rgb(27 29 26 / 0.06);
+  --mat-major: rgb(27 29 26 / 0.14);
+  --mat-guide: rgb(242 107 74 / 0.55);
+  --mat-ruler: #7d8078;
+
+  --paper: #ffffff;
+  --paper-ink: #1b1d1a;
+  --paper-muted: #5f625b;
+  --paper-primary: #1b1d1a;
+  --paper-shadow: rgb(27 29 26 / 0.12);
+}
+
+.dark {
+  --background: #17181a;
+  --foreground: #e9e7e0;
+  --card: #1e1f22;
+  --card-foreground: #e9e7e0;
+  --popover: #1e1f22;
+  --popover-foreground: #e9e7e0;
+  --primary: #e9e7e0;
+  --primary-foreground: #17181a;
+  --secondary: #26272b;
+  --secondary-foreground: #e9e7e0;
+  --muted: #26272b;
+  --muted-foreground: #9b9a94;
+  --accent: #26272b;
+  --accent-foreground: #e9e7e0;
+  --destructive: #ff6b55;
+  --border: #2f3035;
+  --input: #2f3035;
+
+  --mat-minor: rgb(233 231 224 / 0.035);
+  --mat-major: rgb(233 231 224 / 0.09);
+  --mat-guide: rgb(255 139 109 / 0.45);
+  --mat-ruler: #6f6f6b;
+
+  --paper: #e9e7e0;
+  --paper-ink: #17181a;
+  --paper-muted: #55554f;
+  --paper-primary: #17181a;
+}
+
+.green {
+  --background: #1f432f;
+  --foreground: #ecead9;
+  --card: #173a27;
+  --card-foreground: #ecead9;
+  --popover: #173a27;
+  --popover-foreground: #ecead9;
+  --primary: #d2d574;
+  --primary-foreground: #0f301f;
+  --secondary: #2a5039;
+  --secondary-foreground: #ecead9;
+  --muted: #183a28;
+  --muted-foreground: #adbaa8;
+  --accent: #2a5039;
+  --accent-foreground: #ecead9;
+  --destructive: #ff9d82;
+  --border: rgb(210 213 116 / 0.24);
+  --input: rgb(210 213 116 / 0.28);
+
+  --mat-minor: rgb(236 234 217 / 0.045);
+  --mat-major: rgb(210 213 116 / 0.14);
+  --mat-guide: rgb(210 213 116 / 0.6);
+  --mat-ruler: #c9cc7a;
+
+  --paper: #f4f2ea;
+  --paper-ink: #17221c;
+  --paper-muted: #54615a;
+  --paper-primary: #1f432f;
+}
+
+/* A touch deeper than the photo's blue so muted text clears WCAG AA. */
+.blue {
+  --background: #1a64a0;
+  --foreground: #f3f9fd;
+  --card: #165892;
+  --card-foreground: #f3f9fd;
+  --popover: #165892;
+  --popover-foreground: #f3f9fd;
+  --primary: #ffffff;
+  --primary-foreground: #0f4f80;
+  --secondary: #2474b3;
+  --secondary-foreground: #f3f9fd;
+  --muted: #175c96;
+  --muted-foreground: #d0e4f3;
+  --accent: #2474b3;
+  --accent-foreground: #f3f9fd;
+  --destructive: #ffd8ca;
+  --border: rgb(255 255 255 / 0.24);
+  --input: rgb(255 255 255 / 0.3);
+
+  --mat-minor: rgb(255 255 255 / 0.06);
+  --mat-major: rgb(255 255 255 / 0.16);
+  --mat-guide: rgb(255 255 255 / 0.5);
+  --mat-ruler: #e6f2fb;
+
+  --paper: #f6f9fb;
+  --paper-ink: #0f2f47;
+  --paper-muted: #4d6578;
+  --paper-primary: #1a64a0;
+}
+
+.dark,
+.green,
+.blue {
+  color-scheme: dark;
+  --ring: #ff8b6d;
+  --paper-shadow: rgb(0 0 0 / 0.35);
+}
+
+:root,
+.dark,
+.green,
+.blue {
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--secondary);
+  --sidebar-accent-foreground: var(--secondary-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+/*
+ * Unlayered on purpose: --tw-shadow has to beat the shadow utilities these
+ * primitives already carry, which gives every sheet the same hard offset.
+ * Keep this list in step with the dark variant in globals.css.
+ */
+:is(
+  [data-slot="card"],
+  [data-slot="dialog-content"],
+  [data-slot="popover-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="select-content"],
+  .paper
+) {
+  color-scheme: light;
+  --paper-wash: color-mix(in oklab, var(--paper-ink) 5%, var(--paper));
+  --paper-line: color-mix(in oklab, var(--paper-ink) 14%, var(--paper));
+  --background: var(--paper);
+  --foreground: var(--paper-ink);
+  --card: var(--paper);
+  --card-foreground: var(--paper-ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--paper-ink);
+  --primary: var(--paper-primary);
+  --primary-foreground: var(--paper);
+  --secondary: var(--paper-wash);
+  --secondary-foreground: var(--paper-ink);
+  --muted: var(--paper-wash);
+  --muted-foreground: var(--paper-muted);
+  --accent: var(--paper-wash);
+  --accent-foreground: var(--paper-ink);
+  --destructive: #c9361f;
+  --border: var(--paper-line);
+  --input: var(--paper-line);
+  --ring: #d9502f;
+  --mat-guide: rgb(217 80 47 / 0.6);
+  --mat-ruler: var(--paper-muted);
+  --tw-shadow: 3px 3px 0 var(--paper-shadow);
+}
+
+/*
+ * A sheet you can pick up: on hover it rises off the mat and its shadow grows.
+ * Unlayered for the same reason as above, so it can reach --tw-shadow.
+ */
+.paper-lift {
+  transition-property: translate, box-shadow, background-color, border-color;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+.paper-lift:hover {
+  --tw-shadow: 5px 5px 0 var(--paper-shadow);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .paper-lift:hover {
+    translate: -2px -2px;
+  }
+}
+
+/* One line every 24px, a heavier one every fifth. MAT_UNIT in mat-ruler.tsx matches. */
+@utility bg-mat {
+  background-color: var(--background);
+  background-image:
+    linear-gradient(var(--mat-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mat-major) 1px, transparent 1px),
+    linear-gradient(var(--mat-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mat-minor) 1px, transparent 1px);
+  background-size:
+    120px 120px,
+    120px 120px,
+    24px 24px,
+    24px 24px;
+}

@@ -177,8 +177,8 @@ export function ToolSearch({ children }: ToolSearchProps) {
               inputRef.current?.focus();
             }}
             className={cn(
-              "text-muted-foreground hover:text-foreground hover:border-foreground/40 focus-visible:ring-ring/50 rounded-full border border-dashed px-3 py-1 text-sm transition-colors outline-none focus-visible:ring-3",
-              "aria-pressed:border-foreground aria-pressed:text-foreground aria-pressed:border-solid"
+              "paper paper-lift bg-background text-muted-foreground hover:text-foreground focus-visible:ring-ring/50 rounded-full border px-3 py-1 text-sm shadow-xs outline-none focus-visible:ring-3",
+              "aria-pressed:bg-primary aria-pressed:text-primary-foreground aria-pressed:border-primary"
             )}
           >
             {prompt.label}

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, THEMES } from "@/lib/site";
 import { AVAILABLE_TOOLS } from "@/lib/tools";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { AppSidebar } from "@/components/layout/app-sidebar";
@@ -78,6 +78,7 @@ export default function RootLayout({
         </a>
         <ThemeProvider
           attribute="class"
+          themes={[...THEMES]}
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
