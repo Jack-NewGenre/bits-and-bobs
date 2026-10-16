@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SITE_NAME } from "@/lib/site";
 import { CommandMenuButton } from "@/components/atoms/command-menu-button";
 import { ThemeToggle } from "@/components/atoms/theme-toggle";
+import { ThemePicker } from "@/components/molecules/theme-picker";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -22,7 +23,10 @@ export function SiteHeader() {
         >
           Changelog
         </Link>
-        <ThemeToggle />
+        <ThemePicker className="hidden md:flex" />
+        <div className="md:hidden">
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

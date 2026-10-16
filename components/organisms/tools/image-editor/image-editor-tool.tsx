@@ -147,7 +147,7 @@ export function ImageEditorTool() {
         />
 
         <div
-          className="bg-muted relative min-h-0 min-w-0 overflow-hidden"
+          className="bg-mat relative min-h-0 min-w-0 overflow-hidden"
           onDragOver={(event) => event.preventDefault()}
           onDrop={(event) => {
             event.preventDefault();

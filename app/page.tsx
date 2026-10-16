@@ -2,6 +2,8 @@ import { ShieldCheck, Sparkles, Zap } from "lucide-react";
 
 import { SITE_NAME } from "@/lib/site";
 import { TOOL_CATEGORIES, getToolsByCategory } from "@/lib/tools";
+import { AngleGuides } from "@/components/atoms/angle-guides";
+import { DimensionLine } from "@/components/atoms/dimension-line";
 import { Mascot } from "@/components/atoms/mascot";
 import { ToolCard } from "@/components/molecules/tool-card";
 import { FeaturedTools } from "@/components/organisms/featured-tools";
@@ -30,22 +32,31 @@ export default function Home() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:py-10">
       <section className="mb-10">
-        <div className="flex items-center gap-4 sm:gap-6">
-          <Mascot />
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">{SITE_NAME}</h1>
-            <p className="text-muted-foreground mt-2 max-w-2xl text-base">
-              A growing set of clean, fast utilities that run entirely in your
-              browser. No uploads, no sign-up, no cost.
-            </p>
+        <div className="relative overflow-hidden pt-8 pb-6">
+          <AngleGuides className="opacity-60" />
+          <div className="relative flex items-center gap-4 sm:gap-6">
+            <Mascot />
+            <div>
+              <h1 className="text-3xl font-semibold tracking-tight">
+                {SITE_NAME}
+              </h1>
+              <p className="text-muted-foreground mt-2 max-w-2xl text-base">
+                A growing set of clean, fast utilities that run entirely in your
+                browser. No uploads, no sign-up, no cost.
+              </p>
+            </div>
           </div>
+          <DimensionLine
+            label="Private by default"
+            className="relative mt-6 max-w-md"
+          />
         </div>
         <ToolSearch>
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {HIGHLIGHTS.map(({ icon: Icon, title, description }) => (
               <div
                 key={title}
-                className="bg-card flex items-start gap-3 rounded-xl border p-4"
+                className="paper bg-card text-card-foreground flex items-start gap-3 rounded-xl border p-4 shadow-xs"
               >
                 <div className="bg-muted text-foreground flex size-9 shrink-0 items-center justify-center rounded-lg">
                   <Icon className="size-4" />

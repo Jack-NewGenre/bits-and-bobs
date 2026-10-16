@@ -1,6 +1,6 @@
 /** Developer and text tools. */
 
-import { Binary, Braces, Hash, KeyRound, Regex } from "lucide-react";
+import { Binary, Braces, Hash, KeyRound, Regex, SwatchBook } from "lucide-react";
 
 import type { Tool } from "@/lib/types";
 
@@ -60,5 +60,16 @@ export const DEV_TOOLS: Tool[] = [
     icon: Regex,
     status: "available",
     href: "/tools/regex-tester",
+  },
+  {
+    slug: "design-md",
+    name: "DESIGN.md Creator",
+    description: "Paste a URL and get its design tokens as a DESIGN.md for your codebase.",
+    blurb:
+      "Paste a site's URL to pull its colours, type, spacing and component styles into a DESIGN.md that you or a coding agent can build from. For sites styled by JavaScript or behind a login, a bookmarklet captures the page in your own browser instead.",
+    category: "dev",
+    icon: SwatchBook,
+    status: "available",
+    href: "/tools/design-md",
   },
 ];

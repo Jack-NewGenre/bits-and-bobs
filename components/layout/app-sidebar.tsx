@@ -22,8 +22,9 @@ import { SidebarToolLink } from "@/components/layout/sidebar-tool-link";
  * `SidebarToolLink` crosses into the browser.
  */
 export function AppSidebar() {
+  // Above the sticky header (also z-10), which overlaps the sidebar's edge by 1px.
   return (
-    <Sidebar>
+    <Sidebar className="z-20">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
