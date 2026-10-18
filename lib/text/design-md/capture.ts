@@ -45,7 +45,7 @@ export function captureDesign(doc: Document, win: Window): DesignCapture {
     !colour || colour === "transparent" || /^rgba\(.*,\s*0\)$/.test(colour);
   const sides = (style: CSSStyleDeclaration, prefix: string, suffix: string) =>
     ["top", "right", "bottom", "left"].map((side) =>
-      style.getPropertyValue(prefix + side + suffix)
+      style.getPropertyValue(prefix + side + suffix),
     );
   const readProperty = (style: CSSStyleDeclaration, property: string) => {
     if (property === "padding") {
@@ -59,7 +59,9 @@ export function captureDesign(doc: Document, win: Window): DesignCapture {
       const width = style.getPropertyValue("border-top-width");
       const kind = style.getPropertyValue("border-top-style");
       if (!kind || kind === "none" || width === "0px") return "none";
-      return [width, kind, style.getPropertyValue("border-top-color")].join(" ");
+      return [width, kind, style.getPropertyValue("border-top-color")].join(
+        " ",
+      );
     }
     if (property === "border-radius") {
       const radius =
@@ -72,7 +74,10 @@ export function captureDesign(doc: Document, win: Window): DesignCapture {
   };
   const isVisible = (el: Element) => {
     if (typeof el.checkVisibility === "function") {
-      return el.checkVisibility({ opacityProperty: true, visibilityProperty: true });
+      return el.checkVisibility({
+        opacityProperty: true,
+        visibilityProperty: true,
+      });
     }
     if (win.getComputedStyle(el).visibility === "hidden") return false;
     for (let node: Element | null = el; node; node = node.parentElement) {
@@ -82,10 +87,13 @@ export function captureDesign(doc: Document, win: Window): DesignCapture {
   };
   const hasOwnText = (el: Element) =>
     Array.from(el.childNodes).some(
-      (node) => node.nodeType === 3 && (node.textContent || "").trim() !== ""
+      (node) => node.nodeType === 3 && (node.textContent || "").trim() !== "",
     );
 
-  const elements = Array.from(doc.body.querySelectorAll("*")).slice(0, MAX_ELEMENTS);
+  const elements = Array.from(doc.body.querySelectorAll("*")).slice(
+    0,
+    MAX_ELEMENTS,
+  );
   for (const el of elements) {
     if (!isVisible(el)) continue;
     const style = win.getComputedStyle(el);
@@ -107,7 +115,7 @@ export function captureDesign(doc: Document, win: Window): DesignCapture {
     if (shadow && shadow !== "none") bump(counts.shadows, shadow);
     for (const value of sides(style, "padding-", "").concat(
       style.getPropertyValue("row-gap"),
-      style.getPropertyValue("column-gap")
+      style.getPropertyValue("column-gap"),
     )) {
       if (/^[1-9][\d.]*px$/.test(value)) bump(counts.spacing, value);
     }
@@ -122,14 +130,21 @@ export function captureDesign(doc: Document, win: Window): DesignCapture {
     }
     return styles;
   };
-  const find = (selector: string, accept?: (el: Element) => boolean) =>
-    Array.from(doc.querySelectorAll(selector)).find(
-      (el) => isVisible(el) && (!accept || accept(el))
-    );
+  // Selectors are tried in the order written, so "main p, p" prefers a paragraph in <main>.
+  const find = (selectors: string, accept?: (el: Element) => boolean) => {
+    for (const selector of selectors.split(",")) {
+      const match = Array.from(doc.querySelectorAll(selector.trim())).find(
+        (el) => isVisible(el) && (!accept || accept(el)),
+      );
+      if (match) return match;
+    }
+    return undefined;
+  };
   const backgroundOf = (el: Element) =>
     win.getComputedStyle(el).getPropertyValue("background-color");
   const pageBackground = backgroundOf(doc.body);
-  const buttons = 'button, [role="button"], input[type="submit"], a[class*="btn"], a[class*="button"]';
+  const buttons =
+    'button, [role="button"], input[type="submit"], a[class*="btn"], a[class*="button"]';
   const samples: Record<string, Element | undefined> = {
     body: doc.body,
     h1: find("h1"),
@@ -140,25 +155,31 @@ export function captureDesign(doc: Document, win: Window): DesignCapture {
     button: find(buttons, (el) => !isClear(backgroundOf(el))),
     "button-secondary": find(buttons, (el) => isClear(backgroundOf(el))),
     input: find(
-      'input[type="text"], input[type="email"], input[type="search"], input:not([type]), textarea, select'
+      'input[type="text"], input[type="email"], input[type="search"], input:not([type]), textarea, select',
     ),
-    card: find('article, [class*="card"], [class*="Card"], li, section > div', (el) => {
-      const style = win.getComputedStyle(el);
-      const background = backgroundOf(el);
-      const lifted =
-        style.getPropertyValue("box-shadow") !== "none" ||
-        readProperty(style, "border") !== "none" ||
-        (!isClear(background) && background !== pageBackground);
-      return lifted && readProperty(style, "border-radius") !== "0px";
-    }),
-    badge: find('[class*="badge"], [class*="Badge"], [class*="chip"], [class*="tag"], [class*="pill"]'),
+    card: find(
+      'article, [class*="card"], [class*="Card"], li, section > div',
+      (el) => {
+        const style = win.getComputedStyle(el);
+        const background = backgroundOf(el);
+        const lifted =
+          style.getPropertyValue("box-shadow") !== "none" ||
+          readProperty(style, "border") !== "none" ||
+          (!isClear(background) && background !== pageBackground);
+        return lifted && readProperty(style, "border-radius") !== "0px";
+      },
+    ),
+    badge: find(
+      '[class*="badge"], [class*="Badge"], [class*="chip"], [class*="tag"], [class*="pill"]',
+    ),
     nav: find("header, nav"),
     code: find("pre, code"),
   };
   const components: DesignCapture["components"] = {};
   for (const role of Object.keys(samples)) {
     const el = samples[role];
-    if (el) components[role as keyof DesignCapture["components"]] = describe(el);
+    if (el)
+      components[role as keyof DesignCapture["components"]] = describe(el);
   }
 
   const root = doc.documentElement;

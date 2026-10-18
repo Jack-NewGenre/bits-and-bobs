@@ -19,10 +19,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function pick<T>(value: unknown, accept: (entry: unknown) => entry is T): Record<string, T> {
+function pick<T>(
+  value: unknown,
+  accept: (entry: unknown) => entry is T,
+): Record<string, T> {
   if (!isRecord(value)) return {};
   return Object.fromEntries(
-    Object.entries(value).filter((entry): entry is [string, T] => accept(entry[1]))
+    Object.entries(value).filter((entry): entry is [string, T] =>
+      accept(entry[1]),
+    ),
   );
 }
 
@@ -44,13 +49,15 @@ function sanitiseCapture(raw: Record<string, unknown>): DesignCapture {
     url: isString(raw.url) ? raw.url : "",
     variables: pick(raw.variables, isString),
     counts: Object.fromEntries(
-      Object.keys(base.counts).map((key) => [key, pick<number>(counts[key], isCount)])
+      Object.keys(base.counts).map((key) => [
+        key,
+        pick<number>(counts[key], isCount),
+      ]),
     ) as Record<keyof DesignCapture["counts"], ValueCounts>,
     components: Object.fromEntries(
-      COMPONENT_ROLES.filter((role) => isRecord(components[role])).map((role) => [
-        role,
-        pick(components[role], isString),
-      ])
+      COMPONENT_ROLES.filter((role) => isRecord(components[role])).map(
+        (role) => [role, pick(components[role], isString)],
+      ),
     ),
   };
 }
@@ -68,26 +75,40 @@ function readJson(text: string): DesignCapture | undefined {
 
 function readHtml(text: string): DesignInput {
   const doc = new DOMParser().parseFromString(text, "text/html");
-  const sheets = Array.from(doc.querySelectorAll("style"), (style) => style.textContent ?? "");
+  const sheets = Array.from(
+    doc.querySelectorAll("style"),
+    (style) => style.textContent ?? "",
+  );
   const inline = Array.from(
     doc.querySelectorAll("[style]"),
-    (el) => `${el.tagName.toLowerCase()} { ${el.getAttribute("style")} }`
+    (el) => `${el.tagName.toLowerCase()} { ${el.getAttribute("style")} }`,
   );
   return {
     kind: "html",
-    capture: captureFromCss([...sheets, ...inline].join("\n"), doc.title.trim()),
-    linkedStylesheets: doc.querySelectorAll('link[rel~="stylesheet"]').length,
+    capture: captureFromCss(
+      [...sheets, ...inline].join("\n"),
+      doc.title.trim(),
+    ),
+    // Alternate stylesheets are left out, as the fetch route leaves them out: browsers never apply them.
+    linkedStylesheets: doc.querySelectorAll(
+      'link[rel~="stylesheet"]:not([rel~="alternate"])',
+    ).length,
   };
 }
 
 /** Works out what was pasted (a capture, an HTML page or CSS) and reads it. */
 export function readDesignInput(text: string): DesignInput {
   const trimmed = text.trim();
-  if (!trimmed) return { kind: "empty", capture: emptyCapture(), linkedStylesheets: 0 };
+  if (!trimmed)
+    return { kind: "empty", capture: emptyCapture(), linkedStylesheets: 0 };
   if (trimmed.startsWith("{")) {
     const capture = readJson(trimmed);
     if (capture) return { kind: "capture", capture, linkedStylesheets: 0 };
   }
   if (trimmed.startsWith("<")) return readHtml(trimmed);
-  return { kind: "css", capture: captureFromCss(trimmed), linkedStylesheets: 0 };
+  return {
+    kind: "css",
+    capture: captureFromCss(trimmed),
+    linkedStylesheets: 0,
+  };
 }

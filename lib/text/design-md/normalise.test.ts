@@ -50,13 +50,36 @@ describe("toDesignTokens", () => {
     expect(valueOf(tokens.typeScale, "body")).toBe("16px / 1.5 / 400");
   });
 
+  it("only works out a line height ratio when both lengths are absolute", () => {
+    const typeOf = (rule: string) =>
+      valueOf(toDesignTokens(captureFromCss(`h1 { ${rule} }`)).typeScale, "h1");
+    expect(typeOf("font-size: 2rem; line-height: 40px;")).toBe(
+      "2rem / 1.25 / 400",
+    );
+    expect(typeOf("font-size: 2em; line-height: 40px;")).toBe(
+      "2em / 40px / 400",
+    );
+    expect(
+      typeOf("font-size: clamp(2rem, 5vw, 3rem); line-height: 48px;"),
+    ).toBe("clamp(2rem, 5vw, 3rem) / 48px / 400");
+    expect(typeOf("font-size: large; line-height: 30px;")).toBe(
+      "large / 30px / 400",
+    );
+  });
+
   it("sorts spacing and radii from small to large", () => {
-    expect(tokens.spacing.map((token) => token.value)).toEqual(["8px", "16px", "24px"]);
+    expect(tokens.spacing.map((token) => token.value)).toEqual([
+      "8px",
+      "16px",
+      "24px",
+    ]);
     expect(tokens.radii.map((token) => token.value)).toEqual(["6px", "12px"]);
   });
 
   it("describes components with hex colours", () => {
-    expect(valueOf(tokens.components, "Button")).toContain("background-color: #635bff");
+    expect(valueOf(tokens.components, "Button")).toContain(
+      "background-color: #635bff",
+    );
     expect(valueOf(tokens.components, "Card")).toContain("#0000001a");
   });
 
@@ -70,7 +93,9 @@ describe("toDesignTokens", () => {
 describe("toDesignTokens without a body rule", () => {
   it("does not mistake a component's background for the page", () => {
     const tokens = toDesignTokens(
-      captureFromCss(":root { --brand: #ff0066 } button { background: var(--brand); color: #fff }")
+      captureFromCss(
+        ":root { --brand: #ff0066 } button { background: var(--brand); color: #fff }",
+      ),
     );
     expect(valueOf(tokens.colours, "background")).toBeUndefined();
     expect(valueOf(tokens.colours, "foreground")).toBeUndefined();

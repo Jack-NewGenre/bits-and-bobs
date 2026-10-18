@@ -9,7 +9,11 @@ describe("readDesignInput", () => {
   });
 
   it("reads a bookmarklet capture back", () => {
-    const capture = { ...emptyCapture(), title: "Acme", variables: { brand: "#635bff" } };
+    const capture = {
+      ...emptyCapture(),
+      title: "Acme",
+      variables: { brand: "#635bff" },
+    };
     const input = readDesignInput(JSON.stringify(capture));
     expect(input.kind).toBe("capture");
     expect(input.capture.title).toBe("Acme");
@@ -24,7 +28,7 @@ describe("readDesignInput", () => {
         variables: { a: 3 },
         counts: { colours: { "#fff": "x" } },
         components: { evil: { a: "b" }, h1: { color: 5 } },
-      })
+      }),
     );
     expect(input.kind).toBe("capture");
     expect(input.capture.variables).toEqual({});
@@ -35,8 +39,8 @@ describe("readDesignInput", () => {
   it("reads style blocks and inline styles from HTML and counts linked sheets", () => {
     const input = readDesignInput(
       `<html><head><title>Hi</title><link rel="stylesheet" href="a.css">
-      <style>h1 { color: #123456 }</style></head>
-      <body><h1 style="font-size: 30px">x</h1></body></html>`
+      <link rel="alternate stylesheet" href="contrast.css"><style>h1 { color: #123456 }</style></head>
+      <body><h1 style="font-size: 30px">x</h1></body></html>`,
     );
     expect(input.kind).toBe("html");
     expect(input.linkedStylesheets).toBe(1);

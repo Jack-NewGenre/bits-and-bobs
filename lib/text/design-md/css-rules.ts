@@ -6,6 +6,13 @@ export interface CssRule {
 /** At-rules whose block holds more rules, rather than declarations. */
 const GROUPING_AT_RULE = /^@(media|supports|layer|container|scope|document)\b/i;
 
+/**
+ * Media blocks that restyle the page for another context. Flattened in, their
+ * values would replace the default light, on-screen ones they come after.
+ */
+const OTHER_CONTEXT_MEDIA =
+  /^@media\b.*(prefers-color-scheme\s*:\s*dark|\bprint\b)/i;
+
 /** The index of the brace that closes the one at `open`, skipping strings. */
 function closingBrace(css: string, open: number): number {
   let depth = 0;
@@ -75,7 +82,9 @@ export function parseDeclarations(body: string): CssRule["declarations"] {
       .replace(/!important\s*$/i, "")
       .trim();
     if (!value) return [];
-    return [[property.startsWith("--") ? property : property.toLowerCase(), value]];
+    return [
+      [property.startsWith("--") ? property : property.toLowerCase(), value],
+    ];
   });
 }
 
@@ -99,9 +108,13 @@ export function parseCssRules(css: string): CssRule[] {
       const close = closingBrace(source, index);
       const body = source.slice(index + 1, close);
       if (GROUPING_AT_RULE.test(prelude)) {
-        rules.push(...parseCssRules(body));
+        if (!OTHER_CONTEXT_MEDIA.test(prelude))
+          rules.push(...parseCssRules(body));
       } else if (prelude && !prelude.startsWith("@")) {
-        rules.push({ selector: prelude, declarations: parseDeclarations(body) });
+        rules.push({
+          selector: prelude,
+          declarations: parseDeclarations(body),
+        });
       }
       index = close;
       preludeStart = close + 1;

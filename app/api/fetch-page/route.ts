@@ -1,5 +1,8 @@
+import { lookup as dnsLookup, type LookupAddress } from "node:dns";
 import { lookup } from "node:dns/promises";
-import { isIP } from "node:net";
+import { isIP, type LookupFunction } from "node:net";
+
+import { Agent, fetch, type Response } from "undici";
 
 import {
   inlineStylesheets,
@@ -23,6 +26,26 @@ class FetchError extends Error {
   }
 }
 
+const PRIVATE_MESSAGE = "Only public websites can be fetched.";
+
+/**
+ * Resolves for the socket itself and refuses private answers there, so a name
+ * cannot pass the check below and then resolve somewhere else for the fetch.
+ */
+const publicLookup: LookupFunction = (hostname, options, callback) => {
+  dnsLookup(hostname, { ...options, all: true }, (error, addresses: LookupAddress[]) => {
+    if (error) return callback(error, "");
+    if (addresses.length === 0 || addresses.some(({ address }) => isPrivateAddress(address))) {
+      return callback(new FetchError(PRIVATE_MESSAGE, 400), "");
+    }
+    if (options.all) return callback(null, addresses);
+    callback(null, addresses[0].address, addresses[0].family);
+  });
+};
+
+const PUBLIC_ONLY = new Agent({ connect: { lookup: publicLookup } });
+
+/** Checks up front for a clear error message; `publicLookup` is what enforces it. */
 async function assertPublic(url: URL) {
   const host = url.hostname.replace(/^\[|\]$/g, "");
   const addresses = isIP(host)
@@ -30,7 +53,7 @@ async function assertPublic(url: URL) {
     : (await lookup(host, { all: true }).catch(() => [])).map((entry) => entry.address);
   if (addresses.length === 0) throw new FetchError(`${host} could not be found.`, 400);
   if (addresses.some(isPrivateAddress)) {
-    throw new FetchError("Only public websites can be fetched.", 400);
+    throw new FetchError(PRIVATE_MESSAGE, 400);
   }
 }
 
@@ -58,9 +81,12 @@ async function fetchPublic(start: URL, limit: number): Promise<{ url: URL; text:
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     await assertPublic(url);
     const response = await fetch(url, {
+      dispatcher: PUBLIC_ONLY,
       redirect: "manual",
       signal: AbortSignal.timeout(TIMEOUT_MS),
       headers: { "user-agent": "Mozilla/5.0 (compatible; BitsAndBobs DESIGN.md Creator)" },
+    }).catch((error: unknown) => {
+      throw error instanceof Error && error.cause instanceof FetchError ? error.cause : error;
     });
     const location = response.headers.get("location");
     if (response.status >= 300 && response.status < 400 && location) {

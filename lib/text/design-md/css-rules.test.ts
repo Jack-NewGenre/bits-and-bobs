@@ -1,16 +1,26 @@
 import { describe, expect, it } from "vitest";
 
-import { parseCssRules, parseDeclarations, splitTopLevel } from "@/lib/text/design-md/css-rules";
+import {
+  parseCssRules,
+  parseDeclarations,
+  splitTopLevel,
+} from "@/lib/text/design-md/css-rules";
 
 describe("splitTopLevel", () => {
   it("ignores separators inside brackets and quotes", () => {
-    expect(splitTopLevel('a, b(c, d), "e,f"', ",")).toEqual(["a", "b(c, d)", '"e,f"']);
+    expect(splitTopLevel('a, b(c, d), "e,f"', ",")).toEqual([
+      "a",
+      "b(c, d)",
+      '"e,f"',
+    ]);
   });
 });
 
 describe("parseDeclarations", () => {
   it("keeps semicolons that sit inside a value", () => {
-    expect(parseDeclarations("color: red; background: url('a;b'); --x: 1")).toEqual([
+    expect(
+      parseDeclarations("color: red; background: url('a;b'); --x: 1"),
+    ).toEqual([
       ["color", "red"],
       ["background", "url('a;b')"],
       ["--x", "1"],
@@ -32,9 +42,25 @@ describe("parseCssRules", () => {
     ]);
   });
 
+  it("skips dark-mode and print blocks so they cannot replace the default styles", () => {
+    const rules = parseCssRules(`
+      :root { --background: #fff; }
+      @media (prefers-color-scheme: dark) { :root { --background: #111; } }
+      @media print { body { color: #000; } }
+      @media screen and (min-width: 600px) { body { padding: 16px; } }
+    `);
+    expect(rules.map((rule) => rule.selector)).toEqual([":root", "body"]);
+    expect(rules[0].declarations).toEqual([["--background", "#fff"]]);
+  });
+
   it("survives comments and unbalanced input", () => {
     const rules = parseCssRules("/* { */ a { color: blue; } b { color:");
-    expect(rules[0]).toEqual({ selector: "a", declarations: [["color", "blue"]] });
-    expect(rules.flatMap((rule) => rule.declarations)).toEqual([["color", "blue"]]);
+    expect(rules[0]).toEqual({
+      selector: "a",
+      declarations: [["color", "blue"]],
+    });
+    expect(rules.flatMap((rule) => rule.declarations)).toEqual([
+      ["color", "blue"],
+    ]);
   });
 });

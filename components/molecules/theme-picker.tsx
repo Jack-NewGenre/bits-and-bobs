@@ -42,9 +42,9 @@ export function ThemePicker({ className }: ThemePickerProps) {
               value={value}
               aria-label={`${label} theme`}
               className={cn(
-                "size-8 min-w-8 rounded-lg p-0 data-[state=on]:bg-transparent hover:bg-transparent",
+                "size-8 min-w-8 rounded-lg p-0 aria-checked:bg-transparent hover:bg-transparent",
                 "[&>span]:transition-transform hover:[&>span]:-translate-y-0.5",
-                "data-[state=on]:[&>span]:ring-2 data-[state=on]:[&>span]:ring-[var(--ring)] data-[state=on]:[&>span]:ring-offset-2 data-[state=on]:[&>span]:ring-offset-[var(--background)]",
+                "aria-checked:[&>span]:ring-2 aria-checked:[&>span]:ring-ring aria-checked:[&>span]:ring-offset-2 aria-checked:[&>span]:ring-offset-background",
               )}
             >
               {MAT_THEMES.includes(value) ? (

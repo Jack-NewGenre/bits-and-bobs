@@ -20,7 +20,9 @@ describe("renderDesignMd", () => {
   const markdown = renderDesignMd(TOKENS);
 
   it("puts the tokens in YAML front matter, quoting awkward keys", () => {
-    expect(markdown.startsWith('---\nname: "Acme"\nsource: "https://acme.test"\n')).toBe(true);
+    expect(
+      markdown.startsWith('---\nname: "Acme"\nsource: "https://acme.test"\n'),
+    ).toBe(true);
     expect(markdown).toContain('  primary: "#2563eb"');
     expect(markdown).toContain('  "--brand": "#635bff"');
     expect(markdown).not.toContain('"#000000"');
@@ -43,10 +45,21 @@ describe("renderDesignMd", () => {
   });
 
   it("lists component styles and a theme snippet", () => {
-    expect(markdown).toContain("### Button\n\n- color: #ffffff\n- padding: 8px 16px");
+    expect(markdown).toContain(
+      "### Button\n\n- color: #ffffff\n- padding: 8px 16px",
+    );
     expect(markdown).toContain("  --primary: #2563eb;");
     expect(markdown).toContain("  --brand: #635bff;");
     expect(markdown).toContain("  --radius-md: 8px;");
+  });
+
+  it("declares each custom property once, letting the role win over a same-named variable", () => {
+    const clash = renderDesignMd({
+      ...TOKENS,
+      colours: [...TOKENS.colours, { name: "--primary", value: "#ff0000" }],
+    });
+    expect(clash).toContain("  --primary: #2563eb;");
+    expect(clash).not.toContain("  --primary: #ff0000;");
   });
 
   it("still renders with nothing filled in", () => {

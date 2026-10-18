@@ -1,7 +1,7 @@
 "use client";
 
 import { TriangleAlert } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { CopyButton } from "@/components/atoms/copy-button";
 import { DownloadButton } from "@/components/atoms/download-button";
@@ -25,14 +25,25 @@ export function DesignMdTool() {
   const input = useMemo(() => readDesignInput(source), [source]);
   const markdown = renderDesignMd(useDebounced(tokens));
 
+  // Counts pastes and edits, so a slow fetch never overwrites work done while it ran.
+  const edits = useRef(0);
+  const editsAtFetch = useRef(0);
+
   // A new paste replaces the tokens; editing them afterwards is the point of the editor.
   const handleSource = (value: string) => {
+    edits.current++;
     setSource(value);
     const next = readDesignInput(value);
     if (next.kind !== "empty") setTokens(toDesignTokens(next.capture));
   };
 
+  const handleTokens = (next: DesignTokens) => {
+    edits.current++;
+    setTokens(next);
+  };
+
   const handlePage = (html: string, url: string) => {
+    if (edits.current !== editsAtFetch.current) return;
     setSource(html);
     setTokens(toDesignTokens({ ...readDesignInput(html).capture, url }));
   };
@@ -44,7 +55,7 @@ export function DesignMdTool() {
     <div className="space-y-6">
       <Card>
         <CardContent className="space-y-4">
-          <UrlForm onPage={handlePage} />
+          <UrlForm onStart={() => (editsAtFetch.current = edits.current)} onPage={handlePage} />
           {input.linkedStylesheets > 0 && (
             <p className="flex items-start gap-2 text-sm">
               <TriangleAlert className="mt-0.5 size-4 shrink-0 text-amber-500" />
@@ -60,7 +71,7 @@ export function DesignMdTool() {
         <TextPane label="Tokens">
           <Card>
             <CardContent>
-              <TokenEditor tokens={tokens} onChange={setTokens} />
+              <TokenEditor tokens={tokens} onChange={handleTokens} />
             </CardContent>
           </Card>
         </TextPane>

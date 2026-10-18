@@ -9,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { requestPage } from "@/lib/text/design-md/fetch-page";
 
 interface UrlFormProps {
+  onStart?: () => void;
   onPage: (html: string, url: string) => void;
 }
 
 /** A URL field that fetches the page and hands its HTML, styles inlined, to the tool. */
-export function UrlForm({ onPage }: UrlFormProps) {
+export function UrlForm({ onStart, onPage }: UrlFormProps) {
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -23,6 +24,7 @@ export function UrlForm({ onPage }: UrlFormProps) {
     if (!url.trim()) return;
     setBusy(true);
     setError("");
+    onStart?.();
     try {
       onPage(await requestPage(url.trim()), url.trim());
     } catch (reason) {

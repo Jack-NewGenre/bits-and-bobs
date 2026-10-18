@@ -27,6 +27,20 @@ describe("DesignMdTool", () => {
     expect(output().value).toContain("acme.test");
   });
 
+  it("keeps a paste made while a fetch was still running", async () => {
+    const user = userEvent.setup();
+    let finish: (response: Response) => void = () => {};
+    vi.stubGlobal("fetch", vi.fn(() => new Promise<Response>((resolve) => (finish = resolve))));
+    render(<DesignMdTool />);
+    await user.type(screen.getByLabelText("Website URL"), "acme.test");
+    await user.click(screen.getByRole("button", { name: "Fetch" }));
+    fireEvent.change(capture(), { target: { value: "button { background: #00aa55 }" } });
+    finish(new Response("<html><style>button { background: #ff0066 }</style></html>"));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Fetch" })).toBeEnabled());
+    expect((capture() as HTMLTextAreaElement).value).toBe("button { background: #00aa55 }");
+    await waitFor(() => expect(output().value).toContain('primary: "#00aa55"'));
+  });
+
   it("shows why a fetch failed", async () => {
     const user = userEvent.setup();
     vi.stubGlobal(

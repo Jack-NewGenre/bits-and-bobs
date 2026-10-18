@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { captureFromCss, resolveVariables } from "@/lib/text/design-md/parse-css";
+import {
+  captureFromCss,
+  resolveVariables,
+} from "@/lib/text/design-md/parse-css";
 
 const CSS = `
   :root { --brand: #635bff; --ink: #0a2540; }
@@ -12,7 +15,9 @@ const CSS = `
 
 describe("resolveVariables", () => {
   it("follows nested fallbacks and leaves unknown variables alone", () => {
-    expect(resolveVariables("var(--a, var(--b, 4px))", { b: "2px" })).toBe("2px");
+    expect(resolveVariables("var(--a, var(--b, 4px))", { b: "2px" })).toBe(
+      "2px",
+    );
     expect(resolveVariables("var(--a, var(--b, 4px))", {})).toBe("4px");
     expect(resolveVariables("var(--a)", {})).toBe("var(--a)");
   });

@@ -39,19 +39,52 @@ function privateIpv4(address: string): boolean {
 export function isPrivateAddress(address: string): boolean {
   const ip = address.toLowerCase().replace(/^\[|\]$/g, "");
   if (/^\d+\.\d+\.\d+\.\d+$/.test(ip)) return privateIpv4(ip);
-  const mapped = /^::ffff:(\d+\.\d+\.\d+\.\d+)$/.exec(ip);
-  if (mapped) return privateIpv4(mapped[1]);
-  return (
-    ip === "::" ||
-    ip === "::1" ||
-    ip.startsWith("fc") ||
-    ip.startsWith("fd") ||
-    ip.startsWith("fe8") ||
-    ip.startsWith("fe9") ||
-    ip.startsWith("fea") ||
-    ip.startsWith("feb") ||
-    ip.startsWith("ff")
-  );
+  const groups = ipv6Groups(ip);
+  if (!groups) return true;
+  const embedded = embeddedIpv4(groups);
+  if (embedded) return privateIpv4(embedded);
+  const [first] = groups;
+  // Unique local (fc00::/7), then link-local, site-local and multicast (fe80:: upwards).
+  return (first & 0xfe00) === 0xfc00 || first >= 0xfe80;
+}
+
+/** The eight 16-bit groups of an IPv6 address, or undefined if it is not one. */
+function ipv6Groups(ip: string): number[] | undefined {
+  const dotted = /^(.*:)(\d+\.\d+\.\d+\.\d+)$/.exec(ip);
+  const tail = dotted ? dotted[2].split(".").map(Number) : [];
+  if (tail.some((octet) => octet > 255)) return undefined;
+  const hex = dotted
+    ? `${dotted[1]}${((tail[0] << 8) | tail[1]).toString(16)}:${((tail[2] << 8) | tail[3]).toString(16)}`
+    : ip;
+  const halves = hex.split("::");
+  if (halves.length > 2) return undefined;
+  const parse = (part: string) => (part ? part.split(":") : []);
+  const head = parse(halves[0]);
+  const rest = halves.length === 2 ? parse(halves[1]) : [];
+  const missing = 8 - head.length - rest.length;
+  if (halves.length === 2 ? missing < 1 : missing !== 0) return undefined;
+  const parts = [...head, ...Array<string>(missing).fill("0"), ...rest];
+  if (!parts.every((part) => /^[0-9a-f]{1,4}$/.test(part))) return undefined;
+  return parts.map((part) => Number.parseInt(part, 16));
+}
+
+/**
+ * The IPv4 address an IPv6 address stands for, when it carries one: mapped
+ * (`::ffff:0:0/96`), compatible (`::/96`, which also covers `::` and `::1`),
+ * NAT64 (`64:ff9b::/96`) and 6to4 (`2002::/16`).
+ */
+function embeddedIpv4(groups: number[]): string | undefined {
+  const ipv4 = (high: number, low: number) =>
+    [high >> 8, high & 0xff, low >> 8, low & 0xff].join(".");
+  const zeroes = (from: number, to: number) => groups.slice(from, to).every((g) => g === 0);
+  if (zeroes(0, 5) && (groups[5] === 0xffff || groups[5] === 0)) {
+    return ipv4(groups[6], groups[7]);
+  }
+  if (groups[0] === 0x64 && groups[1] === 0xff9b && zeroes(2, 6)) {
+    return ipv4(groups[6], groups[7]);
+  }
+  if (groups[0] === 0x2002) return ipv4(groups[1], groups[2]);
+  return undefined;
 }
 
 function attribute(tag: string, name: string): string | undefined {

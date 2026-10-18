@@ -55,6 +55,7 @@ const cssName = (prefix: string, name: string) => {
   return `--${prefix}${clean}`;
 };
 
+/** Roles come first in the colour list, so a site variable of the same name never overrides one. */
 function themeSnippet(tokens: DesignTokens): string[] {
   const declarations = [
     ...filled(tokens.colours).map(({ name, value }) => [cssName("", name), value]),
@@ -62,7 +63,7 @@ function themeSnippet(tokens: DesignTokens): string[] {
     ...filled(tokens.radii).map(({ name, value }) => [cssName("radius-", name), value]),
     ...filled(tokens.spacing).map(({ name, value }) => [cssName("", name), value]),
     ...filled(tokens.shadows).map(({ name, value }) => [cssName("", name), value]),
-  ];
+  ].filter(([name], index, all) => all.findIndex(([other]) => other === name) === index);
   if (!declarations.length) return [];
   return [
     "## Theme snippet",

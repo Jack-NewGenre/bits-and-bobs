@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { buildBookmarklet, buildCaptureScript } from "@/lib/text/design-md/bookmarklet";
+import {
+  buildBookmarklet,
+  buildCaptureScript,
+} from "@/lib/text/design-md/bookmarklet";
 import { captureDesign } from "@/lib/text/design-md/capture";
 
 const PAGE = `
@@ -32,11 +35,24 @@ describe("captureDesign", () => {
     expect(capture.components.h2).toBeUndefined();
   });
 
+  it("prefers body text and links inside <main> over the header", () => {
+    document.body.innerHTML = `
+      <header><p style="color: #111111">Banner <a href="/" style="color: #222222">Home</a></p></header>
+      <main><p style="color: #333333">Body <a href="/docs" style="color: #444444">docs</a></p></main>
+    `;
+    const { components } = captureDesign(document, window);
+
+    expect(components.text?.color).toBe("rgb(51, 51, 51)");
+    expect(components.link?.color).toBe("rgb(68, 68, 68)");
+  });
+
   it("collects root variables but not ones scoped elsewhere", () => {
     document.body.innerHTML = PAGE;
     const { variables } = captureDesign(document, window);
 
-    expect(Object.keys(variables)).toEqual(expect.arrayContaining(["brand", "gap"]));
+    expect(Object.keys(variables)).toEqual(
+      expect.arrayContaining(["brand", "gap"]),
+    );
     expect(variables).not.toHaveProperty("skip");
   });
 
@@ -53,7 +69,9 @@ describe("bookmarklet", () => {
   it("is a javascript: link carrying the whole script", () => {
     const link = buildBookmarklet();
     expect(link.startsWith("javascript:")).toBe(true);
-    expect(decodeURIComponent(link.slice("javascript:".length))).toBe(buildCaptureScript());
+    expect(decodeURIComponent(link.slice("javascript:".length))).toBe(
+      buildCaptureScript(),
+    );
   });
 
   it("runs on its own and copies the capture to the clipboard", async () => {
@@ -67,6 +85,8 @@ describe("bookmarklet", () => {
     const copied = JSON.parse(writeText.mock.calls[0][0]);
     expect(copied.kind).toBe("design-md-capture");
     expect(copied.components.button).toBeDefined();
-    await vi.waitFor(() => expect(document.body.textContent).toContain("Design captured"));
+    await vi.waitFor(() =>
+      expect(document.body.textContent).toContain("Design captured"),
+    );
   });
 });

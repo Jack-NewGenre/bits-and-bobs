@@ -29,6 +29,13 @@ const NOISE = /^(none|normal|0px|auto|rgba\(0, 0, 0, 0\)|transparent)$/;
 
 const px = (value: string) => Number.parseFloat(value) || 0;
 
+/** A plain `px` or `rem` length in pixels, or undefined for anything relative or computed. */
+function absolutePx(value: string | undefined): number | undefined {
+  const match = /^(\d*\.?\d+)(px|rem)$/.exec(value?.trim() ?? "");
+  if (!match) return undefined;
+  return Number(match[1]) * (match[2] === "rem" ? 16 : 1);
+}
+
 /** The first few families of a font stack, which is all anyone needs to match it. */
 function shortStack(stack: string | undefined): string | undefined {
   if (!stack) return undefined;
@@ -61,9 +68,12 @@ function textStyle(styles: Record<string, string>): string | undefined {
   const size = styles["font-size"];
   if (!size) return undefined;
   const lineHeight = styles["line-height"];
-  const ratio = lineHeight?.endsWith("px")
-    ? String(Math.round((px(lineHeight) / px(size)) * 100) / 100)
-    : lineHeight || "normal";
+  const sizePx = absolutePx(size);
+  const lineHeightPx = lineHeight?.endsWith("px") ? absolutePx(lineHeight) : undefined;
+  const ratio =
+    sizePx && lineHeightPx && Number.isFinite(lineHeightPx / sizePx)
+      ? String(Math.round((lineHeightPx / sizePx) * 100) / 100)
+      : lineHeight || "normal";
   const tracking = styles["letter-spacing"];
   return [
     [size, ratio, styles["font-weight"] || "400"].join(" / "),
