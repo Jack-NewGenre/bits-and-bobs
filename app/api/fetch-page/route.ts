@@ -2,7 +2,7 @@ import { lookup as dnsLookup, type LookupAddress } from "node:dns";
 import { lookup } from "node:dns/promises";
 import { isIP, type LookupFunction } from "node:net";
 
-import { Agent, fetch, type Response } from "undici";
+import { Agent, fetch, type Response as UndiciResponse } from "undici";
 
 import {
   inlineStylesheets,
@@ -57,7 +57,7 @@ async function assertPublic(url: URL) {
   }
 }
 
-async function readCapped(response: Response, limit: number): Promise<string> {
+async function readCapped(response: UndiciResponse, limit: number): Promise<string> {
   const reader = response.body?.getReader();
   if (!reader) return "";
   const chunks: Uint8Array[] = [];
