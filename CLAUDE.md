@@ -2,7 +2,7 @@
 
 # Bits & Bobs
 
-A single Next.js app: 33 small image, colour, PDF and developer tools that run
+A single Next.js app: 35 small image, colour, PDF and developer tools that run
 entirely in the browser. No server does any work, nothing is uploaded, there are
 no accounts. Heavy jobs run in Web Workers and WebAssembly.
 
@@ -178,6 +178,7 @@ own unit test, not inside a component. Anything slow belongs in a worker under
    atoms and molecules before writing anything new.
 4. Add `app/tools/<slug>/page.tsx` using `createToolPage(slug, <Tool />)`.
 5. Update `CHANGELOG.md` (see the `changelog` skill) and the README tool list.
+6. If the tool adds a new visual pattern, record it in `DESIGN.md`.
 
 ## Software Principles
 
@@ -204,22 +205,33 @@ These are architectural, not preferences. Do not break them:
   `OffscreenCanvas`, workers, WebAssembly.
 - Model downloads (Transformers.js) are the only large network fetch, and they
   fetch a model, never send anything.
+- The one exception is `app/api/fetch-page`, which fetches a public web page and
+  its stylesheets for the DESIGN.md Creator, because CORS stops a browser doing
+  it. It receives only a URL, stores nothing, refuses private addresses, and all
+  parsing stays in the browser. Do not add another route without asking.
 
 ## Design Tokens
 
-Tokens live in `app/globals.css`: shadcn/ui CSS variables in `:root` and `.dark`,
-mapped into Tailwind through `@theme inline`.
+The site is themed as a cutting mat with paper laid on it. **`DESIGN.md` is the
+source of truth** for themes, tokens, surfaces, printed elements and component
+patterns. Read it before building UI, and update it in the same change whenever
+you add a visual element, token, surface or component style.
+
+Tokens live in `app/themes.css` (one class per mat: `:root`/`.light`, `.dark`,
+`.green`, `.blue`, plus the paper rule), mapped into Tailwind through
+`@theme inline` in `app/globals.css`.
 
 Use the Tailwind aliases in components, not raw variables:
 `bg-background`, `text-foreground`, `bg-card`, `text-primary`, `bg-secondary`,
 `bg-muted`, `text-muted-foreground`, `bg-accent`, `border-border`,
-`text-destructive`, plus the `sidebar-*` and `chart-*` families.
+`text-destructive`, `text-mat-guide`, `text-mat-ruler`, plus the `sidebar-*` and
+`chart-*` families.
 
 Radii scale from a single `--radius` (`0.625rem`): `rounded-sm`, `rounded-md`,
 `rounded-lg`, `rounded-xl`, `rounded-2xl`, `rounded-3xl`, `rounded-4xl`.
 
-Dark mode is a real site-wide theme, handled by `next-themes` and the `.dark`
-class. Never hard-code a colour that only works in one of the two.
+Themes are handled by `next-themes`. Three of the four mats are dark, and paper
+is always light. Never hard-code a colour that only works on one of them.
 
 ## Testing
 

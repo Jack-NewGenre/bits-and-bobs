@@ -5,8 +5,10 @@ All notable changes to this project. Newest first.
 ## Unreleased
 
 ### Added
+- **DESIGN.md Creator**: capture the colours, fonts, type scale, spacing, radii, shadows and component styles of any page you have open, then edit them and download a DESIGN.md that you or a coding agent can build a matching look from. Paste a URL and the site's page and stylesheets are fetched for you (the only thing sent is the address). For sites styled by JavaScript or behind a login, a bookmarklet captures the page in your own browser, or you can paste CSS or saved HTML.
 - **Mascot**: Bob, the little builder from the icon, now sits at the top of the home page. His eyes follow your pointer, and every poke gets a different reaction (a hammer swing, a bounce, a spin or a wobble) and a word or two.
 - **Command menu**: press ⌘K (Ctrl+K on Windows and Linux) anywhere, or the search button in the header, to jump straight to any tool, the home page or the changelog, roll a random tool, or switch theme. Type a few letters and press Enter.
+- **Cutting-mat themes**: the site now looks like a self-healing cutting mat, ruled with a fine grid, and cards, dialogs and menus sit on it as sheets of paper. Every mat sits in the header as a small swatch, so you can see them all before you pick one: Light, Dark, Green or Blue, or follow your system. The command menu switches them too. A ruler runs along the top and left edges of the mat, lined up with the grid, Photo Studio lays your canvas on the mat, the home page has angle guides, and image drop zones have crop marks.
 
 ### Changed
 - **Home page search**: ⌘K now opens the command menu rather than focusing the search box.

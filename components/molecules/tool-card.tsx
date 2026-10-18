@@ -37,8 +37,10 @@ export function ToolCard({ tool, variant, className }: ToolCardProps) {
   const content = (
     <Card
       className={cn(
-        "group h-full gap-0 transition-colors",
-        available ? "hover:border-primary/40 hover:bg-accent/40" : "opacity-70",
+        "group h-full gap-0",
+        available
+          ? "paper-lift hover:border-primary/40 hover:bg-accent"
+          : "opacity-70",
       )}
     >
       <CardHeader>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageUp } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { CropMarks } from "@/components/atoms/crop-marks";
 import {
   ACCEPTED_TYPES,
   MAX_FILE_BYTES,
@@ -96,7 +97,7 @@ export function ImageDropzone({
         if (!disabled) handleFiles(Array.from(event.dataTransfer.files));
       }}
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-12 text-center transition-colors outline-none",
+        "relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-6 py-12 text-center transition-colors outline-none",
         "focus-visible:ring-ring focus-visible:ring-2",
         isDragging
           ? "border-primary bg-accent/50"
@@ -104,6 +105,7 @@ export function ImageDropzone({
         disabled && "pointer-events-none opacity-60",
       )}
     >
+      <CropMarks />
       <div className="bg-muted text-foreground flex size-12 items-center justify-center rounded-full">
         <ImageUp className="size-6" />
       </div>

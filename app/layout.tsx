@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, THEMES } from "@/lib/site";
 import { AVAILABLE_TOOLS } from "@/lib/tools";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SiteChrome } from "@/components/layout/site-chrome";
 import { SiteHeader } from "@/components/layout/site-header";
+import { SiteToaster } from "@/components/layout/site-toaster";
 import { CommandMenu } from "@/components/organisms/command-menu";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 
 const FULL_SCREEN_PATHS = AVAILABLE_TOOLS.filter((tool) => tool.fullScreen).map(
@@ -78,6 +78,7 @@ export default function RootLayout({
         </a>
         <ThemeProvider
           attribute="class"
+          themes={[...THEMES]}
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
@@ -92,7 +93,7 @@ export default function RootLayout({
             </SiteChrome>
             <CommandMenu />
           </TooltipProvider>
-          <Toaster richColors position="bottom-right" />
+          <SiteToaster />
         </ThemeProvider>
       </body>
     </html>

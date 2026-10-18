@@ -76,6 +76,12 @@ describe("CommandMenu", () => {
     expect(setTheme).toHaveBeenCalledWith("dark");
   });
 
+  it("switches to a cutting-mat theme", async () => {
+    const { user, input } = await openMenu();
+    await user.type(input, "green theme{Enter}");
+    expect(setTheme).toHaveBeenCalledWith("green");
+  });
+
   it("says so when nothing matches", async () => {
     const { user, input } = await openMenu();
     await user.type(input, "qwertyzxcv");
