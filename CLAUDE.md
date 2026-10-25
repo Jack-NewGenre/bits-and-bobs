@@ -2,7 +2,7 @@
 
 # Bits & Bobs
 
-A single Next.js app: 35 small image, colour, PDF and developer tools that run
+A single Next.js app: 36 small image, colour, PDF and developer tools that run
 entirely in the browser. No server does any work, nothing is uploaded, there are
 no accounts. Heavy jobs run in Web Workers and WebAssembly.
 

@@ -5,6 +5,7 @@ All notable changes to this project. Newest first.
 ## Unreleased
 
 ### Added
+- **Case Converter**: paste text or a list of names and see it in camelCase, PascalCase, snake_case, CONSTANT_CASE, kebab-case, dot.case, Title Case, Sentence case, lower case and UPPER CASE, each ready to copy. A list stays a list: every line is converted on its own.
 - **DESIGN.md Creator**: capture the colours, fonts, type scale, spacing, radii, shadows and component styles of any page you have open, then edit them and download a DESIGN.md that you or a coding agent can build a matching look from. Paste a URL and the site's page and stylesheets are fetched for you (the only thing sent is the address). For sites styled by JavaScript or behind a login, a bookmarklet captures the page in your own browser, or you can paste CSS or saved HTML.
 - **Mascot**: Bob, the little builder from the icon, now sits at the top of the home page. His eyes follow your pointer, and every poke gets a different reaction (a hammer swing, a bounce, a spin or a wobble) and a word or two.
 - **Command menu**: press ⌘K (Ctrl+K on Windows and Linux) anywhere, or the search button in the header, to jump straight to any tool, the home page or the changelog, roll a random tool, or switch theme. Type a few letters and press Enter.
