@@ -1,6 +1,6 @@
 /** Developer and text tools. */
 
-import { Binary, Braces, Hash, KeyRound, Regex, SwatchBook } from "lucide-react";
+import { Binary, Braces, CaseSensitive, Hash, KeyRound, Regex, SwatchBook } from "lucide-react";
 
 import type { Tool } from "@/lib/types";
 
@@ -60,6 +60,17 @@ export const DEV_TOOLS: Tool[] = [
     icon: Regex,
     status: "available",
     href: "/tools/regex-tester",
+  },
+  {
+    slug: "case-converter",
+    name: "Case Converter",
+    description: "Convert text to camelCase, snake_case, kebab-case and more.",
+    blurb:
+      "Paste text or a list of names and see it in camelCase, PascalCase, snake_case, CONSTANT_CASE, kebab-case and more, ready to copy.",
+    category: "dev",
+    icon: CaseSensitive,
+    status: "available",
+    href: "/tools/case-converter",
   },
   {
     slug: "design-md",

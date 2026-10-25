@@ -6,11 +6,11 @@
 
 <p align="center">
   <strong>Free, private, everyday tools that never leave your device.</strong><br>
-  A handy little box of 35 image, colour, PDF and developer tools, all built for the browser.
+  A handy little box of 36 image, colour, PDF and developer tools, all built for the browser.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/tools-35-f59e0b" alt="35 tools">
+  <img src="https://img.shields.io/badge/tools-36-f59e0b" alt="36 tools">
   <img src="https://img.shields.io/badge/uploads-none-f59e0b" alt="No uploads">
   <img src="https://img.shields.io/badge/accounts-none-f59e0b" alt="No accounts">
   <img src="https://img.shields.io/badge/runs-in_your_browser-f59e0b" alt="Runs in your browser">
@@ -25,7 +25,7 @@
 
 # Overview
 
-Bits & Bobs is a collection of 35 small image, colour, PDF and developer tools that
+Bits & Bobs is a collection of 36 small image, colour, PDF and developer tools that
 run entirely in your browser. Files are read, worked on and written back on your
 own machine. Nothing is uploaded, nothing is stored, and there is no account to
 make.
@@ -110,13 +110,14 @@ dev, build and test scripts all run `build:worker` first.
 - **Images to PDF**: turn a set of images into a single PDF.
 - **PDF to Images**: export each page of a PDF as an image.
 
-## Dev & Text (5)
+## Dev & Text (7)
 
 - **JSON Formatter**: format, validate and minify JSON.
 - **Base64 Encode / Decode**: convert to and from Base64, URL-safe included.
 - **JWT Decoder**: inspect the header and payload of a JSON Web Token.
 - **Hash Generator**: generate SHA-1, SHA-256, SHA-384 and SHA-512 hashes.
 - **Regex Tester**: test regular expressions against sample text.
+- **Case Converter**: convert text to camelCase, snake_case, kebab-case and more.
 - **DESIGN.md Creator**: paste a URL and get a DESIGN.md of the site's design tokens for your codebase.
 
 ## Generators (5)
